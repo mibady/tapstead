@@ -1,64 +1,90 @@
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Star, Shield, Clock } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, Star, Users, Clock } from "lucide-react"
 
 export function HeroSection() {
   return (
-    <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 py-20 lg:py-32">
+    <section className="bg-gradient-to-br from-blue-50 to-teal-50 py-20">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Column - Content */}
           <div className="space-y-8">
+            {/* Trust Badges */}
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                <Shield className="w-3 h-3 mr-1" />
+                Insured & Bonded
+              </Badge>
+              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                <Star className="w-3 h-3 mr-1" />
+                4.9/5 Rating
+              </Badge>
+              <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                <Clock className="w-3 h-3 mr-1" />
+                Same-Day Service
+              </Badge>
+            </div>
+
+            {/* Main Headline */}
             <div className="space-y-4">
-              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                Professional Home Services
-                <span className="text-blue-600"> On Demand</span>
+              <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                Just Tap.
+                <br />
+                <span className="text-blue-600">Done.</span>
               </h1>
-              <p className="text-xl text-gray-600 leading-relaxed">
-                Connect with trusted local professionals for all your home service needs. From cleaning to repairs,
-                we've got you covered with vetted experts.
+              <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
+                Professional home services at your fingertips. Transparent pricing, trusted pros, instant booking. Skip
+                the hassle—just tap.
               </p>
             </div>
 
+            {/* Value Props */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+              <div className="text-center sm:text-left">
+                <div className="font-semibold text-gray-900">Upfront Pricing</div>
+                <div className="text-gray-600">No surprises, no hidden fees</div>
+              </div>
+              <div className="text-center sm:text-left">
+                <div className="font-semibold text-gray-900">Vetted Pros</div>
+                <div className="text-gray-600">Background checked & insured</div>
+              </div>
+              <div className="text-center sm:text-left">
+                <div className="font-semibold text-gray-900">60-Second Booking</div>
+                <div className="text-gray-600">Book in 60 seconds. Live in peace.</div>
+              </div>
+            </div>
+
+            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild size="lg" className="text-lg px-8 py-4">
-                <Link href="/book-now">
-                  Book a Service
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-6" asChild>
+                <Link href="/book-now">Book Service Now</Link>
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-4">
-                <Link href="/services">View Services</Link>
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6" asChild>
+                <Link href="/pricing">View Pricing</Link>
               </Button>
             </div>
 
-            <div className="flex items-center gap-8 pt-4">
-              <div className="flex items-center gap-2">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <span className="text-gray-600">4.9/5 rating</span>
+            {/* Social Proof */}
+            <div className="flex items-center space-x-6 text-sm text-gray-600">
+              <div>
+                <span className="font-semibold text-gray-900">10,000+</span> Happy Customers
               </div>
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-blue-600" />
-                <span className="text-gray-600">10,000+ customers</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-green-600" />
-                <span className="text-gray-600">Same-day service</span>
+              <div>
+                <span className="font-semibold text-gray-900">50,000+</span> Jobs Completed
               </div>
             </div>
           </div>
 
+          {/* Right Column - Hero Image */}
           <div className="relative">
             <Image
-              src="/images/hero-illustration.png"
-              alt="Professional home services"
+              src="/images/hero-homeowner.png"
+              alt="Professional homeowner booking services on Tapstead"
               width={600}
               height={500}
-              className="rounded-2xl shadow-2xl"
+              className="w-full h-auto rounded-2xl shadow-2xl"
               priority
             />
           </div>

@@ -3,22 +3,9 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  Wrench,
-  CheckCircle,
-  Shield,
-  Star,
-  Users,
-  Hammer,
-  WrenchIcon as Screwdriver,
-  ArrowRight,
-  Phone,
-  Calendar,
-  Home,
-  Settings,
-} from "lucide-react"
+import { ServiceHero } from "@/components/shared/service-hero"
+import { CheckCircle, Shield, Wrench, Hammer, ArrowRight, Star, Home, Users } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
 
 const handymanServices = [
   {
@@ -112,78 +99,21 @@ const faqs = [
   },
 ]
 
-export function HandymanService() {
+export default function HandymanService() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-orange-50 to-red-100 py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <Badge className="mb-4 bg-orange-100 text-orange-800 hover:bg-orange-200">
-                <Wrench className="w-3 h-3 mr-1" />
-                Skilled Professionals
-              </Badge>
-              <h1 className="text-5xl font-bold text-gray-900 mb-6">Professional Handyman Services</h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                From quick fixes to complex installations, our skilled handymen handle it all. Licensed professionals
-                with all the tools and expertise to get the job done right.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Button size="lg" className="bg-orange-600 hover:bg-orange-700" asChild>
-                  <Link href="/book-now?service=handyman">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Book Now - Starting at $75/hr
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="tel:555-123-4567">
-                    <Phone className="w-4 h-4 mr-2" />
-                    Call (555) 123-4567
-                  </Link>
-                </Button>
-              </div>
-
-              <div className="flex items-center space-x-6 text-sm text-gray-600">
-                <div className="flex items-center">
-                  <Shield className="w-4 h-4 mr-1 text-green-600" />
-                  Licensed & Insured
-                </div>
-                <div className="flex items-center">
-                  <Settings className="w-4 h-4 mr-1 text-green-600" />
-                  All Tools Included
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-1 text-green-600" />
-                  1-Year Warranty
-                </div>
-              </div>
-            </div>
-
-            <div className="relative">
-              <Image
-                src="/placeholder.svg?height=500&width=600"
-                alt="Professional handyman service"
-                width={600}
-                height={500}
-                className="rounded-2xl shadow-2xl"
-              />
-              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg">
-                <div className="flex items-center space-x-2">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <span className="font-semibold">4.8/5</span>
-                  <span className="text-gray-600">from 1,800+ jobs</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div className="min-h-screen">
+      <ServiceHero
+        title="Expert Handyman Services"
+        highlightWord="Handyman"
+        description="From small repairs to home improvements, our skilled handymen handle it all. Quality workmanship, reliable service, and no job too small."
+        rating={4.8}
+        reviewCount={2800}
+        price="$75/hr"
+        phoneNumber="(555) HANDY"
+        isEmergency={false}
+        imageSrc="/images/services/Professional Handyman.png"
+        imageAlt="Professional handyman working on home repair"
+      />
 
       {/* Service Categories */}
       <section className="py-20">
@@ -247,7 +177,7 @@ export function HandymanService() {
                 step: "1",
                 title: "Describe Your Job",
                 description: "Tell us what needs to be fixed, installed, or assembled",
-                icon: Screwdriver,
+                icon: Wrench,
               },
               {
                 step: "2",

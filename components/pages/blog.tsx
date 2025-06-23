@@ -1,3 +1,4 @@
+import React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -5,83 +6,39 @@ import { Input } from "@/components/ui/input"
 import { Calendar, Clock, User, Search, TrendingUp, Home, Wrench, Zap } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { blogPosts, featuredPost } from "@/lib/blog-data"
 
-const featuredPost = {
-  title: "The Complete Guide to Spring Home Maintenance",
-  excerpt:
-    "Get your home ready for spring with this comprehensive checklist covering everything from HVAC to landscaping.",
-  author: "Sarah Johnson",
-  date: "2024-03-15",
-  readTime: "8 min read",
-  category: "Maintenance",
-  image: "/placeholder.svg?height=400&width=600&text=Spring+Maintenance+Guide",
-  featured: true,
+// Only show a subset of blog posts initially for better performance
+const initialPostsToShow = 6;
+
+// Calculate category counts from blog posts
+const getCategoryCounts = () => {
+  const counts: Record<string, number> = { "All Posts": blogPosts.length + 1 } // +1 for featured post
+  
+  // Count categories from regular posts
+  blogPosts.forEach(post => {
+    if (post.category) {
+      counts[post.category] = (counts[post.category] || 0) + 1
+    }
+  })
+  
+  // Add featured post category
+  if (featuredPost.category) {
+    counts[featuredPost.category] = (counts[featuredPost.category] || 0) + 1
+  }
+  
+  return counts
 }
 
-const blogPosts = [
-  {
-    title: "How to Choose the Right Plumber for Your Home",
-    excerpt: "Essential tips for finding qualified, trustworthy plumbing professionals.",
-    author: "Mike Chen",
-    date: "2024-03-10",
-    readTime: "5 min read",
-    category: "Plumbing",
-    image: "/placeholder.svg?height=200&width=300&text=Plumbing+Tips",
-  },
-  {
-    title: "Emergency Preparedness: What Every Homeowner Should Know",
-    excerpt: "Be ready for unexpected disasters with this emergency preparedness guide.",
-    author: "Lisa Rodriguez",
-    date: "2024-03-08",
-    readTime: "7 min read",
-    category: "Emergency",
-    image: "/placeholder.svg?height=200&width=300&text=Emergency+Prep",
-  },
-  {
-    title: "5 Signs Your Electrical System Needs Professional Attention",
-    excerpt: "Don't ignore these warning signs that could indicate serious electrical issues.",
-    author: "David Park",
-    date: "2024-03-05",
-    readTime: "4 min read",
-    category: "Electrical",
-    image: "/placeholder.svg?height=200&width=300&text=Electrical+Safety",
-  },
-  {
-    title: "Maximizing Your Home's Curb Appeal on a Budget",
-    excerpt: "Simple, cost-effective ways to improve your home's exterior appearance.",
-    author: "Jennifer Adams",
-    date: "2024-03-01",
-    readTime: "6 min read",
-    category: "Landscaping",
-    image: "/placeholder.svg?height=200&width=300&text=Curb+Appeal",
-  },
-  {
-    title: "The Ultimate Guide to Gutter Maintenance",
-    excerpt: "Keep your gutters flowing freely with these maintenance tips and tricks.",
-    author: "Tom Wilson",
-    date: "2024-02-28",
-    readTime: "5 min read",
-    category: "Maintenance",
-    image: "/placeholder.svg?height=200&width=300&text=Gutter+Guide",
-  },
-  {
-    title: "Smart Home Technology: What's Worth the Investment?",
-    excerpt: "A breakdown of smart home upgrades that actually add value to your property.",
-    author: "Alex Kim",
-    date: "2024-02-25",
-    readTime: "8 min read",
-    category: "Technology",
-    image: "/placeholder.svg?height=200&width=300&text=Smart+Home",
-  },
-]
+const categoryCounts = getCategoryCounts()
 
 const categories = [
-  { name: "All Posts", count: 24, icon: Home },
-  { name: "Maintenance", count: 8, icon: Wrench },
-  { name: "Plumbing", count: 5, icon: Wrench },
-  { name: "Electrical", count: 4, icon: Zap },
-  { name: "Emergency", count: 3, icon: TrendingUp },
-  { name: "Technology", count: 4, icon: Zap },
+  { name: "All Posts", count: categoryCounts["All Posts"] || 0, icon: Home },
+  { name: "Maintenance", count: categoryCounts["Maintenance"] || 0, icon: Wrench },
+  { name: "Plumbing", count: categoryCounts["Plumbing"] || 0, icon: Wrench },
+  { name: "Electrical", count: categoryCounts["Electrical"] || 0, icon: Zap },
+  { name: "Emergency", count: categoryCounts["Emergency"] || 0, icon: TrendingUp },
+  { name: "Technology", count: categoryCounts["Technology"] || 0, icon: Zap },
 ]
 
 const popularPosts = [
@@ -91,7 +48,40 @@ const popularPosts = [
   "DIY vs Professional: When to Call the Experts",
 ]
 
+function createSlug(title: string) {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+}
+
 export function BlogPage() {
+  const [visiblePosts, setVisiblePosts] = React.useState(initialPostsToShow);
+  const [activeCategory, setActiveCategory] = React.useState("All Posts");
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  // Filter posts based on category and search query
+  const filteredPosts = blogPosts.filter(post => {
+    const matchesCategory = activeCategory === "All Posts" || post.category === activeCategory;
+    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (post.tags && post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
+    return matchesCategory && matchesSearch;
+  });
+
+  // Show featured post only if it matches the current filter
+  const showFeatured = activeCategory === "All Posts" || featuredPost.category === activeCategory;
+  const visiblePostsList = filteredPosts.slice(0, visiblePosts);
+
+  const loadMore = () => {
+    setVisiblePosts(prev => prev + 6);
+  };
+
+  // Update category counts when posts change
+  React.useEffect(() => {
+    // This will recalculate category counts if needed
+  }, [blogPosts]);
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -105,6 +95,8 @@ export function BlogPage() {
             <Input
               placeholder="Search articles..."
               className="pl-10 bg-white/10 border-white/20 text-white placeholder-white/70"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/70" />
           </div>
@@ -113,43 +105,112 @@ export function BlogPage() {
 
       <div className="container mx-auto px-4 py-16">
         <div className="grid lg:grid-cols-4 gap-8">
+          {/* Sidebar */}
+          <div className="lg:col-span-1 space-y-8">
+            {/* Categories */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Categories</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {categories.map((category) => (
+                  <button
+                    key={category.name}
+                    onClick={() => setActiveCategory(category.name)}
+                    className={`flex items-center justify-between w-full p-2 rounded-md hover:bg-gray-100 ${
+                      activeCategory === category.name ? 'bg-blue-50 text-blue-600' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <category.icon className="w-4 h-4" />
+                      <span>{category.name}</span>
+                    </div>
+                    <Badge variant="secondary">{category.count}</Badge>
+                  </button>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Popular Posts */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Popular Posts</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {popularPosts.map((post, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="bg-gray-100 rounded-md w-12 h-12 flex-shrink-0" />
+                    <div>
+                      <h4 className="font-medium text-sm line-clamp-2">{post}</h4>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                        <Calendar className="w-3 h-3" />
+                        <span>Mar 15, 2024</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Newsletter */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Newsletter</CardTitle>
+                <CardDescription>
+                  Get the latest home maintenance tips and exclusive offers straight to your inbox.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <Input placeholder="Your email address" />
+                  <Button className="w-full">Subscribe</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Featured Post */}
-            <Card className="mb-12 overflow-hidden">
-              <div className="md:flex">
-                <div className="md:w-1/2">
-                  <Image
-                    src={featuredPost.image || "/placeholder.svg"}
-                    alt={featuredPost.title}
-                    width={600}
-                    height={400}
-                    className="w-full h-64 md:h-full object-cover"
-                  />
-                </div>
-                <div className="md:w-1/2 p-6">
-                  <Badge className="mb-3">{featuredPost.category}</Badge>
-                  <h2 className="text-2xl font-bold mb-3">{featuredPost.title}</h2>
-                  <p className="text-gray-600 mb-4">{featuredPost.excerpt}</p>
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-1" />
-                      {featuredPost.author}
-                    </div>
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {new Date(featuredPost.date).toLocaleDateString()}
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="w-4 h-4 mr-1" />
-                      {featuredPost.readTime}
-                    </div>
+            {showFeatured && (
+              <Card className="mb-12 overflow-hidden">
+                <div className="md:flex">
+                  <div className="md:w-1/2">
+                    <Image
+                      src={featuredPost.image || "/placeholder.svg"}
+                      alt={featuredPost.title}
+                      width={600}
+                      height={400}
+                      className="w-full h-64 md:h-full object-cover"
+                    />
                   </div>
-                  <Button>Read Full Article</Button>
+                  <div className="md:w-1/2 p-6">
+                    <Badge className="mb-3">{featuredPost.category}</Badge>
+                    <h2 className="text-2xl font-bold mb-3">{featuredPost.title}</h2>
+                    <p className="text-gray-600 mb-4">{featuredPost.excerpt}</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                      <div className="flex items-center">
+                        <User className="w-4 h-4 mr-1" />
+                        {featuredPost.author}
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {featuredPost.date}
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {featuredPost.readTime}
+                      </div>
+                    </div>
+                    <Button asChild>
+                      <Link href={`/blog/${createSlug(featuredPost.title)}`}>
+                        Read Full Article
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </Card>
-
+              </Card>
+            )}
             {/* Blog Posts Grid */}
             <div className="grid md:grid-cols-2 gap-8">
               {blogPosts.map((post, index) => (
@@ -179,8 +240,10 @@ export function BlogPage() {
                         {post.readTime}
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" className="w-full">
-                      Read More
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={`/blog/${createSlug(post.title)}`}>
+                        Read More
+                      </Link>
                     </Button>
                   </CardContent>
                 </Card>
@@ -188,64 +251,17 @@ export function BlogPage() {
             </div>
 
             {/* Load More */}
-            <div className="text-center mt-12">
-              <Button size="lg" variant="outline">
-                Load More Articles
-              </Button>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-8">
-            {/* Categories */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Categories</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {categories.map((category, index) => (
-                  <Link
-                    key={index}
-                    href={`/blog/category/${category.name.toLowerCase().replace(" ", "-")}`}
-                    className="flex items-center justify-between p-2 rounded hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center">
-                      <category.icon className="w-4 h-4 mr-2 text-gray-500" />
-                      {category.name}
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {category.count}
-                    </Badge>
-                  </Link>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Popular Posts */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Popular Posts</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {popularPosts.map((post, index) => (
-                  <Link key={index} href="#" className="block p-2 rounded hover:bg-gray-50 transition-colors">
-                    <div className="text-sm font-medium leading-tight">{post}</div>
-                  </Link>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Newsletter Signup */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Stay Updated</CardTitle>
-                <CardDescription>Get the latest home service tips delivered to your inbox.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Input placeholder="Enter your email" />
-                <Button className="w-full">Subscribe</Button>
-              </CardContent>
-            </Card>
+            {visiblePosts < filteredPosts.length && (
+              <div className="text-center mt-12">
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  onClick={loadMore}
+                >
+                  Load More Articles
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

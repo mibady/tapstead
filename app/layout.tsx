@@ -2,11 +2,12 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { AuthProvider } from "@/lib/auth/auth-context"
+import { ClientLayoutWrapper } from "@/components/layout/client-layout-wrapper"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://tapstead.com'),
   title: "Tapstead - Home Services Made Simple | Just Tap. Done.",
   description:
     "Professional home services at your fingertips. Cleaning, handyman, junk removal, and more. Transparent pricing, trusted pros, instant booking.",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
     description: "Professional home services at your fingertips. Just tap. Done.",
     images: ["/images/tapstead-logo.png"],
   },
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -26,8 +27,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+      <body className={`${inter.className} min-h-screen flex flex-col`}>
+        <ClientLayoutWrapper>
+          {children}
+        </ClientLayoutWrapper>
       </body>
     </html>
   )

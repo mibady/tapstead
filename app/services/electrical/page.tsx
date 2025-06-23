@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
-import ElectricalService from "@/components/pages/services/electrical-service"
-import { Header } from "@/components/layout/header"
+import { ServiceDetail } from "@/components/pages/services/service-detail"
+import { MarketingLayout } from "@/components/layout/marketing-layout"
+import { getServiceBySlug } from "@/lib/services/service-data"
+import { notFound } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Professional Electrical Services | Licensed Electricians | Tapstead",
@@ -10,11 +12,16 @@ export const metadata: Metadata = {
     "electrical services, electrician, electrical repair, wiring, outlets, lighting installation, electrical emergency",
 }
 
-export default function ElectricalServicePage() {
+export default async function ElectricalServicePage() {
+  const service = await getServiceBySlug("electrical")
+  
+  if (!service) {
+    notFound()
+  }
+  
   return (
-    <>
-      <Header />
-      <ElectricalService />
-    </>
+    <MarketingLayout>
+      <ServiceDetail service={service} />
+    </MarketingLayout>
   )
 }

@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAuth } from "@/lib/auth/auth-context"
-import { Header } from "@/components/layout/header"
+// Header is now included in ClientLayoutWrapper
 import { Footer } from "@/components/layout/footer"
 import { Mail, Phone, Shield } from "lucide-react"
 
@@ -75,7 +75,6 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
       <main className="py-16">
         <div className="container mx-auto px-4 max-w-md">
           <Card>

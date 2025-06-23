@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,11 +9,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, ArrowRight, MapPin, Calendar, Clock, DollarSign } from "lucide-react"
+import { Service } from "@/lib/services/service-data"
+import { ServiceType } from "@/types/service-types"
 
 interface BookingDetailsProps {
   onNext: (data: any) => void
   onBack: () => void
-  service: any
+  service: Service & { serviceType?: ServiceType, icon?: any }
 }
 
 export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps) {
@@ -25,8 +27,9 @@ export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps)
     homeSize: "",
     urgency: "standard",
   })
-
-  const [estimatedPrice, setEstimatedPrice] = useState(service?.basePrice || 0)
+  
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [estimatedPrice, setEstimatedPrice] = useState(service?.base_price || 0)
 
   const timeSlots = [
     "8:00 AM - 10:00 AM",
@@ -54,7 +57,7 @@ export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps)
     setFormData((prev) => ({ ...prev, [field]: value }))
 
     // Update price based on selections
-    let newPrice = service?.basePrice || 0
+    let newPrice = service?.base_price || 0
 
     if (field === "homeSize" || (field !== "homeSize" && formData.homeSize)) {
       const sizeMultiplier =
@@ -71,8 +74,41 @@ export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps)
     setEstimatedPrice(Math.round(newPrice))
   }
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+    
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required"
+    }
+    
+    if (!formData.date) {
+      newErrors.date = "Date is required"
+    } else {
+      const selectedDate = new Date(formData.date)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      
+      if (selectedDate < today) {
+        newErrors.date = "Date cannot be in the past"
+      }
+    }
+    
+    if (!formData.time) {
+      newErrors.time = "Time slot is required"
+    }
+    
+    if (!formData.homeSize) {
+      newErrors.homeSize = "Home size is required"
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleContinue = () => {
-    onNext({ ...formData, estimatedPrice })
+    if (validateForm()) {
+      onNext({ ...formData, estimatedPrice })
+    }
   }
 
   const isFormValid = formData.address && formData.date && formData.time && formData.homeSize
@@ -109,12 +145,14 @@ export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps)
                     placeholder="123 Main St, City, State 12345"
                     value={formData.address}
                     onChange={(e) => handleInputChange("address", e.target.value)}
+                    className={errors.address ? "border-red-500" : ""}
                   />
+                  {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
                 </div>
                 <div>
                   <Label htmlFor="homeSize">Home Size</Label>
                   <Select value={formData.homeSize} onValueChange={(value) => handleInputChange("homeSize", value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className={errors.homeSize ? "border-red-500" : ""}>
                       <SelectValue placeholder="Select your home size" />
                     </SelectTrigger>
                     <SelectContent>
@@ -125,6 +163,7 @@ export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps)
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.homeSize && <p className="text-red-500 text-sm mt-1">{errors.homeSize}</p>}
                 </div>
               </div>
             </CardContent>
@@ -148,12 +187,14 @@ export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps)
                     value={formData.date}
                     onChange={(e) => handleInputChange("date", e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
+                    className={errors.date ? "border-red-500" : ""}
                   />
+                  {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date}</p>}
                 </div>
                 <div>
                   <Label htmlFor="time">Preferred Time</Label>
                   <Select value={formData.time} onValueChange={(value) => handleInputChange("time", value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className={errors.time ? "border-red-500" : ""}>
                       <SelectValue placeholder="Select time slot" />
                     </SelectTrigger>
                     <SelectContent>
@@ -164,6 +205,7 @@ export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps)
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.time && <p className="text-red-500 text-sm mt-1">{errors.time}</p>}
                 </div>
               </div>
 
@@ -222,7 +264,7 @@ export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps)
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Base Price</span>
-                  <span>${service?.basePrice}</span>
+                  <span>${service?.base_price}</span>
                 </div>
 
                 {formData.homeSize && (
@@ -276,7 +318,7 @@ export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps)
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
-        <Button onClick={handleContinue} disabled={!isFormValid} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={handleContinue} disabled={!isFormValid} variant="gradient">
           Continue
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>

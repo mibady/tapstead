@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAuth } from "@/lib/auth/auth-context"
-import { Header } from "@/components/layout/header"
+// Header is now included in ClientLayoutWrapper
 import { Footer } from "@/components/layout/footer"
 import { Eye, EyeOff, Mail, Lock } from "lucide-react"
 
@@ -43,7 +43,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
       <main className="py-16">
         <div className="container mx-auto px-4 max-w-md">
           <Card>

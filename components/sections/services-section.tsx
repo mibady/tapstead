@@ -138,7 +138,7 @@ export function ServicesSection() {
                   ))}
                 </ul>
 
-                <Button className="w-full bg-blue-600 hover:bg-blue-700" asChild>
+                <Button className="w-full" variant="gradient" asChild>
                   <Link href={`/book-now?service=${service.title.toLowerCase().replace(/\s+/g, "-")}`}>
                     Book Now
                     <ArrowRight className="w-4 h-4 ml-2" />

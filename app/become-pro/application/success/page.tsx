@@ -3,13 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Clock, Mail, Phone, FileText } from "lucide-react"
 import Link from "next/link"
-import { Header } from "@/components/layout/header"
+// Header is now included in ClientLayoutWrapper
 import { Footer } from "@/components/layout/footer"
 
 export default function ApplicationSuccessPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
       <main className="py-16">
         <div className="container mx-auto px-4 max-w-2xl">
           <Card className="border-green-200 bg-green-50">

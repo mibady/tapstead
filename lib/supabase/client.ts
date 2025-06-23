@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js"
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "./types"
 
 // Check if we're in a browser environment
@@ -19,7 +19,13 @@ if (!supabaseAnonKey) {
   throw new Error("Supabase Anon Key is required. Please check your environment variables.")
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
+// Client-side Supabase client (browser)
+export const createClient = () => {
+  return createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey)
+}
+
+// Default client instance for convenience
+export const supabase = createClient()
 
 // Server-side client for use in Server Components and API routes
 export const createServerClient = () => {
@@ -30,5 +36,5 @@ export const createServerClient = () => {
     throw new Error("Server-side Supabase configuration is missing")
   }
 
-  return createClient<Database>(serverUrl, serverKey)
+  return createSupabaseClient<Database>(serverUrl, serverKey)
 }

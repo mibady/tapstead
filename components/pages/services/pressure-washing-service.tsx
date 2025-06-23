@@ -98,7 +98,7 @@ export function PressureWashingService() {
 
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=500&width=600"
+                src="/images/services/Pressure Washing.png"
                 alt="Professional pressure washing service"
                 width={600}
                 height={500}

@@ -1,28 +1,119 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Calendar, MapPin, Phone, Mail, Download, Share } from "lucide-react"
+import { CheckCircle, Calendar, MapPin, Phone, Mail, Download, Share, Wrench, AlertCircle } from "lucide-react"
 import Link from "next/link"
+import { Service } from "@/lib/services/service-data"
+import { submitBooking, BookingSubmission } from "@/lib/services/booking-service"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { BookingConfirmationSkeleton } from "@/components/ui/skeleton-loaders"
 
 interface BookingConfirmationProps {
   bookingData: any
 }
 
 export function BookingConfirmation({ bookingData }: BookingConfirmationProps) {
-  const bookingId = bookingData.payment?.bookingId || "TS-123456"
+  const [bookingId, setBookingId] = useState<string>(bookingData.payment?.bookingId || `TS-${Date.now()}`)
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
+  const [user, setUser] = useState<any>(null)
   const total = bookingData.payment?.finalTotal || 0
+  const router = useRouter()
+  
+  useEffect(() => {
+    // Check if user is authenticated
+    const supabase = createClient()
+    
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser()
+      if (data?.user) {
+        setUser(data.user)
+      }
+    }
+    
+    getUser()
+  }, [])
+  
+  useEffect(() => {
+    // Submit booking to database when component mounts
+    if (!isSubmitted && !isSubmitting && user) {
+      submitBookingToDatabase()
+    }
+  }, [user])
+  
+  const submitBookingToDatabase = async () => {
+    if (!user) {
+      setError("You must be logged in to complete a booking")
+      return
+    }
+    
+    try {
+      setIsSubmitting(true)
+      setError(null)
+      
+      const bookingSubmission: BookingSubmission = {
+        service_id: bookingData.service.id,
+        customer_id: user.id,
+        booking_date: bookingData.details.date,
+        booking_time: bookingData.details.time,
+        address: bookingData.details.address,
+        special_instructions: bookingData.details.specialInstructions || "",
+        home_size: bookingData.details.homeSize,
+        urgency: bookingData.details.urgency,
+        total_amount: total,
+        status: 'confirmed'
+      }
+      
+      const { data, error } = await submitBooking(bookingSubmission)
+      
+      if (error) {
+        throw error
+      }
+      
+      if (data) {
+        setBookingId(data.id)
+        setIsSubmitted(true)
+      }
+    } catch (err) {
+      console.error("Error submitting booking:", err)
+      setError(`Failed to submit booking: ${err instanceof Error ? err.message : 'Unknown error'}`)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Success Header */}
-      <Card className="border-green-200 bg-green-50">
-        <CardContent className="p-8 text-center">
-          <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Booking Confirmed!</h1>
-          <p className="text-xl text-gray-600 mb-4">Your {bookingData.service?.title} service has been scheduled</p>
-          <Badge className="bg-green-600 text-lg px-4 py-2">Booking ID: {bookingId}</Badge>
-        </CardContent>
-      </Card>
+    <ErrorBoundary>
+      <div className="space-y-6">
+        {isSubmitting && !isSubmitted && (
+          <BookingConfirmationSkeleton />
+        )}
+      
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4 mr-2" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+      
+        {/* Success Header */}
+        {(!isSubmitting || isSubmitted) && (
+          <Card className="border-green-200 bg-green-50">
+            <CardContent className="p-8 text-center">
+              <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Booking Confirmed!</h1>
+              <p className="text-xl text-gray-600 mb-4">Your {bookingData.service?.title} service has been scheduled</p>
+              <Badge className="bg-green-600 text-lg px-4 py-2">Booking ID: {bookingId}</Badge>
+            </CardContent>
+          </Card>
+        )}
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Booking Details */}
@@ -32,7 +123,11 @@ export function BookingConfirmation({ bookingData }: BookingConfirmationProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-start space-x-3">
-              <bookingData.service.icon className="w-5 h-5 text-blue-600 mt-1" />
+              {bookingData.service?.icon ? (
+                <bookingData.service.icon className="w-5 h-5 text-blue-600 mt-1" />
+              ) : (
+                <Wrench className="w-5 h-5 text-blue-600 mt-1" />
+              )}
               <div>
                 <div className="font-medium">{bookingData.service?.title}</div>
                 <div className="text-sm text-gray-600">{bookingData.service?.description}</div>
@@ -45,7 +140,7 @@ export function BookingConfirmation({ bookingData }: BookingConfirmationProps) {
                 <div className="font-medium">
                   {bookingData.details?.date} at {bookingData.details?.time}
                 </div>
-                <div className="text-sm text-gray-600">Estimated duration: {bookingData.service?.duration}</div>
+                <div className="text-sm text-gray-600">Estimated duration: {bookingData.service?.duration || "1-2 hours"}</div>
               </div>
             </div>
 
@@ -182,6 +277,7 @@ export function BookingConfirmation({ bookingData }: BookingConfirmationProps) {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

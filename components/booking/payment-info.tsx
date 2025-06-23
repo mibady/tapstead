@@ -26,7 +26,7 @@ export function PaymentInfo({ onNext, onBack, bookingData }: PaymentInfoProps) {
   const [isProcessing, setIsProcessing] = useState(false)
 
   // Calculate final pricing
-  const basePrice = bookingData.details?.estimatedPrice || 0
+  const basePrice = bookingData.details?.estimatedPrice || bookingData.service?.base_price || 0
   const discountPercent = bookingData.customer?.appliedDiscount || 0
   const discountAmount = Math.round(basePrice * (discountPercent / 100))
   const subtotal = basePrice - discountAmount

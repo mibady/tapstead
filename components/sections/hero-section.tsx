@@ -58,7 +58,7 @@ export function HeroSection() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-6" asChild>
+              <Button size="lg" variant="gradient" className="text-lg px-8 py-6" asChild>
                 <Link href="/book-now">Book Service Now</Link>
               </Button>
               <Button size="lg" variant="outline" className="text-lg px-8 py-6" asChild>

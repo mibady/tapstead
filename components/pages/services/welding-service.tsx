@@ -142,42 +142,54 @@ export default function WeldingService() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-12 md:py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="p-4 bg-gray-100 rounded-full">
-                <Zap className="h-12 w-12 text-gray-700" />
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            {/* Left side - Image */}
+            <div className="relative h-96 lg:h-[500px] rounded-lg overflow-hidden shadow-xl">
+              <img
+                src="/images/services/Welding Services.png"
+                alt="Professional Welding Services"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent lg:hidden"></div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Professional <span className="text-gray-700">Welding Services</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Expert welding, metal fabrication, and repair services by certified welders. Custom metalwork and
-              professional installations with guaranteed quality.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-gray-700 hover:bg-gray-800" asChild>
-                <Link href="/book-now?service=welding">Book Welding Service</Link>
-              </Button>
-              <Button size="lg" variant="outline" className="border-gray-700 text-gray-700 hover:bg-gray-50">
-                <Phone className="mr-2 h-5 w-5" />
-                Free Project Quote
-              </Button>
-            </div>
-            <div className="flex justify-center items-center gap-6 mt-8 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-green-600" />
-                <span>AWS Certified Welders</span>
+            
+            {/* Right side - Content */}
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-gray-100 rounded-full">
+                <Zap className="h-5 w-5 text-gray-700" />
+                <span className="font-medium">Certified Welding Services</span>
               </div>
-              <div className="flex items-center gap-2">
-                <HardHat className="h-5 w-5 text-blue-600" />
-                <span>OSHA Safety Compliant</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+                Expert <span className="text-gray-700">Welding</span> & Metal Fabrication
+              </h1>
+              <p className="text-lg text-gray-600 mb-8 max-w-xl lg:max-w-none mx-auto lg:mx-0">
+                Expert welding, metal fabrication, and repair services by certified welders. Custom metalwork and
+                professional installations with guaranteed quality and precision craftsmanship.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Button size="lg" className="bg-gray-800 hover:bg-gray-900" asChild>
+                  <Link href="/book-now?service=welding">Book Welding Service</Link>
+                </Button>
+                <Button size="lg" variant="outline" className="border-gray-700 text-gray-700 hover:bg-gray-50">
+                  <Phone className="mr-2 h-5 w-5" />
+                  Free Project Quote
+                </Button>
               </div>
-              <div className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-yellow-600" />
-                <span>5-Year Warranty</span>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8 text-sm text-gray-600">
+                <div className="flex items-center justify-center lg:justify-start gap-2">
+                  <Shield className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <span>AWS Certified Welders</span>
+                </div>
+                <div className="flex items-center justify-center lg:justify-start gap-2">
+                  <HardHat className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                  <span>OSHA Compliant</span>
+                </div>
+                <div className="flex items-center justify-center lg:justify-start gap-2">
+                  <Award className="h-5 w-5 text-yellow-600 flex-shrink-0" />
+                  <span>5-Year Warranty</span>
+                </div>
               </div>
             </div>
           </div>

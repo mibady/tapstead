@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,11 +10,15 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, ArrowRight, Upload, MapPin, DollarSign, Clock } from "lucide-react"
-import type { Service } from "@/types/service-types"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ArrowLeft, ArrowRight, Upload, MapPin, DollarSign, Clock, Wrench, AlertCircle } from "lucide-react"
+import { Service } from "@/lib/services/service-data"
+import { ServiceType } from "@/types/service-types"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { QuoteRequestFormSkeleton } from "@/components/ui/skeleton-loaders"
 
 interface QuoteRequestFormProps {
-  service: Service
+  service: Service & { serviceType?: ServiceType, icon?: any }
   onNext: (data: any) => void
   onBack: () => void
 }
@@ -30,6 +34,8 @@ export function QuoteRequestForm({ service, onNext, onBack }: QuoteRequestFormPr
     photos: [] as File[],
     contactPreference: "email",
   })
+  const [isLoading, setIsLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   const urgencyOptions = [
     { value: "standard", label: "Standard (3-5 days)", multiplier: 1.0 },
@@ -57,21 +63,65 @@ export function QuoteRequestForm({ service, onNext, onBack }: QuoteRequestFormPr
   }
 
   const handleSubmit = () => {
-    onNext({
-      ...formData,
-      serviceType: "quote-required",
-      service: service,
-    })
+    try {
+      setIsLoading(true)
+      setErrorMsg(null)
+      
+      // Validate form data
+      if (!formData.projectDetails) {
+        throw new Error("Please provide project details")
+      }
+      
+      if (!formData.address) {
+        throw new Error("Please provide a project address")
+      }
+      
+      if (!formData.preferredDate) {
+        throw new Error("Please select a preferred date")
+      }
+      
+      // Process form submission
+      onNext({
+        ...formData,
+        serviceType: "quote-required",
+        service: service,
+      })
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "An unexpected error occurred")
+      console.error("Error in quote request form:", err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const isFormValid = formData.projectDetails && formData.address && formData.preferredDate
 
+  // Show skeleton loader during loading state
+  if (isLoading) {
+    return (
+      <ErrorBoundary>
+        <QuoteRequestFormSkeleton />
+      </ErrorBoundary>
+    )
+  }
+
   return (
-    <div className="space-y-6">
+    <ErrorBoundary>
+      <div className="space-y-6">
+        {errorMsg && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4 mr-2" />
+            <AlertDescription>{errorMsg}</AlertDescription>
+          </Alert>
+        )}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <service.icon className="w-5 h-5 mr-2 text-blue-600" />
+            {service.icon ? (
+              <service.icon className="w-5 h-5 mr-2 text-blue-600" />
+            ) : (
+              <Wrench className="w-5 h-5 mr-2 text-blue-600" />
+            )}
             {service.title} - Request Quote
           </CardTitle>
           <CardDescription>Tell us about your project so we can provide an accurate quote</CardDescription>
@@ -310,7 +360,7 @@ export function QuoteRequestForm({ service, onNext, onBack }: QuoteRequestFormPr
               <div className="bg-blue-50 p-3 rounded-lg">
                 <div className="text-sm font-medium text-blue-800 mb-1">Estimated Range</div>
                 <div className="text-lg font-semibold text-blue-600">
-                  ${service.priceRange?.min} - ${service.priceRange?.max}
+                  ${Math.round(service.base_price * 0.8)} - ${Math.round(service.base_price * 1.5)}
                 </div>
                 <div className="text-xs text-blue-600">Based on similar projects</div>
               </div>
@@ -330,6 +380,7 @@ export function QuoteRequestForm({ service, onNext, onBack }: QuoteRequestFormPr
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </div>
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

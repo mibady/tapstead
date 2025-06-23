@@ -237,7 +237,7 @@ export function CustomerInfo({ onNext, onBack }: CustomerInfoProps) {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
-        <Button onClick={handleContinue} disabled={!isFormValid} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={handleContinue} disabled={!isFormValid} variant="gradient">
           Continue to Payment
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>

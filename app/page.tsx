@@ -6,13 +6,12 @@ import { TrustSection } from "@/components/sections/trust-section"
 import { PricingSection } from "@/components/sections/pricing-section"
 import { TestimonialsSection } from "@/components/sections/testimonials-section"
 import { CTASection } from "@/components/sections/cta-section"
-import { Header } from "@/components/layout/header"
+// Header is now included in ClientLayoutWrapper
 import { Footer } from "@/components/layout/footer"
 
 export default function HomePage() {
   return (
     <div className="min-h-screen">
-      <Header />
       <main>
         <HeroSection />
         <ServicesSection />

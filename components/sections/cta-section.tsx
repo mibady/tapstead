@@ -24,7 +24,7 @@ export function CTASection() {
               asChild
               size="lg"
               variant="outline"
-              className="text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-blue-600"
+              className="text-lg px-8 py-4 border-2 border-white text-white bg-blue-700 hover:bg-white hover:text-blue-600"
             >
               <Link href="/become-pro">Become a Pro</Link>
             </Button>

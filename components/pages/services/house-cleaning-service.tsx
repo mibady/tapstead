@@ -104,7 +104,7 @@ const faqs = [
   },
 ]
 
-export function HouseCleaningService() {
+export default function HouseCleaningService() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -155,7 +155,7 @@ export function HouseCleaningService() {
 
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=500&width=600"
+                src="/images/services/House Cleaning.png"
                 alt="Professional house cleaning service"
                 width={600}
                 height={500}

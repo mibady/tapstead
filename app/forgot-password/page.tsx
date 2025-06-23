@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Header } from "@/components/layout/header"
+// Header is now included in ClientLayoutWrapper
 import { Footer } from "@/components/layout/footer"
 import { Mail, ArrowLeft, CheckCircle } from "lucide-react"
 import { supabase } from "@/lib/supabase/client"
@@ -43,7 +43,6 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
       <main className="py-16">
         <div className="container mx-auto px-4 max-w-md">
           <Card>

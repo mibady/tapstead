@@ -16,13 +16,12 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <Image 
-              src="/images/tapstead-logo.png" 
-              alt="Tapstead" 
-              width={140} 
-              height={48} 
-              className="h-auto w-auto" 
-              style={{ height: '48px' }}
+            <Image
+              src="/images/tapstead-logo.png"
+              alt="Tapstead Logo"
+              width={150}
+              height={50}
+              className="h-24 w-auto"
               priority
             />
           </Link>
@@ -53,7 +52,7 @@ export function Header() {
               <Link href="/book-now">Book Now</Link>
             </Button>
             <Button variant="ghost" asChild className="text-foreground/80 hover:bg-accent hover:text-foreground">
-              <Link href="/login">Sign In</Link>
+              <Link href="/auth">Sign In</Link>
             </Button>
           </div>
 
@@ -121,7 +120,7 @@ export function Header() {
                   </Link>
                 </Button>
                 <Link
-                  href="/login"
+                  href="/auth"
                   className="text-foreground/80 hover:text-foreground font-medium text-center block py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >

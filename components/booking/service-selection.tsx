@@ -5,7 +5,7 @@ import { ServiceSelectionClient } from "./service-selection-client"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Service } from "@/lib/services/service-data"
-import { supabase } from "@/lib/supabase/client"
+import { getServices } from "@/lib/services/booking-service"
 
 interface ServiceSelectionProps {
   onNext: (data: any) => void
@@ -15,14 +15,10 @@ export function ServiceSelection({ onNext }: ServiceSelectionProps) {
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
   
-  useEffect(() => {
+    useEffect(() => {
     async function fetchServices() {
       try {
-        const { data, error } = await supabase
-          .from("services")
-          .select("*")
-          .eq("active", true)
-          .order("title")
+        const { data, error } = await getServices()
         
         if (error) {
           console.error("Error fetching services:", error)

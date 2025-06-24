@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useAuth } from "@/lib/auth/auth-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +17,7 @@ interface CustomerInfoProps {
 }
 
 export function CustomerInfo({ onNext, onBack }: CustomerInfoProps) {
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -28,6 +30,21 @@ export function CustomerInfo({ onNext, onBack }: CustomerInfoProps) {
   })
 
   const [discount, setDiscount] = useState(0)
+
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        firstName: user.first_name || "",
+        lastName: user.last_name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        customerType: user.customer_type || "",
+        militaryStatus: user.military_status || false,
+        isNewCustomer: false, // Logged-in users are not considered new for discounts
+      }))
+    }
+  }, [user])
 
   const customerTypes = [
     { value: "homeowner", label: "Homeowner" },
@@ -90,6 +107,7 @@ export function CustomerInfo({ onNext, onBack }: CustomerInfoProps) {
                     value={formData.firstName}
                     onChange={(e) => handleInputChange("firstName", e.target.value)}
                     placeholder="John"
+                    disabled={!!user}
                   />
                 </div>
                 <div>
@@ -99,6 +117,7 @@ export function CustomerInfo({ onNext, onBack }: CustomerInfoProps) {
                     value={formData.lastName}
                     onChange={(e) => handleInputChange("lastName", e.target.value)}
                     placeholder="Smith"
+                    disabled={!!user}
                   />
                 </div>
               </div>
@@ -111,6 +130,7 @@ export function CustomerInfo({ onNext, onBack }: CustomerInfoProps) {
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="john@example.com"
+                  disabled={!!user}
                 />
               </div>
 
@@ -122,6 +142,7 @@ export function CustomerInfo({ onNext, onBack }: CustomerInfoProps) {
                   value={formData.phone}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
                   placeholder="(555) 123-4567"
+                  disabled={!!user}
                 />
               </div>
             </CardContent>
@@ -138,6 +159,7 @@ export function CustomerInfo({ onNext, onBack }: CustomerInfoProps) {
                 <Select
                   value={formData.customerType}
                   onValueChange={(value) => handleInputChange("customerType", value)}
+                  disabled={!!user}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select customer type" />
@@ -158,6 +180,7 @@ export function CustomerInfo({ onNext, onBack }: CustomerInfoProps) {
                     id="military"
                     checked={formData.militaryStatus}
                     onCheckedChange={(checked) => handleInputChange("militaryStatus", checked as boolean)}
+                    disabled={!!user}
                   />
                   <Label htmlFor="military" className="flex items-center">
                     <Shield className="w-4 h-4 mr-1 text-blue-600" />I am military/veteran (10% discount)

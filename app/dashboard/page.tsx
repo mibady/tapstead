@@ -7,9 +7,9 @@ import { DashboardOverview } from "@/components/dashboard/dashboard-overview"
 import { RecentBookings } from "@/components/dashboard/recent-bookings"
 import { QuickActions } from "@/components/dashboard/quick-actions"
 import { SubscriptionCard } from "@/components/dashboard/subscription-card"
-import { createClient } from "@/lib/supabase/client"
-import { AuthGuard } from "@/lib/auth/auth-guard"
-import { getCustomerBookings, getCustomerQuoteRequests } from "@/lib/services/booking-service"
+import { supabase } from "@/lib/supabase/client"
+
+import { getCustomerBookings, getCustomerQuoteRequests, getCustomerSubscription } from "@/lib/services/booking-service"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -19,11 +19,9 @@ import { DashboardSkeleton } from "@/components/ui/skeleton-loaders"
 
 export default function DashboardPage() {
   return (
-    <AuthGuard>
-      <ErrorBoundary>
-        <CustomerDashboard />
-      </ErrorBoundary>
-    </AuthGuard>
+    <ErrorBoundary>
+      <CustomerDashboard />
+    </ErrorBoundary>
   )
 }
 
@@ -43,7 +41,7 @@ function CustomerDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
-      const supabase = createClient()
+      
 
       // Fetch real bookings from our booking service
       const { data: bookingsData, error: bookingsError } = await getCustomerBookings(user?.id || '')
@@ -56,32 +54,11 @@ function CustomerDashboard() {
       if (quoteError) throw quoteError
 
       // Fetch active subscription
-      const { data: subscriptionData, error: subError } = await supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("customer_id", user?.id)
-        .eq("status", "active")
-        .maybeSingle()
+      const { data: subscriptionData, error: subError } = await getCustomerSubscription(user?.id || '')
 
-      if (subError && subError.code !== "PGRST116") throw subError
+      if (subError) throw subError
 
-      // Fetch or create user profile if needed
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user?.id)
-        .maybeSingle()
 
-      if (profileError && profileError.code === "PGRST116") {
-        // Create profile if it doesn't exist
-        await supabase.from("profiles").insert({
-          id: user?.id,
-          email: user?.email!,
-          first_name: user?.user_metadata?.first_name || "",
-          last_name: user?.user_metadata?.last_name || "",
-          role: "user"
-        })
-      }
 
       setBookings(bookingsData || [])
       setQuoteRequests(quoteData || [])
@@ -106,7 +83,7 @@ function CustomerDashboard() {
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.user_metadata?.first_name || "there"}!
+            Welcome back, {user?.first_name || "there"}!
           </h1>
           <p className="text-gray-600">Here's what's happening with your home services</p>
         </div>

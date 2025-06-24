@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { Database } from '@/lib/supabase/types'
 
 export type BookingStatus = 'pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled'
@@ -33,7 +33,7 @@ export interface QuoteRequestSubmission {
  * Submit a new booking to the database
  */
 export async function submitBooking(bookingData: BookingSubmission) {
-  const supabase = createClient()
+  
   
   try {
     const { data, error } = await supabase
@@ -54,7 +54,7 @@ export async function submitBooking(bookingData: BookingSubmission) {
  * Submit a new quote request to the database
  */
 export async function submitQuoteRequest(quoteData: QuoteRequestSubmission) {
-  const supabase = createClient()
+  
   
   try {
     const { data, error } = await supabase
@@ -75,7 +75,7 @@ export async function submitQuoteRequest(quoteData: QuoteRequestSubmission) {
  * Get all bookings for a customer
  */
 export async function getCustomerBookings(customerId: string) {
-  const supabase = createClient()
+  
   
   try {
     const { data, error } = await supabase
@@ -99,7 +99,7 @@ export async function getCustomerBookings(customerId: string) {
  * Get all quote requests for a customer
  */
 export async function getCustomerQuoteRequests(customerId: string) {
-  const supabase = createClient()
+  
   
   try {
     const { data, error } = await supabase
@@ -122,8 +122,57 @@ export async function getCustomerQuoteRequests(customerId: string) {
 /**
  * Get a specific booking by ID
  */
+/**
+ * Get all active services
+ */
+export async function getServices() {
+  
+  
+  try {
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .eq('active', true)
+      .order('title')
+    
+    if (error) throw error
+    return { data, error: null }
+  } catch (error) {
+    console.error('Error fetching services:', error)
+    return { data: null, error }
+  }
+}
+
+/**
+ * Get a specific booking by ID
+ */
+/**
+ * Get active subscription for a customer
+ */
+export async function getCustomerSubscription(customerId: string) {
+  
+  
+  try {
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('customer_id', customerId)
+      .eq('status', 'active')
+      .maybeSingle()
+    
+    if (error && error.code !== 'PGRST116') throw error
+    return { data, error: null }
+  } catch (error) {
+    console.error('Error fetching customer subscription:', error)
+    return { data: null, error }
+  }
+}
+
+/**
+ * Get a specific booking by ID
+ */
 export async function getBookingById(bookingId: string) {
-  const supabase = createClient()
+  
   
   try {
     const { data, error } = await supabase

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, ArrowRight, MapPin, Calendar, Clock, DollarSign } from "lucide-react"
+import { ArrowLeft, ArrowRight, MapPin, Calendar, Clock, DollarSign, Wrench } from "lucide-react"
 import { Service } from "@/lib/services/service-data"
 import { ServiceType } from "@/types/service-types"
 
@@ -19,6 +19,7 @@ interface BookingDetailsProps {
 }
 
 export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps) {
+  const ServiceIcon = service.icon || Wrench
   const [formData, setFormData] = useState({
     address: "",
     date: "",
@@ -118,7 +119,7 @@ export function BookingDetails({ onNext, onBack, service }: BookingDetailsProps)
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <service.icon className="w-5 h-5 mr-2 text-blue-600" />
+            <ServiceIcon className="w-5 h-5 mr-2 text-blue-600" />
             {service.title} - Booking Details
           </CardTitle>
           <CardDescription>Tell us when and where you need the service</CardDescription>

@@ -14,6 +14,7 @@ import { Slider } from "@/components/ui/slider"
 import { ArrowLeft, ArrowRight, Clock, DollarSign, Home, Info, PawPrint, Users, Repeat, Sparkles, Calendar, Wind, Construction } from "lucide-react"
 import { Service } from "@/lib/services/service-data"
 import { ServiceType } from "@/types/service-types"
+import { calculatePrice } from "@/lib/pricing/house-cleaning-pricing"
 
 interface HouseCleaningFormProps {
   onNext: (data: any) => void
@@ -77,96 +78,10 @@ export function HouseCleaningForm({ onNext, onBack, service }: HouseCleaningForm
   const [estimatedPrice, setEstimatedPrice] = useState(0)
   const [estimatedDuration, setEstimatedDuration] = useState(0)
 
-  // --- PRICING & DURATION CONSTANTS ---
-  const BASE_HOURLY_RATE = 60
-  const POST_CONSTRUCTION_RATE = 75
-
-  const homeSizeDurations = {
-    "1": 3, "2": 4, "3": 6, "4": 8, "5": 9, "6": 10
-  }
-
-  const addOnTimes = {
-    insideFridge: 1,
-    insideOven: 1,
-    outsideCabinets: 1,
-    topsOfCabinets: 0.5,
-    windowInteriors: 0.5,
-    blinds: 0.5,
-    finishedBasement: 1.5,
-    petHeavy: 0.75,
-    postConstruction: 1.5
-  }
-
-  const pricingModifiers = {
-    weekday: 0.9, // Tue-Thu: -10%
-    weekend: 1.15, // Sat-Sun: +15%
-    sameDay: 1.3,  // +30%
-    senior: 0.9,
-    military: 0.9,
-    monthly: 0.9,
-    biweekly: 0.8,
-    weekly: 0.7
-  }
-
-  // --- PRICE CALCULATION ENGINE ---
-  const calculatePrice = () => {
-    // 1. Determine base hours from home size
-    const bedroomCount = parseInt(formData.bedrooms) || 0
-    let hours = homeSizeDurations[bedroomCount as keyof typeof homeSizeDurations] || 2; // Default to 2 hours if no selection
-
-    // 2. Add time for add-ons and conditions
-    if (formData.addOns.insideFridge) hours += addOnTimes.insideFridge;
-    if (formData.addOns.insideOven) hours += addOnTimes.insideOven;
-    if (formData.addOns.outsideCabinets) hours += addOnTimes.outsideCabinets;
-    if (formData.addOns.topsOfCabinets) hours += addOnTimes.topsOfCabinets;
-    if (formData.addOns.windowInteriors) hours += addOnTimes.windowInteriors;
-    if (formData.addOns.blinds) hours += addOnTimes.blinds;
-    if (formData.finishedBasement) hours += addOnTimes.finishedBasement;
-    if (formData.pets.dog || formData.pets.cat || formData.pets.other) hours += addOnTimes.petHeavy;
-    if (formData.recentConstruction) hours += addOnTimes.postConstruction;
-    hours += formData.bonusRooms * 0.5; // 30 min per bonus room
-
-    // Adjust for home cleanliness rating (1=pristine, 10=very dirty)
-    hours *= 1 + (formData.currentCleanliness - 5) * 0.05; // +/- 25% adjustment
-
-    // 3. Determine the hourly rate
-    const hourlyRate = formData.cleaningType === 'post-construction' ? POST_CONSTRUCTION_RATE : BASE_HOURLY_RATE;
-
-    // 4. Calculate base price
-    let finalPrice = hours * hourlyRate;
-    
-    // 5. Apply dynamic modifiers
-    const bookingDate = formData.date ? new Date(formData.date) : null;
-    if (bookingDate) {
-        const dayOfWeek = bookingDate.getDay();
-        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-        const isWeekday = dayOfWeek >= 2 && dayOfWeek <= 4;
-        
-        if (formData.urgent) finalPrice *= pricingModifiers.sameDay;
-        else if (isWeekend) finalPrice *= pricingModifiers.weekend;
-        else if (isWeekday) finalPrice *= pricingModifiers.weekday;
-    }
-
-    if (formData.senior) finalPrice *= pricingModifiers.senior;
-    if (formData.military) finalPrice *= pricingModifiers.military;
-    
-    // Apply subscription discount LAST
-    if (formData.subscriptionTier === "monthly") finalPrice *= pricingModifiers.monthly;
-    else if (formData.subscriptionTier === "biweekly") finalPrice *= pricingModifiers.biweekly;
-    else if (formData.subscriptionTier === "weekly") finalPrice *= pricingModifiers.weekly;
-    
-    // Ensure a minimum price
-    const minimumPrice = 4 * BASE_HOURLY_RATE;
-    if (finalPrice < minimumPrice) finalPrice = minimumPrice;
-
-    setEstimatedDuration(Math.round(hours * 2) / 2); // Round to nearest half hour
-    setEstimatedPrice(Math.round(finalPrice));
-    
-    return { hours, finalPrice: Math.round(finalPrice) };
-  };
-
   useEffect(() => {
-    calculatePrice();
+    const { estimatedPrice, estimatedDuration } = calculatePrice(formData);
+    setEstimatedPrice(estimatedPrice);
+    setEstimatedDuration(estimatedDuration);
   }, [formData]);
   
   // --- HANDLERS & VALIDATION ---
@@ -193,10 +108,10 @@ export function HouseCleaningForm({ onNext, onBack, service }: HouseCleaningForm
 
   const handleSubmit = () => {
     if (validateForm()) {
-      const pricing = calculatePrice();
+      const { estimatedPrice, estimatedDuration } = calculatePrice(formData);
       onNext({
         ...formData,
-        estimatedPrice: pricing.finalPrice,
+        estimatedPrice: estimatedPrice,
         estimatedDuration: estimatedDuration,
         serviceType: "bookable"
       });

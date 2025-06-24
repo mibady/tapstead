@@ -10,7 +10,7 @@ import { Service } from "@/lib/services/service-data"
 import { submitBooking, BookingSubmission } from "@/lib/services/booking-service"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from '@/lib/supabase/client'
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { BookingConfirmationSkeleton } from "@/components/ui/skeleton-loaders"
 
@@ -29,7 +29,7 @@ export function BookingConfirmation({ bookingData }: BookingConfirmationProps) {
   
   useEffect(() => {
     // Check if user is authenticated
-    const supabase = createClient()
+    
     
     const getUser = async () => {
       const { data } = await supabase.auth.getUser()

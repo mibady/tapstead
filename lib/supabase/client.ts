@@ -20,7 +20,7 @@ if (!supabaseAnonKey) {
 }
 
 // Client-side Supabase client (browser)
-export const createClient = () => {
+const createClient = () => {
   return createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey)
 }
 

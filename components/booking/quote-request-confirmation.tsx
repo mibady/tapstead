@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CheckCircle, Calendar, Clock, MapPin, Phone, Mail, ClipboardCheck, AlertCircle, Wrench, Bell } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from '@/lib/supabase/client'
 import { submitQuoteRequest, QuoteRequestSubmission } from "@/lib/services/booking-service"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { QuoteRequestConfirmationSkeleton } from "@/components/ui/skeleton-loaders"
@@ -26,7 +26,7 @@ export function QuoteRequestConfirmation({ bookingData }: QuoteRequestConfirmati
   const router = useRouter()
 
   useEffect(() => {
-    const supabase = createClient()
+    
     const getUser = async () => {
       const { data } = await supabase.auth.getUser()
       if (data?.user) {

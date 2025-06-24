@@ -1,44 +1,68 @@
-import { sendWelcomeEmail } from "@/lib/services/resend-service"
+"use server"
 
-// This is a placeholder for user actions.  Replace with actual implementation.
-// For example, you might have functions for:
-// - Creating a user
-// - Updating a user
-// - Deleting a user
-// - Fetching user data
+import { createServerClient } from "@/lib/supabase/client"
+import { revalidatePath } from "next/cache"
 
-export async function createUser(userData: any) {
-  // Simulate user creation (replace with actual database interaction)
-  console.log("Creating user:", userData)
+export async function updateUserProfile(formData: FormData) {
+  const supabase = createServerClient()
 
-  // Simulate successful user creation
-  const newUser = {
-    id: Math.random().toString(36).substring(7), // Generate a random ID
-    ...userData,
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error("Authentication required")
   }
 
-  // Send welcome email
-  if (userData.email && userData.name) {
-    await sendWelcomeEmail(userData.email, userData.name)
+  const userData = {
+    full_name: formData.get("full_name") as string,
+    phone: formData.get("phone") as string,
+    address: formData.get("address") as string,
+    city: formData.get("city") as string,
+    state: formData.get("state") as string,
+    zip_code: formData.get("zip_code") as string,
   }
 
-  return newUser
+  const { error } = await supabase.from("users").update(userData).eq("id", user.id)
+
+  if (error) {
+    console.error("Error updating user profile:", error)
+    throw new Error("Failed to update user profile")
+  }
+
+  revalidatePath("/dashboard")
+  return { success: true, message: "Profile updated successfully" }
 }
 
-export async function updateUser(id: string, userData: any) {
-  // Simulate user update (replace with actual database interaction)
-  console.log("Updating user with ID:", id, "with data:", userData)
-  return { id, ...userData } // Return updated user data
+export async function getUserProfile() {
+  const supabase = createServerClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return null
+  }
+
+  const { data: profile, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", user.id)
+    .single()
+
+  if (error) {
+    console.error("Error fetching user profile:", error)
+    return null
+  }
+
+  return profile
 }
 
-export async function deleteUser(id: string) {
-  // Simulate user deletion (replace with actual database interaction)
-  console.log("Deleting user with ID:", id)
-  return { success: true } // Return success status
-}
-
-export async function getUser(id: string) {
-  // Simulate fetching user data (replace with actual database interaction)
-  console.log("Fetching user with ID:", id)
-  return { id, name: "Test User", email: "test@example.com" } // Return sample user data
+export async function deleteUserAccount() {
+  // This is a sensitive operation and should be handled with care.
+  // It should probably involve a confirmation step and a call to a Supabase edge function
+  // that has the necessary privileges to delete a user from auth.users.
+  console.warn("User account deletion is not fully implemented.")
+  return { success: false, message: "Feature not implemented" }
 }

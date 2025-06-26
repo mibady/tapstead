@@ -25,3 +25,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude assistant
+.claude/
+
+# npm (since we're using pnpm)
+package-lock.json

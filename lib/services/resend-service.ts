@@ -5,7 +5,7 @@ import { ContactNotificationEmail } from "@/emails/contact-notification-email"
 import { QuoteRequestEmail } from "@/emails/quote-request-email"
 import { ProviderApplicationEmail } from "@/emails/provider-application-email"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY || "re_placeholder")
 
 export async function sendWelcomeEmail(email: string, name: string) {
   try {

@@ -181,26 +181,32 @@ export function handleDatabaseError(error: unknown): AppError {
 export function handleApiError(error: unknown) {
   // If it's already an AppError, use it directly
   if (error instanceof AppError) {
-    return Response.json(
-      {
+    return new Response(
+      JSON.stringify({
         error: error.message,
         code: error.code,
         details: error.details
-      },
-      { status: error.statusCode }
+      }),
+      { 
+        status: error.statusCode,
+        headers: { 'Content-Type': 'application/json' }
+      }
     );
   }
   
   // Convert unknown errors to AppError
   const appError = convertToAppError(error);
   
-  return Response.json(
-    {
+  return new Response(
+    JSON.stringify({
       error: appError.message,
       code: appError.code,
       details: appError.details
-    },
-    { status: appError.statusCode }
+    }),
+    { 
+      status: appError.statusCode,
+      headers: { 'Content-Type': 'application/json' }
+    }
   );
 }
 

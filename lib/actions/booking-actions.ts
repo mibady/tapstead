@@ -209,7 +209,7 @@ export async function updateBookingStatus(bookingId: string, status: string) {
       .single()
 
     const isOwner = booking.user_id === user.id
-    const isAssignedProvider = booking.providers?.user_id === user.id
+    const isAssignedProvider = (booking.providers as any)?.user_id === user.id
     const isAdmin = userProfile?.customer_type === "admin"
 
     if (!isOwner && !isAssignedProvider && !isAdmin) {

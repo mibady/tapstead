@@ -1,7 +1,7 @@
 "use server"
 
 import { createServerClient } from "@/lib/supabase/client"
-import { sendContactFormNotification, sendQuoteRequestNotification } from "@/lib/services/resend-service"
+import { sendContactNotification, sendQuoteRequest } from "@/lib/services/resend-service"
 import { ContactFormSchema, QuoteRequestSchema, sanitizeInput } from "@/lib/validations/contact-validations"
 import { z } from "zod"
 
@@ -32,7 +32,7 @@ export async function submitContactForm(formData: FormData) {
     if (error) throw error
 
     // Send notification email using Resend
-    await sendContactFormNotification(contactData)
+    await sendContactNotification(contactData)
 
     return { 
       success: true, 
@@ -86,7 +86,7 @@ export async function requestQuote(formData: FormData) {
     if (error) throw error
 
     // Send notification email using Resend
-    await sendQuoteRequestNotification(quoteData)
+    await sendQuoteRequest(quoteData.email, quoteData)
 
     return { 
       success: true, 

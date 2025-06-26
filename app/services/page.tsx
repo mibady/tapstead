@@ -7,10 +7,10 @@ export const metadata = {
     "Browse all our professional home services including cleaning, handyman, plumbing, electrical, and emergency services. Transparent pricing, trusted pros.",
 }
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
   return (
     <MarketingLayout>
-      <ServicesOverview />
+      {await ServicesOverview()}
     </MarketingLayout>
   )
 }

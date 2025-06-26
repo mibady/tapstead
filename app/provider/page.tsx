@@ -8,8 +8,8 @@ import { supabase } from "@/lib/supabase/client"
 
 export default function ProviderDashboardPage() {
   const { user } = useAuth()
-  const [provider, setProvider] = useState(null)
-  const [jobs, setJobs] = useState([])
+  const [provider, setProvider] = useState<any>(null)
+  const [jobs, setJobs] = useState<any[]>([])
   const [earnings, setEarnings] = useState(0)
   const [loading, setLoading] = useState(true)
 

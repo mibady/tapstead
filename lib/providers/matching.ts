@@ -1,11 +1,10 @@
 import { z } from 'zod';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { PROVIDER_MATCHING_CONFIG } from '../config/constants';
-import { AppError, createValidationError, ErrorCode, HttpStatus } from '../utils/error-handler';
 import { Database } from '../supabase/types';
 
 /**
- * Error types for provider matching
+ * Error types for provider matching.
  */
 export enum ProviderMatchingErrorType {
   INVALID_INPUT = 'INVALID_INPUT',
@@ -14,7 +13,7 @@ export enum ProviderMatchingErrorType {
 }
 
 /**
- * Custom error class for provider matching errors
+ * Custom error class for provider matching errors.
  */
 export class ProviderMatchingError extends Error {
   type: ProviderMatchingErrorType;
@@ -29,17 +28,17 @@ export class ProviderMatchingError extends Error {
 }
 
 /**
- * Skill level enum
+ * Skill level enum.
  */
 export enum SkillLevel {
   BEGINNER = 1,
   INTERMEDIATE = 2,
   ADVANCED = 3,
-  EXPERT = 4
+  EXPERT = 4,
 }
 
 /**
- * Provider availability time slot
+ * Provider availability time slot.
  */
 export interface AvailabilitySlot {
   date: Date;
@@ -48,7 +47,7 @@ export interface AvailabilitySlot {
 }
 
 /**
- * Provider service capability
+ * Provider service capability.
  */
 export interface ServiceCapability {
   serviceId: string;
@@ -56,7 +55,7 @@ export interface ServiceCapability {
 }
 
 /**
- * Provider entity
+ * Provider entity.
  */
 export interface Provider {
   id: string;
@@ -73,7 +72,7 @@ export interface Provider {
 }
 
 /**
- * Customer booking request
+ * Customer booking request.
  */
 export interface BookingRequest {
   serviceId: string;
@@ -91,7 +90,7 @@ export interface BookingRequest {
 }
 
 /**
- * Provider match result
+ * Provider match result.
  */
 export interface ProviderMatch {
   provider: Provider;
@@ -106,7 +105,7 @@ export interface ProviderMatch {
 }
 
 /**
- * Provider matching options
+ * Provider matching options.
  */
 export interface MatchingOptions {
   minRating?: number; // Minimum provider rating (1-5)
@@ -147,14 +146,9 @@ const matchingOptionsSchema = z.object({
 });
 
 /**
- * Calculate distance between two coordinates in miles using the Haversine formula
+ * Calculate distance between two coordinates in miles using the Haversine formula.
  */
-function calculateDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number {
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 3958.8; // Earth's radius in miles
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -169,34 +163,7 @@ function calculateDistance(
 }
 
 /**
- * Check if a provider is available during the requested time slot
- */
-function isProviderAvailable(
-  provider: Provider,
-  requestDate: Date,
-  requestStart: string,
-  requestEnd: string
-): boolean {
-  // Convert time strings to minutes for easier comparison
-  const requestStartMinutes = timeToMinutes(requestStart);
-  const requestEndMinutes = timeToMinutes(requestEnd);
-  
-  // Check if provider has availability on the requested date
-  const availableSlots = provider.availability.filter(slot => 
-    isSameDay(slot.date, requestDate)
-  );
-  
-  // Check if any of the available slots cover the requested time
-  return availableSlots.some(slot => {
-    const slotStartMinutes = timeToMinutes(slot.startTime);
-    const slotEndMinutes = timeToMinutes(slot.endTime);
-    
-    return slotStartMinutes <= requestStartMinutes && slotEndMinutes >= requestEndMinutes;
-  });
-}
-
-/**
- * Convert time string (HH:MM) to minutes
+ * Convert time string (HH:MM) to minutes.
  */
 function timeToMinutes(time: string): number {
   const [hours, minutes] = time.split(':').map(Number);
@@ -204,7 +171,7 @@ function timeToMinutes(time: string): number {
 }
 
 /**
- * Check if two dates are the same day
+ * Check if two dates are the same day.
  */
 function isSameDay(date1: Date, date2: Date): boolean {
   return (
@@ -213,6 +180,164 @@ function isSameDay(date1: Date, date2: Date): boolean {
     date1.getDate() === date2.getDate()
   );
 }
+
+/**
+ * Check if a provider is available during the requested time slot.
+ */
+function isProviderAvailable(
+  provider: Provider,
+  requestDate: Date,
+  requestStart: string,
+  requestEnd: string
+): boolean {
+  const requestStartMinutes = timeToMinutes(requestStart);
+  const requestEndMinutes = timeToMinutes(requestEnd);
+
+  const availableSlots = provider.availability.filter((slot) =>
+    isSameDay(new Date(slot.date), requestDate)
+  );
+
+  return availableSlots.some((slot) => {
+    const slotStartMinutes = timeToMinutes(slot.startTime);
+    const slotEndMinutes = timeToMinutes(slot.endTime);
+    return slotStartMinutes <= requestStartMinutes && slotEndMinutes >= requestEndMinutes;
+  });
+}
+
+/**
+ * Finds and ranks providers based on a booking request and matching options.
+ *
+ * @param {SupabaseClient<Database>} supabase - The Supabase client.
+ * @param {BookingRequest} bookingRequest - The customer's booking request.
+ * @param {MatchingOptions} [options] - Optional matching configurations.
+ * @returns {Promise<ProviderMatch[]>} A promise that resolves to an array of ranked provider matches.
+ */
+export async function findAndRankProviders(
+  supabase: SupabaseClient<Database>,
+  bookingRequest: BookingRequest,
+  options?: MatchingOptions
+): Promise<ProviderMatch[]> {
+  // 1. Validate booking request
+  const requestValidation = bookingRequestSchema.safeParse(bookingRequest);
+  if (!requestValidation.success) {
+    throw new ProviderMatchingError('Invalid booking request.', ProviderMatchingErrorType.INVALID_INPUT, {
+      errors: requestValidation.error.format(),
+    });
+  }
+
+  // 2. Validate options
+  if (options) {
+    const optionsValidation = matchingOptionsSchema.safeParse(options);
+    if (!optionsValidation.success) {
+      throw new ProviderMatchingError('Invalid matching options.', ProviderMatchingErrorType.INVALID_INPUT, {
+        errors: optionsValidation.error.format(),
+      });
+    }
+  }
+
+  // 3. Call Supabase RPC to find providers in radius
+  const rpcParams = {
+    lat: bookingRequest.location.latitude,
+    long: bookingRequest.location.longitude,
+    distancemeters: options?.maxDistance
+      ? options.maxDistance * 1609.34
+      : PROVIDER_MATCHING_CONFIG.DEFAULT_RADIUS_METERS,
+  };
+
+  const { data: providersData, error } = await supabase.rpc('find_providers_in_radius', rpcParams);
+
+  // 4. Handle RPC error
+  if (error) {
+    throw new ProviderMatchingError(`Database error: ${error.message}`, ProviderMatchingErrorType.MATCHING_ERROR);
+  }
+
+  // 5. Handle no providers found from RPC
+  if (!providersData || providersData.length === 0) {
+    throw new ProviderMatchingError('No providers found in the given radius.', ProviderMatchingErrorType.NO_PROVIDERS_AVAILABLE);
+  }
+
+  const providers: Provider[] = providersData;
+
+  // 6. Filter providers
+  const filteredProviders = providers.filter((provider) => {
+    if (!isProviderAvailable(provider, bookingRequest.date, bookingRequest.timeSlot.startTime, bookingRequest.timeSlot.endTime)) {
+      return false;
+    }
+
+    const capability = provider.capabilities.find((c) => c.serviceId === bookingRequest.serviceId);
+    if (!capability) {
+      return false;
+    }
+    if (options?.requiredSkillLevel && capability.skillLevel < options.requiredSkillLevel) {
+      return false;
+    }
+
+    if (options?.minRating && provider.rating < options.minRating) {
+      return false;
+    }
+
+    if (options?.minCompletedJobs && provider.completedJobs < options.minCompletedJobs) {
+      return false;
+    }
+
+    if (bookingRequest.excludedProviders?.includes(provider.id)) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // 7. If all providers are filtered out, return empty array
+  if (filteredProviders.length === 0) {
+    return [];
+  }
+
+  // 8. Score and rank remaining providers
+  const rankedProviders = filteredProviders
+    .map((provider) => {
+      const distance = calculateDistance(
+        bookingRequest.location.latitude,
+        bookingRequest.location.longitude,
+        provider.location.latitude,
+        provider.location.longitude
+      );
+
+      const capability = provider.capabilities.find((c) => c.serviceId === bookingRequest.serviceId)!;
+
+      // Scoring logic
+      const scores = {
+        distance: 1 - distance / (options?.maxDistance ?? PROVIDER_MATCHING_CONFIG.DEFAULT_MAX_DISTANCE),
+        rating: provider.rating / 5,
+        experience: Math.min(provider.completedJobs / 100, 1),
+        skillLevel: capability.skillLevel / SkillLevel.EXPERT,
+      };
+
+      // Weights for scoring
+      const weights = {
+        distance: 0.4,
+        rating: options?.prioritizeRating ? 0.5 : 0.3,
+        experience: options?.prioritizeExperience ? 0.2 : 0.1,
+        skillLevel: 0.2,
+      };
+
+      const matchScore =
+        scores.distance * weights.distance +
+        scores.rating * weights.rating +
+        scores.experience * weights.experience +
+        scores.skillLevel * weights.skillLevel;
+
+      return {
+        provider,
+        distance,
+        matchScore,
+        scores,
+      };
+    })
+    .sort((a, b) => b.matchScore - a.matchScore);
+
+  return rankedProviders;
+}
+
 
 /**
  * Calculate match score for a provider based on various factors
@@ -376,50 +501,6 @@ interface ProviderWithDistance {
   distance_meters: number;
   latitude: number;
   longitude: number;
-}
-
-export async function findAndRankProviders(
-  supabase: SupabaseClient<Database>,
-  request: BookingRequest,
-  options: MatchingOptions = {}
-): Promise<ProviderMatch[]> {
-  const validationResult = bookingRequestSchema.safeParse(request);
-  if (!validationResult.success) {
-    throw new ProviderMatchingError('Invalid booking request', ProviderMatchingErrorType.INVALID_INPUT, { errors: validationResult.error.format() });
-  }
-
-  // Call the RPC and cast the result, as the function is not in the auto-generated types.
-  const { data, error } = await supabase.rpc('find_providers_in_radius', {
-    lat: request.location.latitude,
-    long: request.location.longitude,
-    radius_meters: (options.maxDistance ?? PROVIDER_MATCHING_CONFIG.DEFAULT_MAX_DISTANCE) * 1609.34,
-  });
-
-  if (error) {
-    throw new ProviderMatchingError(`Database error: ${error.message}`, ProviderMatchingErrorType.MATCHING_ERROR);
-  }
-
-  const providersData = data as ProviderWithDistance[];
-
-  if (!providersData || providersData.length === 0) {
-    return [];
-  }
-
-  const adaptedProviders: Provider[] = providersData.map((p: ProviderWithDistance) => ({
-    id: p.id,
-    name: p.business_name ?? 'Unnamed Provider',
-    rating: p.rating ?? 0,
-    completedJobs: p.total_jobs ?? 0,
-    capabilities: [], // In a real app, this would be joined from another table
-    availability: [], // In a real app, this would be joined from another table
-    maxTravelDistance: options.maxDistance ?? PROVIDER_MATCHING_CONFIG.DEFAULT_MAX_DISTANCE,
-    location: {
-      latitude: p.latitude,
-      longitude: p.longitude,
-    },
-  }));
-
-  return findMatchingProviders(adaptedProviders, request, options);
 }
 
 export function findMatchingProviders(

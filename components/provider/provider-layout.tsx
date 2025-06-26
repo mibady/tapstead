@@ -128,10 +128,10 @@ export function ProviderLayout({ children }: ProviderLayoutProps) {
                 <Bell className="h-4 w-4" />
               </Button>
               <Avatar>
-                <AvatarImage src={user?.user_metadata?.avatar_url || "/placeholder.svg"} />
+                <AvatarImage src={(user as any)?.user_metadata?.avatar_url || "/placeholder.svg"} />
                 <AvatarFallback>
-                  {user?.user_metadata?.first_name?.[0]}
-                  {user?.user_metadata?.last_name?.[0]}
+                  {(user as any)?.user_metadata?.first_name?.[0]}
+                  {(user as any)?.user_metadata?.last_name?.[0]}
                 </AvatarFallback>
               </Avatar>
             </div>

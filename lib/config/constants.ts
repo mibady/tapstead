@@ -1,7 +1,36 @@
 /**
- * Application-wide constants
- * This file centralizes configuration values that were previously hardcoded
+ * @file Application-wide constants
+ * @description This file centralizes configuration values that were previously hardcoded
+ * or spread across multiple files.
  */
+
+/**
+ * Provider matching configuration
+ */
+export const PROVIDER_MATCHING_CONFIG = {
+  DEFAULT_RADIUS_METERS: 50 * 1609.34, // 50 miles in meters
+  DEFAULT_MAX_DISTANCE: 50,
+  DEFAULT_MIN_RATING: 3,
+  DEFAULT_MIN_COMPLETED_JOBS: 10,
+  SCORE_WEIGHTS: {
+    DISTANCE: 0.4,
+    RATING: 0.3,
+    EXPERIENCE: 0.1,
+    AVAILABILITY: 0.2,
+  },
+  PRIORITIZED_RATING_WEIGHTS: {
+    DISTANCE: 0.3,
+    RATING: 0.5,
+    EXPERIENCE: 0.1,
+    AVAILABILITY: 0.1,
+  },
+  PRIORITIZED_EXPERIENCE_WEIGHTS: {
+    DISTANCE: 0.3,
+    RATING: 0.2,
+    EXPERIENCE: 0.4,
+    AVAILABILITY: 0.1,
+  },
+};
 
 /**
  * Authentication configuration
@@ -53,33 +82,6 @@ export const PRICING_CONFIG = {
     RECURRING_BOOKING: 0.1, // 10% discount
     FIRST_TIME_CUSTOMER: 0.15, // 15% discount
     REFERRAL: 0.2, // 20% discount
-  },
-};
-
-/**
- * Provider matching configuration
- */
-export const PROVIDER_MATCHING_CONFIG = {
-  DEFAULT_MAX_DISTANCE: 30, // miles
-  DEFAULT_MIN_RATING: 4.0,
-  DEFAULT_MIN_COMPLETED_JOBS: 5,
-  SCORE_WEIGHTS: {
-    DISTANCE: 30,
-    RATING: 30,
-    EXPERIENCE: 20,
-    AVAILABILITY: 20,
-  },
-  PRIORITIZED_RATING_WEIGHTS: {
-    DISTANCE: 20,
-    RATING: 40,
-    EXPERIENCE: 20,
-    AVAILABILITY: 20,
-  },
-  PRIORITIZED_EXPERIENCE_WEIGHTS: {
-    DISTANCE: 20,
-    RATING: 20,
-    EXPERIENCE: 40,
-    AVAILABILITY: 20,
   },
 };
 

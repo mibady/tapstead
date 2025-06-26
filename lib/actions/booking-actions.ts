@@ -1,7 +1,8 @@
 "use server"
 
-import { createServerClient, SupabaseClient } from "@/lib/supabase/client"
+import { createServerClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { cookies } from "next/headers"
 import { sendBookingConfirmation } from "@/lib/services/resend-service"
 import { z } from "zod"
 
@@ -18,7 +19,7 @@ const BookingSchema = z.object({
 })
 
 async function findBestProvider(
-  supabase: SupabaseClient,
+  supabase: any,
   service_id: string,
   scheduled_date: string,
   scheduled_time: string,
@@ -35,7 +36,7 @@ async function findBestProvider(
     return null
   }
 
-  const providerIds = candidateProviders.map(p => p.id)
+  const providerIds = candidateProviders.map((p: any) => p.id)
 
   const { data: performanceData } = await supabase
     .from("provider_performance")
@@ -43,7 +44,7 @@ async function findBestProvider(
     .in("provider_id", providerIds)
 
   const performanceMap = new Map(
-    performanceData?.map(p => [p.provider_id, { rating: p.rating, completed_jobs: p.completed_jobs }])
+    performanceData?.map((p: any) => [p.provider_id, { rating: p.rating, completed_jobs: p.completed_jobs }])
   )
 
   const { data: existingBookings } = await supabase
@@ -54,7 +55,7 @@ async function findBestProvider(
     .in("status", ["scheduled", "in_progress"])
 
   const dailyBookings = new Map<string, { time: string; duration: number }[]>()
-  existingBookings?.forEach(b => {
+  existingBookings?.forEach((b: any) => {
     if (!dailyBookings.has(b.provider_id)) {
       dailyBookings.set(b.provider_id, [])
     }
@@ -64,7 +65,7 @@ async function findBestProvider(
   const bookingStartTime = new Date(`${scheduled_date}T${scheduled_time}`)
   const bookingEndTime = new Date(bookingStartTime.getTime() + duration_hours * 60 * 60 * 1000)
 
-  const availableProviders = candidateProviders.filter(provider => {
+  const availableProviders = candidateProviders.filter((provider: any) => {
     const providerBookings = dailyBookings.get(provider.id)
     if (!providerBookings) return true
 
@@ -80,13 +81,13 @@ async function findBestProvider(
     return null
   }
 
-  const scoredProviders = availableProviders.map(provider => {
+  const scoredProviders = availableProviders.map((provider: any) => {
     const perf = performanceMap.get(provider.id) || { rating: 2.5, completed_jobs: 0 }
-    const score = (perf.rating || 2.5) + (perf.completed_jobs || 0) * 0.01
+    const score = ((perf as any)?.rating || 2.5) + ((perf as any)?.completed_jobs || 0) * 0.01
     return { provider_id: provider.id, score }
   })
 
-  scoredProviders.sort((a, b) => b.score - a.score)
+  scoredProviders.sort((a: any, b: any) => b.score - a.score)
 
   return scoredProviders[0].provider_id
 }
@@ -178,7 +179,48 @@ export async function updateBookingStatus(bookingId: string, status: string) {
   const supabase = createServerClient()
 
   try {
-    const { error } = await supabase.from("bookings").update({ status }).eq("id", bookingId)
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      throw new Error("Unauthorized: User not authenticated")
+    }
+
+    // Check if user owns the booking or is an admin/provider
+    const { data: booking } = await supabase
+      .from("bookings")
+      .select(`
+        id,
+        user_id,
+        provider_id,
+        providers!inner(user_id)
+      `)
+      .eq("id", bookingId)
+      .single()
+
+    if (!booking) {
+      throw new Error("Booking not found")
+    }
+
+    // Check authorization: user owns booking, or user is the assigned provider, or user is admin
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("customer_type")
+      .eq("id", user.id)
+      .single()
+
+    const isOwner = booking.user_id === user.id
+    const isAssignedProvider = booking.providers?.user_id === user.id
+    const isAdmin = userProfile?.customer_type === "admin"
+
+    if (!isOwner && !isAssignedProvider && !isAdmin) {
+      throw new Error("Unauthorized: You don't have permission to update this booking")
+    }
+
+    // Update booking status
+    const { error } = await supabase
+      .from("bookings")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", bookingId)
 
     if (error) throw error
 
@@ -186,7 +228,8 @@ export async function updateBookingStatus(bookingId: string, status: string) {
     await supabase.from("tracking").insert({
       booking_id: bookingId,
       status,
-      notes: `Booking status updated to ${status}`,
+      notes: `Booking status updated to ${status} by ${userProfile?.customer_type || 'user'}`,
+      created_at: new Date().toISOString(),
     })
 
     revalidatePath("/dashboard")
@@ -194,7 +237,7 @@ export async function updateBookingStatus(bookingId: string, status: string) {
     return { success: true }
   } catch (error) {
     console.error("Error updating booking status:", error)
-    throw new Error("Failed to update booking status")
+    throw new Error(error instanceof Error ? error.message : "Failed to update booking status")
   }
 }
 
@@ -202,14 +245,55 @@ export async function cancelBooking(bookingId: string) {
   const supabase = createServerClient()
 
   try {
-    const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", bookingId)
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      throw new Error("Unauthorized: User not authenticated")
+    }
+
+    // Check if user owns the booking
+    const { data: booking } = await supabase
+      .from("bookings")
+      .select("id, user_id, status")
+      .eq("id", bookingId)
+      .single()
+
+    if (!booking) {
+      throw new Error("Booking not found")
+    }
+
+    // Only the booking owner can cancel
+    if (booking.user_id !== user.id) {
+      throw new Error("Unauthorized: You can only cancel your own bookings")
+    }
+
+    // Check if booking can be cancelled
+    if (booking.status === "completed" || booking.status === "cancelled") {
+      throw new Error("Cannot cancel a booking that is already completed or cancelled")
+    }
+
+    const { error } = await supabase
+      .from("bookings")
+      .update({ 
+        status: "cancelled",
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", bookingId)
 
     if (error) throw error
+
+    // Add tracking entry
+    await supabase.from("tracking").insert({
+      booking_id: bookingId,
+      status: "cancelled",
+      notes: "Booking cancelled by customer",
+      created_at: new Date().toISOString(),
+    })
 
     revalidatePath("/dashboard")
     return { success: true }
   } catch (error) {
     console.error("Error cancelling booking:", error)
-    throw new Error("Failed to cancel booking")
+    throw new Error(error instanceof Error ? error.message : "Failed to cancel booking")
   }
 }

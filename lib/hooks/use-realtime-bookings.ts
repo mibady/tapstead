@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth/auth-context"
 
 export function useRealtimeBookings() {
   const { user } = useAuth()
-  const [bookings, setBookings] = useState([])
+  const [bookings, setBookings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -46,10 +46,10 @@ export function useRealtimeBookings() {
             setBookings((prev) => [payload.new, ...prev])
           } else if (payload.eventType === "UPDATE") {
             setBookings((prev) =>
-              prev.map((booking) => (booking.id === payload.new.id ? { ...booking, ...payload.new } : booking)),
+              prev.map((booking: any) => (booking.id === payload.new.id ? { ...booking, ...payload.new } : booking)),
             )
           } else if (payload.eventType === "DELETE") {
-            setBookings((prev) => prev.filter((booking) => booking.id !== payload.old.id))
+            setBookings((prev) => prev.filter((booking: any) => booking.id !== payload.old.id))
           }
         },
       )

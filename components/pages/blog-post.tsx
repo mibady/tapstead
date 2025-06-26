@@ -5,6 +5,7 @@ import { Calendar, Clock, User, Share2, Facebook, Twitter, Linkedin, Mail } from
 import Image from "next/image"
 import Link from "next/link"
 import { BlogPost } from "@/types/blog"
+import { sanitizeHTML, isSafeText } from "@/lib/utils/html-sanitizer"
 
 interface BlogPostPageProps {
   post: BlogPost
@@ -50,7 +51,13 @@ export function BlogPostPage({ post }: BlogPostPageProps) {
           {/* Post Content */}
           <div className="prose prose-lg max-w-none mb-12">
             {post.content && (
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              isSafeText(post.content) ? (
+                // If content is safe plain text, render directly
+                <div className="whitespace-pre-wrap">{post.content}</div>
+              ) : (
+                // If content contains HTML, sanitize it first
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(post.content) }} />
+              )
             )}
           </div>
 

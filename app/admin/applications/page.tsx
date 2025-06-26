@@ -22,11 +22,11 @@ import { getProviderApplications, updateApplicationStatus } from "@/lib/actions/
 import { Search, Filter, Eye, CheckCircle, XCircle, Clock, User, Phone, Mail, Shield } from "lucide-react"
 
 export default function ApplicationsPage() {
-  const [applications, setApplications] = useState([])
+  const [applications, setApplications] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedApp, setSelectedApp] = useState(null)
+  const [selectedApp, setSelectedApp] = useState<any>(null)
   const [reviewNotes, setReviewNotes] = useState("")
   const [updating, setUpdating] = useState(false)
 
@@ -36,14 +36,14 @@ export default function ApplicationsPage() {
 
   const fetchApplications = async () => {
     setLoading(true)
-    const result = await getProviderApplications(statusFilter === "all" ? undefined : statusFilter)
+    const result = await getProviderApplications()
     if (result.success) {
-      setApplications(result.applications)
+      setApplications(result.data)
     }
     setLoading(false)
   }
 
-  const handleStatusUpdate = async (applicationId: string, status: string) => {
+  const handleStatusUpdate = async (applicationId: string, status: "APPROVED" | "REJECTED") => {
     setUpdating(true)
     const result = await updateApplicationStatus(applicationId, status, reviewNotes)
     if (result.success) {
@@ -291,7 +291,7 @@ export default function ApplicationsPage() {
                                   <div>
                                     <Label className="font-medium">References</Label>
                                     <div className="space-y-2 mt-2">
-                                      {selectedApp.provider_references?.map((ref, index) => (
+                                      {selectedApp.provider_references?.map((ref: any, index: number) => (
                                         <div key={index} className="p-3 bg-gray-50 rounded-lg">
                                           <p className="font-medium">{ref.name}</p>
                                           <p className="text-sm text-gray-600">
@@ -313,7 +313,7 @@ export default function ApplicationsPage() {
                                   <div>
                                     <Label className="font-medium">Selected Services</Label>
                                     <div className="flex flex-wrap gap-2 mt-2">
-                                      {selectedApp.selected_services?.map((service) => (
+                                      {selectedApp.selected_services?.map((service: string) => (
                                         <Badge key={service} variant="secondary">
                                           {service}
                                         </Badge>
@@ -324,14 +324,13 @@ export default function ApplicationsPage() {
                                   <div>
                                     <Label className="font-medium">Availability</Label>
                                     <div className="flex flex-wrap gap-2 mt-2">
-                                      {Object.entries(selectedApp.availability || {}).map(
-                                        ([day, available]) =>
-                                          available && (
-                                            <Badge key={day} variant="outline" className="capitalize">
-                                              {day}
-                                            </Badge>
-                                          ),
-                                      )}
+                                      {Object.entries(selectedApp.availability || {})
+                                        .filter(([day, available]: [string, any]) => available)
+                                        .map(([day]: [string, any]) => (
+                                          <Badge key={day} variant="outline" className="capitalize">
+                                            {day}
+                                          </Badge>
+                                        ))}
                                     </div>
                                   </div>
                                 </CardContent>
@@ -356,7 +355,7 @@ export default function ApplicationsPage() {
 
                                   <div className="flex space-x-4">
                                     <Button
-                                      onClick={() => handleStatusUpdate(selectedApp.id, "approved")}
+                                      onClick={() => handleStatusUpdate(selectedApp.id, "APPROVED")}
                                       disabled={updating}
                                       className="bg-green-600 hover:bg-green-700"
                                     >
@@ -364,7 +363,7 @@ export default function ApplicationsPage() {
                                       Approve
                                     </Button>
                                     <Button
-                                      onClick={() => handleStatusUpdate(selectedApp.id, "rejected")}
+                                      onClick={() => handleStatusUpdate(selectedApp.id, "REJECTED")}
                                       disabled={updating}
                                       variant="destructive"
                                     >
@@ -372,7 +371,7 @@ export default function ApplicationsPage() {
                                       Reject
                                     </Button>
                                     <Button
-                                      onClick={() => handleStatusUpdate(selectedApp.id, "under_review")}
+                                      onClick={() => console.log('Under review functionality not implemented')}
                                       disabled={updating}
                                       variant="outline"
                                     >

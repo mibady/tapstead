@@ -128,24 +128,14 @@ export async function updateApplicationStatus(id: string, status: "APPROVED" | "
       return await rejectProviderApplication(id)
     }
 
-    // For other status updates
-    await db.providerApplication.update({
-      where: { id },
-      data: {
-        status,
-        admin_notes: adminNotes,
-        updated_at: new Date().toISOString(),
-      },
-    })
-
     return {
-      success: true,
-      message: `Application ${status.toLowerCase()} successfully.`,
+      success: false,
+      message: "Invalid status provided.",
     }
   } catch (error) {
     return {
       success: false,
-      message: `Failed to ${status.toLowerCase()} application.`,
+      message: "Failed to update application.",
     }
   }
 }

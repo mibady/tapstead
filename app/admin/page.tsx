@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { AdminDashboard } from "@/components/admin/admin-dashboard"
-import { supabase } from "@/lib/supabase/client"
+import { getAdminStats, getRecentBookings } from "@/lib/actions/admin-actions"
 
 export default function AdminPage() {
   const [stats, setStats] = useState({
@@ -12,8 +12,9 @@ export default function AdminPage() {
     revenue: 0,
     customerSatisfaction: 0,
   })
-  const [recentBookings, setRecentBookings] = useState([])
+  const [recentBookings, setRecentBookings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchAdminData()
@@ -21,38 +22,27 @@ export default function AdminPage() {
 
   const fetchAdminData = async () => {
     try {
-      // Fetch booking stats
-      const { data: bookings } = await supabase.from("bookings").select("*")
+      setError(null)
+      
+      // Fetch stats with server-side authorization
+      const statsResult = await getAdminStats()
+      if (statsResult.success) {
+        setStats(statsResult.data)
+      } else {
+        setError(statsResult.message || 'Failed to fetch stats')
+        return
+      }
 
-      // Fetch provider stats
-      const { data: providers } = await supabase.from("providers").select("*").eq("active", true)
-
-      // Calculate stats
-      const totalRevenue =
-        bookings?.reduce((sum, booking) => sum + (booking.final_price || booking.estimated_price), 0) || 0
-
-      setStats({
-        totalBookings: bookings?.length || 0,
-        activeProviders: providers?.length || 0,
-        revenue: totalRevenue,
-        customerSatisfaction: 4.8, // Mock data
-      })
-
-      // Get recent bookings
-      const { data: recent } = await supabase
-        .from("bookings")
-        .select(`
-          *,
-          services (title),
-          users (first_name, last_name),
-          providers (business_name)
-        `)
-        .order("created_at", { ascending: false })
-        .limit(10)
-
-      setRecentBookings(recent || [])
+      // Fetch recent bookings with server-side authorization
+      const bookingsResult = await getRecentBookings()
+      if (bookingsResult.success) {
+        setRecentBookings(bookingsResult.data)
+      } else {
+        setError(bookingsResult.message || 'Failed to fetch bookings')
+      }
     } catch (error) {
       console.error("Error fetching admin data:", error)
+      setError("Failed to load admin data. Please check your permissions.")
     } finally {
       setLoading(false)
     }
@@ -63,6 +53,19 @@ export default function AdminPage() {
       <AdminLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  if (error) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-600 text-center">
+            <h2 className="text-lg font-semibold mb-2">Access Denied</h2>
+            <p>{error}</p>
+          </div>
         </div>
       </AdminLayout>
     )

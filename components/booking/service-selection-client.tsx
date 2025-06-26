@@ -59,9 +59,9 @@ export function ServiceSelectionClient({ onNext, services }: ServiceSelectionPro
 
   // Determine service type based on price and category
   const getServiceType = (service: Service): "bookable" | "quote-required" | "emergency" => {
-    if (service.category.toLowerCase().includes('emergency')) {
+    if (service.category?.toLowerCase().includes('emergency')) {
       return "emergency"
-    } else if (service.base_price > 200) {
+    } else if (service.base_price && service.base_price > 200) {
       return "quote-required"
     } else {
       return "bookable"
@@ -108,7 +108,7 @@ export function ServiceSelectionClient({ onNext, services }: ServiceSelectionPro
   }
 
   const getPriceDisplay = (service: Service) => {
-    return `Starting at $${service.base_price.toFixed(2)}`
+    return `Starting at $${(service.base_price || 0).toFixed(2)}`
   }
 
   const getServiceIcon = (category: string) => {
@@ -120,7 +120,7 @@ export function ServiceSelectionClient({ onNext, services }: ServiceSelectionPro
 
   // Extract features from category field (comma-separated values)
   const getServiceFeatures = (service: Service): string[] => {
-    return service.category
+    return (service.category || '')
       .split(',')
       .map(item => item.trim())
       .filter(item => item.length > 0)
@@ -128,7 +128,7 @@ export function ServiceSelectionClient({ onNext, services }: ServiceSelectionPro
 
   // Check if service is popular
   const isPopular = (service: Service): boolean => {
-    return service.category.toLowerCase().includes('popular')
+    return service.category?.toLowerCase().includes('popular') || false
   }
 
   return (
@@ -153,7 +153,7 @@ export function ServiceSelectionClient({ onNext, services }: ServiceSelectionPro
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
           {services.map((service) => {
-            const ServiceIcon = getServiceIcon(service.category)
+            const ServiceIcon = getServiceIcon(service.category || '')
             const serviceType = getServiceType(service)
             const features = getServiceFeatures(service)
             

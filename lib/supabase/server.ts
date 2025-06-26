@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr"
+import { createServerClient as _createServerClient, type CookieOptions } from "@supabase/ssr"
 
 // This file is used in the App Router (app directory)
 // It should only be imported in Server Components or API routes
@@ -8,7 +8,7 @@ export function createClient() {
   const { cookies } = require("next/headers")
   const cookieStore = cookies()
 
-  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+  return _createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
     cookies: {
       get(name: string) {
         return cookieStore.get(name)?.value
@@ -34,3 +34,6 @@ export function createClient() {
     },
   })
 }
+
+// Alias for backward compatibility
+export const createServerClient = createClient

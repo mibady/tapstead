@@ -4,14 +4,9 @@ import { MarketingLayout } from "@/components/layout/marketing-layout"
 import { getServiceBySlug } from "@/lib/services/service-data"
 import { notFound } from "next/navigation"
 
-interface ServicePageProps {
-  params: {
-    slug: string
-  }
-}
-
-export async function generateMetadata({ params }: ServicePageProps): Promise<Metadata> {
-  const service = await getServiceBySlug(params.slug)
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const service = await getServiceBySlug(slug)
   
   if (!service) {
     return {
@@ -29,8 +24,9 @@ export async function generateMetadata({ params }: ServicePageProps): Promise<Me
   }
 }
 
-export default async function ServicePage({ params }: ServicePageProps) {
-  const service = await getServiceBySlug(params.slug)
+export default async function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const service = await getServiceBySlug(slug)
   
   if (!service) {
     notFound()

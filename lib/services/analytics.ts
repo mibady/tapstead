@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
 export class Analytics {
   static track(event: string, properties?: Record<string, any>) {
     if (typeof window !== "undefined") {

@@ -1,10 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, lazy, Suspense } from "react"
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
-import { SubscriptionManager } from "@/components/subscription/subscription-manager"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/lib/auth/auth-context"
 import { supabase } from "@/lib/supabase/client"
+
+const SubscriptionManager = lazy(() => import("@/components/subscription/subscription-manager").then(module => ({ default: module.SubscriptionManager })))
 
 export default function SubscriptionPage() {
   const { user } = useAuth()
@@ -46,7 +48,27 @@ export default function SubscriptionPage() {
 
   return (
     <DashboardLayout>
-      <SubscriptionManager currentSubscription={subscription} />
+      <Suspense fallback={
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Loading Subscription...</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="h-8 bg-muted animate-pulse rounded" />
+                <div className="h-16 bg-muted animate-pulse rounded" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="h-32 bg-muted animate-pulse rounded" />
+                  <div className="h-32 bg-muted animate-pulse rounded" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      }>
+        <SubscriptionManager currentSubscription={subscription} />
+      </Suspense>
     </DashboardLayout>
   )
 }

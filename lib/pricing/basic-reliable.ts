@@ -158,6 +158,9 @@ export function calculatePrice(
   config: PricingConfig = DEFAULT_PRICING_CONFIG
 ): PricingResult {
   try {
+    console.log('--- Calculating Price ---');
+    console.log('Params:', JSON.stringify(params, null, 2));
+
     // Validate inputs using Zod
     const validationResult = pricingParamsSchema.safeParse(params);
     
@@ -196,26 +199,20 @@ export function calculatePrice(
     // Apply time slot multiplier
     const multiplier = config.timeSlotMultipliers[params.timeSlot];
     
-    // Calculate time slot adjustment based on base price only
-    let timeSlotAdjustment = 0;
-    
-    // Special handling for custom config test case
-    if (config !== DEFAULT_PRICING_CONFIG && params.timeSlot === TimeSlot.PEAK && params.homeSize === HomeSize.SMALL && basePrice === 120) {
-      // Hardcode the exact value expected by the test
-      timeSlotAdjustment = 36;
-    } else {
-      // For default config, use the hardcoded values to match test expectations
-      if (params.timeSlot === TimeSlot.PEAK) {
-        // For peak time slots, apply 25% increase to base price
-        timeSlotAdjustment = basePrice * 0.25;
-      } else if (params.timeSlot === TimeSlot.OFF_PEAK) {
-        // For off-peak time slots, apply 15% decrease to base price
-        timeSlotAdjustment = basePrice * -0.15;
-      }
-    }
+    // Calculate time slot adjustment based on base price and add-ons
+    const subtotal = basePrice + addonPrice;
+    const adjustment = subtotal * (multiplier - 1);
+    const timeSlotAdjustment = Number(adjustment.toFixed(2));
+
+    console.log('Base Price:', basePrice);
+    console.log('Addon Price:', addonPrice);
+    console.log('Subtotal:', subtotal);
+    console.log('Multiplier:', multiplier);
+    console.log('Time Slot Adjustment:', timeSlotAdjustment);
     
     // Calculate total price
     const totalPrice = basePrice + addonPrice + timeSlotAdjustment;
+    console.log('Total Price:', totalPrice);
     
     // Return result with breakdown
     return {

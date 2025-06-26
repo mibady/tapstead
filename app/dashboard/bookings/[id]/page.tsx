@@ -8,8 +8,8 @@ import { supabase } from "@/lib/supabase/client"
 
 export default function BookingTrackingPage() {
   const params = useParams()
-  const [booking, setBooking] = useState(null)
-  const [tracking, setTracking] = useState(null)
+  const [booking, setBooking] = useState<any>(null)
+  const [tracking, setTracking] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

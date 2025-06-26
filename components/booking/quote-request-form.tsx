@@ -141,7 +141,7 @@ export function QuoteRequestForm({ service, onNext, onBack }: QuoteRequestFormPr
                 <Label htmlFor="projectDetails">Describe your project *</Label>
                 <Textarea
                   id="projectDetails"
-                  placeholder={`Tell us about your ${service.title.toLowerCase()} project. Include size, materials, specific requirements, current condition, etc.`}
+                  placeholder={`Tell us about your ${service.title?.toLowerCase() || 'project'}. Include size, materials, specific requirements, current condition, etc.`}
                   value={formData.projectDetails}
                   onChange={(e) => handleInputChange("projectDetails", e.target.value)}
                   rows={4}
@@ -360,7 +360,7 @@ export function QuoteRequestForm({ service, onNext, onBack }: QuoteRequestFormPr
               <div className="bg-blue-50 p-3 rounded-lg">
                 <div className="text-sm font-medium text-blue-800 mb-1">Estimated Range</div>
                 <div className="text-lg font-semibold text-blue-600">
-                  ${Math.round(service.base_price * 0.8)} - ${Math.round(service.base_price * 1.5)}
+                  ${Math.round((service.base_price || 100) * 0.8)} - ${Math.round((service.base_price || 100) * 1.5)}
                 </div>
                 <div className="text-xs text-blue-600">Based on similar projects</div>
               </div>

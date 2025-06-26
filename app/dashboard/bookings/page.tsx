@@ -14,7 +14,7 @@ import Link from "next/link"
 
 export default function BookingsPage() {
   const { user } = useAuth()
-  const [bookings, setBookings] = useState([])
+  const [bookings, setBookings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")

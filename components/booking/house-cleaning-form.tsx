@@ -22,6 +22,21 @@ interface HouseCleaningFormProps {
   service: Service & { serviceType?: ServiceType, icon?: any }
 }
 
+// Constants for pricing and time estimation
+const BASE_HOURLY_RATE = 50
+
+const addOnTimes = {
+  insideFridge: 0.5,
+  insideOven: 0.5,
+  outsideCabinets: 0.5,
+  topsOfCabinets: 1.0,
+  windowInteriors: 1.0,
+  blinds: 1.5,
+  petHeavy: 0.5,
+  finishedBasement: 1.0,
+  postConstruction: 2.0,
+}
+
 export function HouseCleaningForm({ onNext, onBack, service }: HouseCleaningFormProps) {
   // --- STATE MANAGEMENT ---
   const [formData, setFormData] = useState({

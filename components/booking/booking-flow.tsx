@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -8,9 +8,10 @@ import { ServiceSelection } from "./service-selection"
 import { BookingDetails } from "./booking-details"
 import { QuoteRequestForm } from "./quote-request-form"
 import { CustomerInfo } from "./customer-info"
-import { PaymentInfo } from "./payment-info"
 import { BookingConfirmation } from "./booking-confirmation"
 import { QuoteRequestConfirmation } from "./quote-request-confirmation"
+
+const StripePaymentForm = lazy(() => import("./stripe-payment-form").then(module => ({ default: module.StripePaymentForm })))
 import { Service } from "@/lib/services/service-data"
 import { ServiceType } from "@/types/service-types"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -56,9 +57,9 @@ export function BookingFlow() {
 
   // Determine service type based on price and category
   const determineServiceType = (service: Service): ServiceType => {
-    if (service.category.toLowerCase().includes('emergency')) {
+    if (service.category?.toLowerCase().includes('emergency')) {
       return "emergency"
-    } else if (service.base_price > 200) {
+    } else if (service.base_price && service.base_price > 200) {
       return "quote-required"
     } else {
       return "bookable"
@@ -147,7 +148,24 @@ export function BookingFlow() {
         if (isQuoteRequired) {
           return <QuoteRequestConfirmation bookingData={bookingData} />
         } else {
-          return <PaymentInfo onNext={handleNext} onBack={handleBack} bookingData={bookingData} />
+          return (
+            <Suspense fallback={
+              <Card className="w-full max-w-md mx-auto">
+                <CardHeader>
+                  <CardTitle>Loading Payment...</CardTitle>
+                </CardHeader>
+                <div className="p-6">
+                  <div className="space-y-4">
+                    <div className="h-12 bg-muted animate-pulse rounded" />
+                    <div className="h-12 bg-muted animate-pulse rounded" />
+                    <div className="h-12 bg-muted animate-pulse rounded" />
+                  </div>
+                </div>
+              </Card>
+            }>
+              <StripePaymentForm onNext={handleNext} onBack={handleBack} bookingData={bookingData} />
+            </Suspense>
+          )
         }
       case 5:
         return <BookingConfirmation bookingData={bookingData} />

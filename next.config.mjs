@@ -1,16 +1,68 @@
+import bundleAnalyzer from '@next/bundle-analyzer'
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Enable ESLint and TypeScript checks during builds for production safety
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   experimental: {
     serverActions: {
       allowedOrigins: ["localhost:3000", "*.vercel.app", "tapstead.com"]
     }
   },
+  // Bundle optimization
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Bundle splitting optimizations
+    if (!isServer) {
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          ...config.optimization.splitChunks.cacheGroups,
+          // Separate vendor chunks for better caching
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10,
+          },
+          // UI components chunk
+          ui: {
+            test: /[\\/]components[\\/]ui[\\/]/,
+            name: 'ui-components',
+            chunks: 'all',
+            priority: 20,
+          },
+          // Large third-party libraries
+          supabase: {
+            test: /[\\/]node_modules[\\/]@supabase[\\/]/,
+            name: 'supabase',
+            chunks: 'all',
+            priority: 30,
+          },
+          stripe: {
+            test: /[\\/]node_modules[\\/]@stripe[\\/]/,
+            name: 'stripe',
+            chunks: 'all',
+            priority: 30,
+          },
+        },
+      }
+    }
+    
+    return config
+  },
+  // Compress static assets
+  compress: true,
+  // Enable static optimization
+  poweredByHeader: false,
   images: {
     domains: ['placeholder.svg', 'images.unsplash.com'],
     remotePatterns: [
@@ -46,4 +98,4 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default withBundleAnalyzer(nextConfig)

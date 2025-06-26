@@ -3,9 +3,10 @@ import { MarketingLayout } from "@/components/layout/marketing-layout"
 import { BlogPostPage } from "@/components/pages/blog-post"
 import { blogPosts, featuredPost } from "@/lib/blog-data"
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const post = [featuredPost, ...blogPosts].find(
-    (post) => createSlug(post.title) === params.slug
+    (post) => createSlug(post.title) === slug
   )
 
   if (!post) {
@@ -36,9 +37,10 @@ function createSlug(title: string) {
     .replace(/\s+/g, "-")
 }
 
-export default function BlogPost({ params }: { params: { slug: string } }) {
+export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const post = [featuredPost, ...blogPosts].find(
-    (post) => createSlug(post.title) === params.slug
+    (post) => createSlug(post.title) === slug
   )
 
   if (!post) {

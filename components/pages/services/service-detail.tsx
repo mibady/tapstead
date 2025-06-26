@@ -22,7 +22,7 @@ interface ServiceDetailProps {
 }
 
 export function ServiceDetail({ service, isEmergency = false }: ServiceDetailProps) {
-  const priceDisplay = `Starting at $${service.base_price.toFixed(2)}`
+  const priceDisplay = `Starting at $${(service.base_price || 0).toFixed(2)}`
   
   return (
     <div className="py-12">
@@ -71,8 +71,8 @@ export function ServiceDetail({ service, isEmergency = false }: ServiceDetailPro
             
             <div className="lg:w-1/2 relative min-h-[300px]">
               <Image 
-                src={`/images/services/${service.category.toLowerCase()}.jpg`}
-                alt={service.title}
+                src={`/images/services/${(service.category || 'default').toLowerCase()}.jpg`}
+                alt={service.title || 'Service image'}
                 fill
                 className="rounded-lg object-cover"
                 priority
@@ -175,7 +175,7 @@ export function ServiceDetail({ service, isEmergency = false }: ServiceDetailPro
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Get Started?</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Book your {service.title.toLowerCase()} service today and experience the Tapstead difference.
+            Book your {(service.title || 'service').toLowerCase()} service today and experience the Tapstead difference.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="gradient" asChild>
@@ -199,7 +199,7 @@ export function ServiceDetail({ service, isEmergency = false }: ServiceDetailPro
               <div>
                 <h3 className="text-xl font-bold text-red-800 mb-2">Emergency Response Information</h3>
                 <p className="text-gray-700 mb-4">
-                  For immediate assistance with {service.title.toLowerCase()}, please call our emergency hotline at 
+                  For immediate assistance with {(service.title || 'this service').toLowerCase()}, please call our emergency hotline at 
                   <a href="tel:1-800-TAPSTEAD" className="text-red-600 font-bold mx-1">1-800-TAPSTEAD</a>
                   in addition to booking online. Our emergency response team is available 24/7.
                 </p>

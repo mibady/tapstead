@@ -84,7 +84,13 @@
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "ts-jest": "^29.4.0",
-    "typescript": "^5"
+    "typescript": "latest"
+  },
+  "pnpm": {
+    "overrides": {
+      "entities": "^4.5.0",
+      "dom-serializer": "^2.0.0"
+    }
   },
   "packageManager": "pnpm@9.0.0"
 }

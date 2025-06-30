@@ -41,8 +41,12 @@ export default function SettingsPage() {
   }, [user])
 
   const loadProfile = async () => {
+    if (!supabase || !user?.id) {
+      return
+    }
+    
     try {
-      const { data } = await supabase.from("users").select("*").eq("id", user?.id).single()
+      const { data } = await supabase.from("users").select("*").eq("id", user.id).single()
 
       if (data) {
         setProfile({
@@ -63,8 +67,14 @@ export default function SettingsPage() {
     setLoading(true)
     setMessage("")
 
+    if (!supabase || !user?.id) {
+      setMessage("Unable to update profile - please try again later")
+      setLoading(false)
+      return
+    }
+
     try {
-      const { error } = await supabase.from("users").update(profile).eq("id", user?.id)
+      const { error } = await supabase.from("users").update(profile).eq("id", user.id)
 
       if (error) throw error
 
@@ -79,9 +89,14 @@ export default function SettingsPage() {
   const handleNotificationUpdate = async (key: string, value: boolean) => {
     setNotifications((prev) => ({ ...prev, [key]: value }))
 
+    if (!supabase || !user?.id) {
+      console.warn("Unable to update notification preferences - Supabase not available")
+      return
+    }
+
     try {
       const { error } = await supabase.from("user_preferences").upsert({
-        user_id: user?.id,
+        user_id: user.id,
         [key]: value,
       })
 

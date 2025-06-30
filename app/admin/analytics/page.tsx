@@ -3,6 +3,7 @@
 import { useState, lazy, Suspense } from "react"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { AnalyticsAgent } from "@/components/agents/AnalyticsAgent"
 
 const AnalyticsDashboard = lazy(() => import("@/components/analytics/analytics-dashboard").then(module => ({ default: module.AnalyticsDashboard })))
 
@@ -52,6 +53,7 @@ export default function AdminAnalyticsPage() {
       <Suspense fallback={<AnalyticsLoading />}>
         <AnalyticsDashboard timeRange={timeRange} onTimeRangeChange={setTimeRange} />
       </Suspense>
+      <AnalyticsAgent />
     </AdminLayout>
   )
 }

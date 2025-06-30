@@ -15,7 +15,7 @@ export default function AuthPage() {
   const { user, signIn, signUp } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirect_to') || '/dashboard'
+  const redirectTo = searchParams?.get('redirect_to') || '/dashboard'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

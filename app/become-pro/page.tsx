@@ -1,6 +1,7 @@
 import { ProRecruitmentLanding } from "@/components/provider/pro-recruitment-landing"
 // Header is now included in ClientLayoutWrapper
 import { Footer } from "@/components/layout/footer"
+import { RecruitingAgent } from "@/components/agents/RecruitingAgent"
 
 export default function BecomeProPage() {
   return (
@@ -9,6 +10,7 @@ export default function BecomeProPage() {
         <ProRecruitmentLanding />
       </main>
       <Footer />
+      <RecruitingAgent />
     </div>
   )
 }

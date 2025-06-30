@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { MarketingLayout } from "@/components/layout/marketing-layout"
-import { BlogPostPage } from "@/components/pages/blog-post"
+import { BlogPostPage } from "@/components/blog/BlogPost"
+import { fetchPostBySlug } from "@/lib/cms/blog"
 import { blogPosts, featuredPost } from "@/lib/blog-data"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -39,9 +40,7 @@ function createSlug(title: string) {
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const post = [featuredPost, ...blogPosts].find(
-    (post) => createSlug(post.title) === slug
-  )
+  const post = await fetchPostBySlug(slug)
 
   if (!post) {
     notFound()

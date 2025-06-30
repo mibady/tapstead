@@ -1,5 +1,6 @@
 import { MarketingLayout } from "@/components/layout/marketing-layout"
 import { CareersPage } from "@/components/pages/careers"
+import { RecruitingAgent } from "@/components/agents/RecruitingAgent"
 
 export const metadata = {
   title: "Careers - Join the Tapstead Team",
@@ -11,6 +12,7 @@ export default function Careers() {
   return (
     <MarketingLayout>
       <CareersPage />
+      <RecruitingAgent />
     </MarketingLayout>
   )
 }

@@ -1,6 +1,7 @@
 import { BookingFlow } from "@/components/booking/booking-flow"
 // Header is now included in ClientLayoutWrapper
 import { Footer } from "@/components/layout/footer"
+import { BookingAgent } from "@/components/agents/BookingAgent"
 
 export default function BookNowPage() {
   return (
@@ -9,6 +10,7 @@ export default function BookNowPage() {
         <BookingFlow />
       </main>
       <Footer />
+      <BookingAgent />
     </div>
   )
 }

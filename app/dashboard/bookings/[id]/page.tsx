@@ -13,11 +13,13 @@ export default function BookingTrackingPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (params.id) {
+    if (params?.id) {
       fetchBookingData()
 
-      // Set up real-time subscription for tracking updates
-      const trackingSubscription = supabase
+      // Set up real-time subscription for tracking updates (only if supabase is available)
+      let trackingSubscription = null
+      if (supabase) {
+        trackingSubscription = supabase
         .channel("tracking-updates")
         .on(
           "postgres_changes",
@@ -32,14 +34,22 @@ export default function BookingTrackingPage() {
           },
         )
         .subscribe()
+      }
 
       return () => {
-        supabase.removeChannel(trackingSubscription)
+        if (supabase && trackingSubscription) {
+          supabase.removeChannel(trackingSubscription)
+        }
       }
     }
-  }, [params.id])
+  }, [params?.id])
 
   const fetchBookingData = async () => {
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
+    
     try {
       // Fetch booking details
       const { data: bookingData } = await supabase
@@ -49,14 +59,14 @@ export default function BookingTrackingPage() {
           services (title, category, duration),
           providers (business_name, rating, phone)
         `)
-        .eq("id", params.id)
+        .eq("id", params?.id)
         .single()
 
       // Fetch tracking information
       const { data: trackingData } = await supabase
         .from("tracking")
         .select("*")
-        .eq("booking_id", params.id)
+        .eq("booking_id", params?.id)
         .order("created_at", { ascending: false })
         .limit(1)
         .single()

@@ -20,11 +20,16 @@ export default function SubscriptionPage() {
   }, [user])
 
   const fetchSubscription = async () => {
+    if (!supabase || !user?.id) {
+      setLoading(false)
+      return
+    }
+    
     try {
       const { data } = await supabase
         .from("subscriptions")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .eq("status", "active")
         .single()
 

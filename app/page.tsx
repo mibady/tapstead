@@ -8,6 +8,7 @@ import { TestimonialsSection } from "@/components/sections/testimonials-section"
 import { CTASection } from "@/components/sections/cta-section"
 // Header is now included in ClientLayoutWrapper
 import { Footer } from "@/components/layout/footer"
+import { BookingAgent } from "@/components/agents/BookingAgent"
 
 export default function HomePage() {
   return (
@@ -23,6 +24,7 @@ export default function HomePage() {
         <CTASection />
       </main>
       <Footer />
+      <BookingAgent />
     </div>
   )
 }

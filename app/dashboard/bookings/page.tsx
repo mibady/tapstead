@@ -26,6 +26,11 @@ export default function BookingsPage() {
   }, [user])
 
   const fetchBookings = async () => {
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
+    
     try {
       const { data } = await supabase
         .from("bookings")

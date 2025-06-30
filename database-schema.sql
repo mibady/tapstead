@@ -85,9 +85,71 @@ CREATE TABLE IF NOT EXISTS tracking (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Create agent conversations table
+CREATE TABLE IF NOT EXISTS agent_conversations (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id),
+  agent_type VARCHAR(50) NOT NULL,
+  session_id VARCHAR(255) NOT NULL,
+  messages JSONB NOT NULL DEFAULT '[]',
+  context_data JSONB,
+  user_email VARCHAR(255),
+  user_role VARCHAR(50) DEFAULT 'customer',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create agent interactions table for analytics
+CREATE TABLE IF NOT EXISTS agent_interactions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  agent_type VARCHAR(50) NOT NULL,
+  user_id UUID REFERENCES users(id),
+  session_id VARCHAR(255),
+  tool_used VARCHAR(100),
+  success BOOLEAN DEFAULT true,
+  response_time_ms INTEGER,
+  error_message TEXT,
+  user_input TEXT,
+  agent_response TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create provider applications table (if not exists)
+CREATE TABLE IF NOT EXISTS provider_applications (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  company_name VARCHAR(255),
+  services TEXT[] NOT NULL,
+  experience_years INTEGER NOT NULL,
+  license_number VARCHAR(100),
+  insurance_provider VARCHAR(255),
+  coverage_amount DECIMAL(12,2),
+  service_areas TEXT[] NOT NULL,
+  availability JSONB NOT NULL,
+  emergency_services BOOLEAN DEFAULT false,
+  background_check_consent BOOLEAN NOT NULL,
+  terms_accepted BOOLEAN NOT NULL,
+  additional_info TEXT,
+  status VARCHAR(50) DEFAULT 'PENDING',
+  admin_notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_provider_id ON bookings(provider_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
 CREATE INDEX IF NOT EXISTS idx_tracking_booking_id ON tracking(booking_id);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
+
+-- Agent-related indexes
+CREATE INDEX IF NOT EXISTS idx_agent_conversations_user_id ON agent_conversations(user_id);
+CREATE INDEX IF NOT EXISTS idx_agent_conversations_agent_type ON agent_conversations(agent_type);
+CREATE INDEX IF NOT EXISTS idx_agent_conversations_session_id ON agent_conversations(session_id);
+CREATE INDEX IF NOT EXISTS idx_agent_interactions_agent_type ON agent_interactions(agent_type);
+CREATE INDEX IF NOT EXISTS idx_agent_interactions_created_at ON agent_interactions(created_at);
+CREATE INDEX IF NOT EXISTS idx_provider_applications_email ON provider_applications(email);
+CREATE INDEX IF NOT EXISTS idx_provider_applications_status ON provider_applications(status);

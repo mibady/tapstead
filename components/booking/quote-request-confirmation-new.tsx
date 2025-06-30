@@ -27,6 +27,11 @@ export function QuoteRequestConfirmation({ bookingData }: QuoteRequestConfirmati
 
   useEffect(() => {
     const getUser = async () => {
+      if (!supabase) {
+        setErrorMsg("Service temporarily unavailable - please try again later")
+        return
+      }
+      
       const { data } = await supabase.auth.getUser()
       if (data?.user) {
         setUser(data.user)

@@ -4,6 +4,9 @@ import { Database } from "@/lib/supabase/types";
 export type Service = Database["public"]["Tables"]["services"]["Row"];
 
 export async function getAllServices() {
+  if (!supabase) {
+    return [];
+  }
   
   const { data, error } = await supabase
     .from("services")
@@ -20,6 +23,9 @@ export async function getAllServices() {
 }
 
 export async function getServiceByCategory(category: string) {
+  if (!supabase) {
+    return [];
+  }
   
   const { data, error } = await supabase
     .from("services")
@@ -37,6 +43,9 @@ export async function getServiceByCategory(category: string) {
 }
 
 export async function getServiceById(id: string) {
+  if (!supabase) {
+    return null;
+  }
   
   const { data, error } = await supabase
     .from("services")
@@ -59,6 +68,9 @@ export async function getServiceBySlug(slug: string) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
   
+  if (!supabase) {
+    return null;
+  }
   
   // Try to find by exact title match first
   const { data, error } = await supabase
@@ -76,6 +88,10 @@ export async function getServiceBySlug(slug: string) {
   }
   
   // If not found by exact title, try to find by category
+  if (!supabase) {
+    return null;
+  }
+  
   const { data: categoryData, error: categoryError } = await supabase
     .from("services")
     .select("*")
@@ -90,6 +106,9 @@ export async function getServiceBySlug(slug: string) {
 }
 
 export async function getEmergencyServices() {
+  if (!supabase) {
+    return [];
+  }
   
   const { data, error } = await supabase
     .from("services")

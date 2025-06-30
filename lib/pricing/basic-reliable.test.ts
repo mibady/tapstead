@@ -131,7 +131,6 @@ describe('Pricing Calculation', () => {
         calculatePrice({
           homeSize: HomeSize.SMALL,
           timeSlot: TimeSlot.STANDARD,
-          // @ts-expect-error Testing invalid input
           addons,
         });
       }).toThrow(PricingError);

@@ -5,6 +5,10 @@ export type Booking = Database["public"]["Tables"]["bookings"]["Row"];
 
 export async function createBooking(bookingData: Database["public"]["Tables"]["bookings"]["Insert"]) {
   
+  if (!supabase) {
+    throw new Error("Service temporarily unavailable");
+  }
+  
   const { data, error } = await supabase
     .from("bookings")
     .insert(bookingData)
@@ -20,6 +24,10 @@ export async function createBooking(bookingData: Database["public"]["Tables"]["b
 }
 
 export async function getUserBookings(userId: string) {
+  
+  if (!supabase) {
+    return [];
+  }
   
   const { data, error } = await supabase
     .from("bookings")
@@ -41,6 +49,10 @@ export async function getUserBookings(userId: string) {
 
 export async function getBookingById(bookingId: string) {
   
+  if (!supabase) {
+    return null;
+  }
+  
   const { data, error } = await supabase
     .from("bookings")
     .select(`
@@ -61,6 +73,10 @@ export async function getBookingById(bookingId: string) {
 }
 
 export async function updateBookingStatus(bookingId: string, status: string) {
+  
+  if (!supabase) {
+    throw new Error("Service temporarily unavailable");
+  }
   
   const { data, error } = await supabase
     .from("bookings")

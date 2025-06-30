@@ -1,101 +1,118 @@
 import { Button } from "@/components/ui/button"
-import { Check } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Check, Calendar, MessageSquare, Clock } from "lucide-react"
 import Link from "next/link"
-
-const plans = [
-  {
-    name: "Pay Per Service",
-    price: "No monthly fee",
-    description: "Perfect for occasional home service needs",
-    features: ["Pay only when you book", "Access to all services", "Basic customer support", "Service guarantee"],
-    cta: "Book Now",
-    href: "/book-now",
-    popular: false,
-  },
-  {
-    name: "Home Care Plus",
-    price: "$29/month",
-    description: "Best for regular home maintenance",
-    features: [
-      "15% discount on all services",
-      "Priority booking",
-      "24/7 premium support",
-      "Monthly maintenance reminders",
-      "Service history tracking",
-    ],
-    cta: "Start Free Trial",
-    href: "/signup",
-    popular: true,
-  },
-  {
-    name: "Property Manager",
-    price: "$99/month",
-    description: "Designed for property managers and landlords",
-    features: [
-      "25% discount on all services",
-      "Dedicated account manager",
-      "Bulk booking discounts",
-      "Property portfolio management",
-      "Detailed reporting",
-      "Emergency service priority",
-    ],
-    cta: "Contact Sales",
-    href: "/contact",
-    popular: false,
-  },
-]
 
 export function PricingSection() {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Simple, Transparent Pricing</h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Choose the plan that works best for you. No hidden fees, no surprises.
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Two Ways to Get Started</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Book home cleaning instantly online, or get a free quote for all other services with personalized assessment.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan, index) => (
-            <div
-              key={index}
-              className={`relative bg-white rounded-2xl shadow-lg p-8 ${
-                plan.popular ? "ring-2 ring-blue-600 scale-105" : ""
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium">
-                    Most Popular
-                  </span>
-                </div>
-              )}
-
-              <div className="text-center mb-8">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                <div className="text-3xl font-bold text-gray-900 mb-2">{plan.price}</div>
-                <p className="text-gray-600">{plan.description}</p>
-              </div>
-
-              <ul className="space-y-4 mb-8">
-                {plan.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-center">
-                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">{feature}</span>
-                  </li>
-                ))}
+        <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          {/* Instant Booking */}
+          <Card className="border-2 border-green-200 relative overflow-hidden hover:shadow-lg transition-shadow">
+            <div className="bg-green-100 text-green-800 text-center py-3 font-semibold">
+              <Calendar className="inline w-4 h-4 mr-2" />
+              Book Online Now
+            </div>
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl text-green-700">Home Cleaning</CardTitle>
+              <CardDescription className="text-lg">
+                Transparent pricing, instant booking, secure payment
+              </CardDescription>
+              <div className="text-3xl font-bold text-green-600 mt-4">$99 - $299</div>
+              <p className="text-sm text-green-600">Based on home size and service type</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ul className="space-y-3">
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <span>Fixed pricing - no surprises</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <span>Same-day booking available</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <span>Secure online payment</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <span>Eco-friendly supplies included</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <span>100% satisfaction guarantee</span>
+                </li>
               </ul>
 
-              <Button
-                asChild
-                className={`w-full ${plan.popular ? "bg-blue-600 hover:bg-blue-700" : ""}`}
-                variant={plan.popular ? "default" : "outline"}
-              >
-                <Link href={plan.href}>{plan.cta}</Link>
+              <Button className="w-full bg-green-600 hover:bg-green-700 text-lg py-6" asChild>
+                <Link href="/book-now">Book Cleaning Now</Link>
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Quote Required */}
+          <Card className="border-2 border-blue-200 relative overflow-hidden hover:shadow-lg transition-shadow">
+            <div className="bg-blue-100 text-blue-800 text-center py-3 font-semibold">
+              <MessageSquare className="inline w-4 h-4 mr-2" />
+              Free Quote & Assessment
             </div>
-          ))}
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl text-blue-700">All Other Services</CardTitle>
+              <CardDescription className="text-lg">
+                Custom pricing based on your specific project needs
+              </CardDescription>
+              <div className="text-3xl font-bold text-blue-600 mt-4">Free Quote</div>
+              <p className="text-sm text-blue-600">Expert on-site assessment</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ul className="space-y-3">
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                  <span>Expert on-site assessment</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                  <span>Detailed project recommendations</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                  <span>Transparent pricing breakdown</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                  <span>No obligation to proceed</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                  <span>Professional consultation</span>
+                </li>
+              </ul>
+
+              <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded mb-4">
+                <strong>Includes:</strong> Plumbing, Electrical, Handyman, Painting, Junk Removal, Emergency Services, and more
+              </div>
+
+              <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 text-lg py-6" asChild>
+                <Link href="/book-now">Request Free Quote</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="text-center mt-12">
+          <p className="text-gray-600 mb-4">Questions about pricing?</p>
+          <Button variant="outline" asChild>
+            <Link href="/pricing">View Detailed Pricing</Link>
+          </Button>
         </div>
       </div>
     </section>

@@ -14,6 +14,11 @@ export function useRealtimeBookings() {
 
     // Fetch initial bookings
     const fetchBookings = async () => {
+      if (!supabase) {
+        setLoading(false)
+        return
+      }
+      
       const { data } = await supabase
         .from("bookings")
         .select(`
@@ -31,6 +36,8 @@ export function useRealtimeBookings() {
     fetchBookings()
 
     // Set up real-time subscription
+    if (!supabase) return
+    
     const channel = supabase
       .channel("bookings-changes")
       .on(
@@ -56,7 +63,9 @@ export function useRealtimeBookings() {
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      if (supabase) {
+        supabase.removeChannel(channel)
+      }
     }
   }, [user])
 

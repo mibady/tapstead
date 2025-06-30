@@ -6,6 +6,10 @@ import { revalidatePath } from "next/cache"
 export async function createSubscription(planType: string, monthlyPrice: number) {
   const supabase = createServerClient()
 
+  if (!supabase) {
+    throw new Error("Service temporarily unavailable")
+  }
+
   const {
     data: { user },
     error: authError,
@@ -41,6 +45,10 @@ export async function createSubscription(planType: string, monthlyPrice: number)
 
 export async function cancelSubscription() {
   const supabase = createServerClient()
+
+  if (!supabase) {
+    throw new Error("Service temporarily unavailable")
+  }
 
   const {
     data: { user },

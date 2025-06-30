@@ -54,21 +54,21 @@ const testimonials = [
     rating: 5,
     text: "Had a burst pipe at 2 AM and they were here within an hour! Professional, efficient, and saved my hardwood floors. Excellent emergency service.",
     service: "Emergency Repair",
-    location: "Miami, FL",
+    location: "SeaTac, WA",
   },
   {
     name: "Tom Wilson",
     rating: 5,
     text: "Installed a new toilet and fixed two leaky faucets. Clean work, fair pricing, and explained everything clearly. Very satisfied!",
     service: "Fixture Installation",
-    location: "Chicago, IL",
+    location: "Tukwila, WA",
   },
   {
     name: "Sarah Chen",
     rating: 5,
     text: "Regular maintenance service has prevented major issues. The plumber is knowledgeable and always on time. Great preventive care!",
     service: "Maintenance",
-    location: "San Diego, CA",
+    location: "Des Moines, WA"
   },
 ]
 

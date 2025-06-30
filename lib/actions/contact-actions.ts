@@ -28,8 +28,10 @@ export async function submitContactForm(formData: FormData) {
     }
 
     // Save to database
-    const { error } = await supabase.from("contact_submissions").insert(contactData)
-    if (error) throw error
+    if (supabase) {
+      const { error } = await supabase.from("contact_submissions").insert(contactData)
+      if (error) throw error
+    }
 
     // Send notification email using Resend
     await sendContactNotification(contactData)
@@ -82,8 +84,10 @@ export async function requestQuote(formData: FormData) {
     }
 
     // Save to database
-    const { error } = await supabase.from("quote_requests").insert(quoteData)
-    if (error) throw error
+    if (supabase) {
+      const { error } = await supabase.from("quote_requests").insert(quoteData)
+      if (error) throw error
+    }
 
     // Send notification email using Resend
     await sendQuoteRequest(quoteData.email, quoteData)

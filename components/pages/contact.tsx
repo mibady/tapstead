@@ -49,8 +49,8 @@ export function ContactPage() {
                   <Phone className="w-5 h-5 text-blue-600" />
                   <h3 className="font-semibold">Phone</h3>
                 </div>
-                <p className="text-gray-600 mb-2">(555) 123-4567</p>
-                <p className="text-red-600 font-medium">Emergency: (555) DISASTER</p>
+                <a href="tel:13606417386" className="text-blue-600 font-medium hover:underline text-lg">(360) 641-7386</a>
+                <p className="text-sm text-gray-500 mt-1">24/7 AI Assistant</p>
               </CardContent>
             </Card>
 

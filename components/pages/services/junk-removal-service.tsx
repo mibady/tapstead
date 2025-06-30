@@ -65,21 +65,21 @@ const testimonials = [
     rating: 5,
     text: "Fantastic service! They removed an old couch, refrigerator, and tons of boxes from my garage. Professional, efficient, and reasonably priced.",
     service: "Furniture Removal",
-    location: "Dallas, TX",
+    location: "Edmonds, WA",
   },
   {
     name: "Mike Rodriguez",
     rating: 5,
     text: "After our kitchen renovation, we had so much debris. They cleared everything in one trip and left the area spotless. Highly recommend!",
     service: "Construction Debris",
-    location: "San Antonio, TX",
+    location: "Shoreline, WA",
   },
   {
     name: "Susan Chen",
     rating: 5,
     text: "Helped clear out my mother's house after she moved to assisted living. They were respectful, careful with donations, and made a difficult time easier.",
     service: "Estate Cleanout",
-    location: "Portland, OR",
+    location: "Burien, WA"
   },
 ]
 
@@ -159,7 +159,7 @@ export function JunkRemovalService() {
                 </Button>
                 <Button size="lg" variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
                   <Phone className="mr-2 h-5 w-5" />
-                  (555) 123-4567
+                  (360) 641-7386
                 </Button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8 text-sm text-gray-600">

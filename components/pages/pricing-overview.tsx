@@ -1,124 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check, Star, ArrowRight, DollarSign, Clock, Shield } from "lucide-react"
+import { Check, Star, ArrowRight, DollarSign, Clock, Shield, Calendar, MessageSquare } from "lucide-react"
 import Link from "next/link"
 
-const servicesPricing = [
-  {
-    category: "Cleaning Services",
-    services: [
-      { name: "House Cleaning (1-2 BR)", price: "$99-129", duration: "2-3 hours" },
-      { name: "House Cleaning (3-4 BR)", price: "$149-199", duration: "3-4 hours" },
-      { name: "Deep Cleaning", price: "$199-299", duration: "4-6 hours" },
-      { name: "Move-in/out Cleaning", price: "$249-349", duration: "4-8 hours" },
-      { name: "Pressure Washing", price: "$199-399", duration: "2-4 hours" },
-    ],
-  },
-  {
-    category: "Handyman & Repairs",
-    services: [
-      { name: "Handyman Services", price: "$75/hr", duration: "1-3 hours" },
-      { name: "Furniture Assembly", price: "$89-149", duration: "1-2 hours" },
-      { name: "TV Mounting", price: "$129-199", duration: "1-2 hours" },
-      { name: "Shelf Installation", price: "$99-179", duration: "1-2 hours" },
-      { name: "Minor Repairs", price: "$89-149", duration: "1-2 hours" },
-    ],
-  },
-  {
-    category: "Plumbing & Electrical",
-    services: [
-      { name: "Plumbing Services", price: "$89/hr", duration: "1-3 hours" },
-      { name: "Electrical Services", price: "$125/hr", duration: "1-3 hours" },
-      { name: "Drain Cleaning", price: "$149-249", duration: "1-2 hours" },
-      { name: "Outlet Installation", price: "$129-199", duration: "1-2 hours" },
-      { name: "Emergency Service", price: "+50%", duration: "Same day" },
-    ],
-  },
-  {
-    category: "Exterior & Specialized",
-    services: [
-      { name: "Gutter Cleaning", price: "$159-299", duration: "2-4 hours" },
-      { name: "Gutter Repairs", price: "$199-399", duration: "2-3 hours" },
-      { name: "Welding Services", price: "$95/hr", duration: "1-4 hours" },
-      { name: "Interior Painting", price: "$299-799", duration: "4-8 hours" },
-      { name: "Junk Removal", price: "$149-399", duration: "1-2 hours" },
-    ],
-  },
-  {
-    category: "Emergency Services",
-    services: [
-      { name: "Fire Debris Removal", price: "$299-999", duration: "4-8 hours" },
-      { name: "Storm Damage Cleanup", price: "$249-799", duration: "3-6 hours" },
-      { name: "Emergency Response", price: "$199-599", duration: "2-6 hours" },
-      { name: "24/7 Emergency Call", price: "+$75", duration: "Immediate" },
-    ],
-  },
-]
 
-const subscriptionPlans = [
-  {
-    name: "Pay-As-You-Go",
-    price: "$0",
-    period: "No monthly fee",
-    description: "Perfect for occasional home maintenance needs",
-    features: [
-      "Transparent upfront pricing",
-      "Same-day booking available",
-      "100% satisfaction guarantee",
-      "Insured professionals",
-      "24/7 customer support",
-    ],
-    discount: 0,
-    popular: false,
-    cta: "Book a Service",
-  },
-  {
-    name: "Home Care Plus",
-    price: "$49",
-    period: "/month",
-    originalPrice: "$89",
-    description: "Best value for regular home maintenance",
-    features: [
-      "Everything in Pay-As-You-Go",
-      "15% discount on all services",
-      "Priority scheduling",
-      "Quarterly maintenance reminders",
-      "Free service consultations",
-      "Dedicated account manager",
-    ],
-    discount: 15,
-    popular: true,
-    cta: "Start Free Trial",
-  },
-  {
-    name: "Premium Care",
-    price: "$99",
-    period: "/month",
-    originalPrice: "$149",
-    description: "Comprehensive home management for busy homeowners",
-    features: [
-      "Everything in Home Care Plus",
-      "25% discount on all services",
-      "Monthly maintenance included",
-      "Emergency service priority",
-      "Custom maintenance schedule",
-      "Concierge-level support",
-      "Home value protection plan",
-    ],
-    discount: 25,
-    popular: false,
-    cta: "Get Premium Care",
-  },
-]
-
-const savingsExamples = [
-  { service: "House Cleaning (2BR)", regular: "$149", plus: "$127", premium: "$112", savings: "$37" },
-  { service: "Handyman (2 hours)", regular: "$150", plus: "$128", premium: "$113", savings: "$37" },
-  { service: "Gutter Cleaning", regular: "$199", plus: "$169", premium: "$149", savings: "$50" },
-  { service: "Pressure Washing", regular: "$249", plus: "$212", premium: "$187", savings: "$62" },
-  { service: "Junk Removal", regular: "$299", plus: "$254", premium: "$224", savings: "$75" },
-]
 
 export function PricingOverview() {
   return (
@@ -126,184 +12,311 @@ export function PricingOverview() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-green-50 to-blue-50 py-20">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">Transparent Pricing, No Surprises</h1>
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">Two Ways to Get Started</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            See exactly what you'll pay before booking. All prices include materials, labor, and our satisfaction
-            guarantee. Choose the plan that fits your needs.
+            Book home cleaning instantly online with transparent pricing, or request a free quote for all other services with personalized on-site assessments.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
-              <Link href="/book-now">Book a Service</Link>
+            <Button size="lg" className="bg-green-600 hover:bg-green-700" asChild>
+              <Link href="/book-now">Book Cleaning Now</Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/signup">Start Free Trial</Link>
+            <Button size="lg" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50" asChild>
+              <Link href="/book-now">Request Free Quote</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Subscription Plans */}
+      {/* Service Types Explanation */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Choose Your Plan</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">How Our Pricing Works</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Save money and get priority service with our subscription plans
+              We offer two types of services with different pricing approaches to best serve your needs
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8 mb-16">
-            {subscriptionPlans.map((plan, index) => (
-              <Card key={index} className={`relative ${plan.popular ? "ring-2 ring-blue-500 shadow-lg" : ""}`}>
-                {plan.popular && (
-                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 hover:bg-blue-700">
-                    <Star className="w-3 h-3 mr-1" />
-                    Most Popular
-                  </Badge>
-                )}
+          <div className="grid lg:grid-cols-2 gap-8 mb-16">
+            {/* Instant Booking */}
+            <Card className="border-2 border-green-200 relative overflow-hidden">
+              <div className="bg-green-100 text-green-800 text-center py-2 font-medium">
+                Book Online & Pay Now
+              </div>
+              <CardHeader>
+                <CardTitle className="text-2xl text-green-700 flex items-center gap-2">
+                  <Calendar className="h-6 w-6" />
+                  Home Cleaning
+                </CardTitle>
+                <CardDescription className="text-lg">
+                  Transparent pricing, instant booking, secure online payment
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-green-700 mb-1">$99 - $299</div>
+                  <div className="text-sm text-green-600">Based on home size and service type</div>
+                </div>
+                
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span className="text-sm">Fixed pricing - no surprises</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span className="text-sm">Same-day booking available</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span className="text-sm">Secure online payment</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span className="text-sm">Eco-friendly supplies included</span>
+                  </li>
+                </ul>
 
-                <CardHeader className="text-center pb-6">
-                  <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                  <CardDescription className="text-gray-600 mb-4">{plan.description}</CardDescription>
+                <Button className="w-full bg-green-600 hover:bg-green-700" asChild>
+                  <Link href="/book-now">Book Cleaning Online</Link>
+                </Button>
+              </CardContent>
+            </Card>
 
-                  <div className="space-y-2">
-                    <div className="text-4xl font-bold text-gray-900">
-                      {plan.price}
-                      <span className="text-lg text-gray-600">{plan.period}</span>
-                    </div>
-                    {plan.originalPrice && (
-                      <div className="text-lg text-gray-500 line-through">{plan.originalPrice}/month</div>
-                    )}
-                  </div>
-                </CardHeader>
+            {/* Quote Required */}
+            <Card className="border-2 border-blue-200 relative overflow-hidden">
+              <div className="bg-blue-100 text-blue-800 text-center py-2 font-medium">
+                Free Quote & Assessment
+              </div>
+              <CardHeader>
+                <CardTitle className="text-2xl text-blue-700 flex items-center gap-2">
+                  <MessageSquare className="h-6 w-6" />
+                  All Other Services
+                </CardTitle>
+                <CardDescription className="text-lg">
+                  Custom pricing based on your specific needs and project scope
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-700 mb-1">Free Quote</div>
+                  <div className="text-sm text-blue-600">On-site assessment & detailed estimate</div>
+                </div>
+                
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm">Expert on-site assessment</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm">Detailed project recommendations</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm">Transparent pricing breakdown</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm">No obligation to proceed</span>
+                  </li>
+                </ul>
 
-                <CardContent className="space-y-6">
-                  <ul className="space-y-3">
-                    {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded">
+                  <strong>Includes:</strong> Plumbing, Electrical, Handyman, Gutter Services, 
+                  Pressure Washing, Painting, Junk Removal, Welding, Emergency Services
+                </div>
 
-                  {plan.discount > 0 && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                      <div className="flex items-center text-green-800">
-                        <DollarSign className="w-4 h-4 mr-2" />
-                        <span className="font-medium">{plan.discount}% off all services</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <Button
-                    className={`w-full ${plan.popular ? "bg-blue-600 hover:bg-blue-700" : ""}`}
-                    variant={plan.popular ? "default" : "outline"}
-                    size="lg"
-                    asChild
-                  >
-                    <Link href={plan.popular ? "/signup" : "/book-now"}>
-                      {plan.cta}
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50" asChild>
+                  <Link href="/book-now">Request Free Quote</Link>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Service Pricing */}
-      <section className="py-20 bg-gray-50">
+
+      {/* Home Cleaning Pricing */}
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Service Pricing</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Home Cleaning Pricing</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Transparent pricing for all our professional home services
+              Transparent, fixed pricing for professional home cleaning services
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
-            {servicesPricing.map((category, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-xl">{category.category}</CardTitle>
-                </CardHeader>
-                <CardContent>
+          <div className="max-w-4xl mx-auto">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center text-green-700">Home Cleaning Services</CardTitle>
+                <CardDescription className="text-center text-lg">
+                  Professional cleaning with eco-friendly products and satisfaction guarantee
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Standard Cleaning */}
                   <div className="space-y-4">
-                    {category.services.map((service, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <h3 className="text-lg font-semibold text-gray-900">Standard Cleaning</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                         <div>
-                          <div className="font-medium text-gray-900">{service.name}</div>
+                          <div className="font-medium text-gray-900">1-2 Bedroom Home</div>
                           <div className="flex items-center text-sm text-gray-600">
                             <Clock className="w-3 h-3 mr-1" />
-                            {service.duration}
+                            2-3 hours
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="font-semibold text-green-600">{service.price}</div>
+                          <div className="font-semibold text-green-600">$99-129</div>
                         </div>
                       </div>
-                    ))}
+                      <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-gray-900">3-4 Bedroom Home</div>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Clock className="w-3 h-3 mr-1" />
+                            3-4 hours
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-green-600">$149-199</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-gray-900">5+ Bedroom Home</div>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Clock className="w-3 h-3 mr-1" />
+                            4-5 hours
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-green-600">$199-299</div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+
+                  {/* Premium Services */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Premium Services</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-gray-900">Deep Cleaning</div>
+                          <div className="text-sm text-gray-600">+50% standard rate</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-blue-600">$149-449</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-gray-900">Move-in/out Cleaning</div>
+                          <div className="text-sm text-gray-600">+80% standard rate</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-blue-600">$178-538</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-gray-900">Recurring Service</div>
+                          <div className="text-sm text-gray-600">Weekly, bi-weekly, monthly</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-purple-600">Save 5-15%</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-semibold text-gray-900 mb-2">What's Included:</h4>
+                  <div className="grid md:grid-cols-2 gap-2 text-sm text-gray-700">
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span>All rooms and bathrooms</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span>Kitchen and appliances</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span>Dusting and vacuuming</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span>Eco-friendly supplies</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span>Insured professionals</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span>Satisfaction guarantee</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 text-center">
+                  <Button size="lg" className="bg-green-600 hover:bg-green-700" asChild>
+                    <Link href="/book-now">Book Your Cleaning Service</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Savings Calculator */}
-      <section className="py-20 bg-white">
+      {/* Why Choose Us */}
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">See How Much You Save</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose Tapstead</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Compare costs with and without a subscription plan
+              Professional service, transparent pricing, and satisfaction guaranteed
             </p>
           </div>
 
-          <Card>
-            <CardContent className="p-8">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Service</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-900">Pay-As-You-Go</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-900">Home Care Plus</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-900">Premium Care</th>
-                      <th className="text-center py-3 px-4 font-semibold text-green-600">Max Savings</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {savingsExamples.map((example, index) => (
-                      <tr key={index} className="border-b border-gray-100">
-                        <td className="py-4 px-4 text-gray-900">{example.service}</td>
-                        <td className="py-4 px-4 text-center text-gray-600">{example.regular}</td>
-                        <td className="py-4 px-4 text-center font-semibold text-blue-600">{example.plus}</td>
-                        <td className="py-4 px-4 text-center font-semibold text-green-600">{example.premium}</td>
-                        <td className="py-4 px-4 text-center font-bold text-green-600">{example.savings}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="p-8">
+                <Calendar className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                <h3 className="font-semibold text-lg mb-2">Instant Booking</h3>
+                <p className="text-gray-600">
+                  Book home cleaning online with same-day availability and secure payment.
+                </p>
+              </CardContent>
+            </Card>
 
-              <div className="text-center mt-8">
-                <div className="bg-blue-50 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-blue-900 mb-2">
-                    Average customer saves $126/month with Home Care Plus
-                  </h3>
-                  <p className="text-blue-700 mb-4">That's $1,512 in savings per year!</p>
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
-                    <Link href="/signup">Start Your Free Trial</Link>
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            <Card className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="p-8">
+                <MessageSquare className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="font-semibold text-lg mb-2">Free Assessments</h3>
+                <p className="text-gray-600">
+                  Get detailed quotes for complex projects with expert on-site evaluations.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center hover:shadow-lg transition-shadow">
+              <CardContent className="p-8">
+                <Shield className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                <h3 className="font-semibold text-lg mb-2">Satisfaction Guaranteed</h3>
+                <p className="text-gray-600">
+                  All services backed by our 100% satisfaction guarantee and insurance.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 

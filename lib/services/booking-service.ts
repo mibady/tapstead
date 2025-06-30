@@ -34,6 +34,9 @@ export interface QuoteRequestSubmission {
  */
 export async function submitBooking(bookingData: BookingSubmission) {
   
+  if (!supabase) {
+    return { data: null, error: new Error("Service temporarily unavailable") }
+  }
   
   try {
     const { data, error } = await supabase
@@ -55,6 +58,9 @@ export async function submitBooking(bookingData: BookingSubmission) {
  */
 export async function submitQuoteRequest(quoteData: QuoteRequestSubmission) {
   
+  if (!supabase) {
+    return { data: null, error: new Error("Service temporarily unavailable") }
+  }
   
   try {
     const { data, error } = await supabase
@@ -76,6 +82,9 @@ export async function submitQuoteRequest(quoteData: QuoteRequestSubmission) {
  */
 export async function getCustomerBookings(customerId: string) {
   
+  if (!supabase) {
+    return { data: null, error: new Error("Service temporarily unavailable") }
+  }
   
   try {
     const { data, error } = await supabase
@@ -100,6 +109,9 @@ export async function getCustomerBookings(customerId: string) {
  */
 export async function getCustomerQuoteRequests(customerId: string) {
   
+  if (!supabase) {
+    return { data: null, error: new Error("Service temporarily unavailable") }
+  }
   
   try {
     const { data, error } = await supabase
@@ -127,6 +139,9 @@ export async function getCustomerQuoteRequests(customerId: string) {
  */
 export async function getServices() {
   
+  if (!supabase) {
+    return { data: null, error: new Error("Service temporarily unavailable") }
+  }
   
   try {
     const { data, error } = await supabase
@@ -151,6 +166,9 @@ export async function getServices() {
  */
 export async function getCustomerSubscription(customerId: string) {
   
+  if (!supabase) {
+    return { data: null, error: new Error("Service temporarily unavailable") }
+  }
   
   try {
     const { data, error } = await supabase
@@ -173,6 +191,9 @@ export async function getCustomerSubscription(customerId: string) {
  */
 export async function getBookingById(bookingId: string) {
   
+  if (!supabase) {
+    return { data: null, error: new Error("Service temporarily unavailable") }
+  }
   
   try {
     const { data, error } = await supabase

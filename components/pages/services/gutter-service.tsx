@@ -66,21 +66,21 @@ const testimonials = [
     rating: 5,
     text: "Excellent gutter cleaning service! They removed years of debris and fixed a small leak I didn't even know about. Very thorough work.",
     service: "Gutter Cleaning",
-    location: "Seattle, WA",
+    location: "Bothell, WA",
   },
   {
     name: "Patricia Lee",
     rating: 5,
     text: "Had new gutters installed after storm damage. Professional installation, great materials, and they cleaned up perfectly. Highly recommend!",
     service: "Gutter Installation",
-    location: "Atlanta, GA",
+    location: "Lynnwood, WA",
   },
   {
     name: "Carlos Martinez",
     rating: 5,
     text: "Fixed multiple leaks and adjusted the slope on my gutters. No more water pooling! Fair pricing and quality workmanship.",
     service: "Gutter Repairs",
-    location: "Phoenix, AZ",
+    location: "Everett, WA"
   },
 ]
 
@@ -160,7 +160,7 @@ export function GutterService() {
                 </Button>
                 <Button size="lg" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
                   <Phone className="mr-2 h-5 w-5" />
-                  (555) 123-4567
+                  (360) 641-7386
                 </Button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8 text-sm text-gray-600">

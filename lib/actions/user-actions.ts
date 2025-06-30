@@ -6,6 +6,10 @@ import { revalidatePath } from "next/cache"
 export async function updateUserProfile(formData: FormData) {
   const supabase = createServerClient()
 
+  if (!supabase) {
+    throw new Error("Service temporarily unavailable")
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -36,6 +40,10 @@ export async function updateUserProfile(formData: FormData) {
 
 export async function getUserProfile() {
   const supabase = createServerClient()
+
+  if (!supabase) {
+    return null
+  }
 
   const {
     data: { user },

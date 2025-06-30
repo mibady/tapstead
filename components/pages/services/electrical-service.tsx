@@ -54,21 +54,21 @@ const testimonials = [
     rating: 5,
     text: "Quick response to our emergency electrical issue. The electrician was professional, explained everything clearly, and fixed the problem safely. Highly recommend!",
     service: "Emergency Repair",
-    location: "Chicago, IL",
+    location: "Bellevue, WA",
   },
   {
     name: "Michael Chen",
     rating: 5,
     text: "Installed new lighting throughout our home. The team was efficient, clean, and did an amazing job. The difference is night and day!",
     service: "Lighting Installation",
-    location: "Seattle, WA",
+    location: "Redmond, WA",
   },
   {
     name: "Emily Rodriguez",
     rating: 5,
     text: "Upgraded our electrical panel to support our growing business needs. Professional, on time, and reasonably priced. Will use again for all our electrical work.",
     service: "Panel Upgrade",
-    location: "Miami, FL",
+    location: "Kirkland, WA"
   },
 ]
 
@@ -110,7 +110,7 @@ export default function ElectricalService() {
         rating={4.9}
         reviewCount={3500}
         price="$99/hr"
-        phoneNumber="(555) 123-4567"
+        phoneNumber="(360) 641-7386"
         isEmergency={true}
         imageSrc="/images/services/Professional Electrical.png"
         imageAlt="Licensed electrician working on electrical panel"
@@ -300,9 +300,9 @@ export default function ElectricalService() {
               className="border-background text-background hover:bg-background/10"
               asChild
             >
-              <a href="tel:5551234567">
+              <a href="tel:13606417386">
                 <Phone className="mr-2 h-5 w-5" />
-                Call Now: (555) 123-4567
+                Call Now: (360) 641-7386
               </a>
             </Button>
           </div>

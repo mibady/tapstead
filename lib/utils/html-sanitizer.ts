@@ -21,6 +21,16 @@ const ALLOWED_ATTRIBUTES: Record<string, string[]> = {
  * TODO: Replace with DOMPurify for production use
  */
 export function sanitizeHTML(html: string): string {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof DOMParser === 'undefined') {
+    // Server-side or DOMParser not available - return a basic sanitized version
+    return html
+      .replace(/<script[^>]*>.*?<\/script>/gi, '')
+      .replace(/<style[^>]*>.*?<\/style>/gi, '')
+      .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
+      .replace(/javascript:/gi, '')
+  }
+  
   // Create a temporary DOM element
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
@@ -71,6 +81,12 @@ export function sanitizeHTML(html: string): string {
  * Use this for content that doesn't need HTML formatting
  */
 export function htmlToSafeText(html: string): string {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof DOMParser === 'undefined') {
+    // Server-side - use basic regex to strip HTML tags
+    return html.replace(/<[^>]*>/g, '').trim()
+  }
+  
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
   

@@ -119,12 +119,11 @@ export function Footer() {
               <h3 className="font-semibold text-lg mb-6">Get in Touch</h3>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
-                  <Phone className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-300">(555) 123-4567</span>
+                  <Phone className="w-4 h-4 text-blue-400" />
+                  <a href="tel:13606417386" className="text-blue-300 hover:text-blue-200 font-medium">(360) 641-7386</a>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <Phone className="w-4 h-4 text-red-400" />
-                  <span className="text-red-300 font-medium">(555) DISASTER</span>
+                <div className="text-xs text-gray-400 pl-7">
+                  24/7 AI Assistant • Booking • Support • Emergencies
                 </div>
                 <div className="flex items-center space-x-3">
                   <Mail className="w-4 h-4 text-gray-400" />

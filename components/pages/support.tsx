@@ -117,7 +117,7 @@ const contactOptions = [
     description: "Speak directly with a support specialist",
     icon: Phone,
     availability: "Mon-Fri 8AM-8PM",
-    action: "Call (555) 123-4567",
+    action: "Call (360) 641-7386",
     primary: false,
   },
   {
@@ -133,7 +133,7 @@ const contactOptions = [
 const emergencyInfo = {
   title: "Emergency Services",
   description: "For urgent home emergencies requiring immediate attention",
-  phone: "(555) DISASTER",
+  phone: "(360) 641-7386",
   available: "24/7/365",
 }
 

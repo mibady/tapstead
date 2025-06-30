@@ -59,21 +59,21 @@ const testimonials = [
     rating: 5,
     text: "Maria and her team transformed my home! They were thorough, professional, and used eco-friendly products that didn't trigger my allergies.",
     service: "Deep Clean",
-    location: "Austin, TX",
+    location: "Issaquah, WA",
   },
   {
     name: "Mike Chen",
     rating: 5,
     text: "I've been using Tapstead's cleaning service monthly for 6 months. Consistent quality, always on time, and great communication.",
     service: "Standard Clean",
-    location: "Seattle, WA",
+    location: "Sammamish, WA",
   },
   {
     name: "Jennifer Davis",
     rating: 5,
     text: "The move-out cleaning was perfect! Got my full security deposit back thanks to their attention to detail.",
     service: "Move-Out Clean",
-    location: "Denver, CO",
+    location: "Mukilteo, WA"
   },
 ]
 
@@ -130,9 +130,9 @@ export default function HouseCleaningService() {
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="tel:555-123-4567">
+                  <Link href="tel:13606417386">
                     <Phone className="w-4 h-4 mr-2" />
-                    Call (555) 123-4567
+                    Call (360) 641-7386
                   </Link>
                 </Button>
               </div>

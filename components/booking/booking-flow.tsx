@@ -4,14 +4,11 @@ import { useState, useEffect, lazy, Suspense } from "react"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { ServiceSelection } from "./service-selection"
-import { BookingDetails } from "./booking-details"
-import { QuoteRequestForm } from "./quote-request-form"
-import { CustomerInfo } from "./customer-info"
-import { BookingConfirmation } from "./booking-confirmation"
-import { QuoteRequestConfirmation } from "./quote-request-confirmation"
+import ServiceSelector from "./ServiceSelector"
+import OnlineBookingForm from "./OnlineBookingForm"
+import QuoteRequestForm from "./QuoteRequestForm"
 
-const StripePaymentForm = lazy(() => import("./stripe-payment-form").then(module => ({ default: module.StripePaymentForm })))
+const StripePaymentForm = lazy(() => import("./StripeCheckoutButton"))
 import { Service } from "@/lib/services/service-data"
 import { ServiceType } from "@/types/service-types"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -122,31 +119,32 @@ export function BookingFlow() {
 
   const renderStepContent = () => {
     if (!selectedService && currentStep > 1) {
-      return <ServiceSelection onNext={handleNext} />
+      return <ServiceSelector services={[]} onSelect={handleNext} />
     }
 
     switch (currentStep) {
       case 1:
-        return <ServiceSelection onNext={handleNext} />
+        return <ServiceSelector services={[]} onSelect={handleNext} />
       case 2:
         if (isQuoteRequired) {
           return <QuoteRequestForm 
+            step={currentStep}
             service={selectedService as any} 
             onNext={handleNext} 
             onBack={handleBack} 
           />
         } else {
-          return <BookingDetails 
+          return <OnlineBookingForm 
+            step={currentStep}
             onNext={handleNext} 
             onBack={handleBack} 
-            service={selectedService as any} 
           />
         }
       case 3:
-        return <CustomerInfo onNext={handleNext} onBack={handleBack} />
+        return <OnlineBookingForm step={currentStep} onNext={handleNext} onBack={handleBack} />
       case 4:
         if (isQuoteRequired) {
-          return <QuoteRequestConfirmation bookingData={bookingData} />
+          return <div className="text-center p-8">Quote request submitted successfully!</div>
         } else {
           return (
             <Suspense fallback={
@@ -163,14 +161,14 @@ export function BookingFlow() {
                 </div>
               </Card>
             }>
-              <StripePaymentForm onNext={handleNext} onBack={handleBack} bookingData={bookingData} />
+              <StripePaymentForm lineItems={[]} metadata={{}} onSuccess={() => handleNext(null)} />
             </Suspense>
           )
         }
       case 5:
-        return <BookingConfirmation bookingData={bookingData} />
+        return <div className="text-center p-8">Booking confirmed!</div>
       default:
-        return <ServiceSelection onNext={handleNext} />
+        return <ServiceSelector services={[]} onSelect={handleNext} />
     }
   }
 

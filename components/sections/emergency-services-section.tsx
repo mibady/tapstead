@@ -147,17 +147,19 @@ export function EmergencyServicesSection() {
         <Card className="bg-red-600 text-white">
           <CardContent className="p-8 text-center">
             <Phone className="h-12 w-12 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold mb-2">24/7 Emergency Disaster Hotline</h3>
+            <h3 className="text-2xl font-bold mb-2">24/7 Emergency AI Assistant</h3>
             <p className="text-red-100 mb-6">
-              For immediate emergency response after fires, storms, or disasters, call our dedicated hotline. Our
-              certified teams are standing by.
+              For immediate emergency response after fires, storms, or disasters, call our AI emergency assistant. 
+              Available 24/7 with instant routing to certified teams.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" variant="secondary" className="bg-white text-red-600 hover:bg-gray-100">
-                <Phone className="w-5 h-5 mr-2" />
-                Call (555) DISASTER
+              <Button size="lg" variant="secondary" className="bg-white text-red-600 hover:bg-gray-100" asChild>
+                <a href="tel:13606417386">
+                  <Phone className="w-5 h-5 mr-2" />
+                  Call (360) 641-7386
+                </a>
               </Button>
-              <div className="text-red-100 text-sm">Average response time: 1-4 hours depending on emergency type</div>
+              <div className="text-red-100 text-sm">AI answers instantly • Emergency teams deployed within 1-4 hours</div>
             </div>
           </CardContent>
         </Card>

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, Shield, Clock } from "lucide-react"
+import { Star, Shield, Clock, Phone, AlertTriangle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -53,6 +53,22 @@ export function HeroSection() {
               <div className="text-center sm:text-left">
                 <div className="font-semibold text-gray-900">60-Second Booking</div>
                 <div className="text-gray-600">Book in 60 seconds. Live in peace.</div>
+              </div>
+            </div>
+
+            {/* Phone Numbers */}
+            <div className="bg-white/80 backdrop-blur rounded-xl p-6 border border-blue-100">
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <Phone className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-center">
+                  <div className="font-semibold text-gray-900 text-lg">24/7 AI Phone Assistant</div>
+                  <a href="tel:13606417386" className="text-blue-600 font-bold text-2xl hover:underline">
+                    (360) 641-7386
+                  </a>
+                  <div className="text-sm text-gray-600">Booking • Support • Emergencies</div>
+                </div>
               </div>
             </div>
 

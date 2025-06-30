@@ -67,7 +67,7 @@ export function PersonalInfoStep({ formData, onInputChange }: PersonalInfoStepPr
           <Input
             id="phone"
             type="tel"
-            placeholder="(555) 123-4567"
+            placeholder="(360) 641-7386"
             value={formData.phone}
             onChange={(e) => onInputChange("phone", e.target.value)}
             required

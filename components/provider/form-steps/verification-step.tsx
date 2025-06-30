@@ -155,7 +155,7 @@ export function VerificationStep({ formData, onInputChange, onReferenceChange }:
                   <Input
                     id={`ref-phone-${index}`}
                     type="tel"
-                    placeholder="(555) 123-4567"
+                    placeholder="(360) 641-7386"
                     value={reference.phone}
                     onChange={(e) => onReferenceChange(index, "phone", e.target.value)}
                   />

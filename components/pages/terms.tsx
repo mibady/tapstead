@@ -274,7 +274,7 @@ export function TermsPage() {
                   <strong>Email:</strong> legal@tapstead.com
                 </p>
                 <p>
-                  <strong>Phone:</strong> (555) 123-4567
+                  <strong>Phone:</strong> (360) 641-7386
                 </p>
                 <p>
                   <strong>Address:</strong> 123 Legal Street, San Francisco, CA 94105

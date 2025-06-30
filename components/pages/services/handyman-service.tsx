@@ -53,21 +53,21 @@ const testimonials = [
     rating: 5,
     text: "Jake fixed three different issues in one visit - a squeaky door, loose cabinet handle, and mounted my new TV perfectly. Great value!",
     service: "Multiple Repairs",
-    location: "Phoenix, AZ",
+    location: "Renton, WA",
   },
   {
     name: "Lisa Thompson",
     rating: 5,
     text: "Needed help assembling a complex desk. The handyman arrived on time with all tools and had it done in 45 minutes. Professional and efficient!",
     service: "Furniture Assembly",
-    location: "Portland, OR",
+    location: "Kent, WA",
   },
   {
     name: "David Kim",
     rating: 5,
     text: "Excellent ceiling fan installation. Clean work, no mess left behind, and took time to explain the controls. Will definitely use again.",
     service: "Ceiling Fan Install",
-    location: "Nashville, TN",
+    location: "Federal Way, WA"
   },
 ]
 

@@ -252,6 +252,153 @@ export type Database = {
           updated_at?: string | null
         }
       }
+      agent_conversations: {
+        Row: {
+          id: string
+          user_id: string | null
+          agent_type: string
+          session_id: string
+          messages: Json
+          context_data: Json | null
+          user_email: string | null
+          user_role: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          agent_type: string
+          session_id: string
+          messages?: Json
+          context_data?: Json | null
+          user_email?: string | null
+          user_role?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          agent_type?: string
+          session_id?: string
+          messages?: Json
+          context_data?: Json | null
+          user_email?: string | null
+          user_role?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      agent_interactions: {
+        Row: {
+          id: string
+          agent_type: string
+          user_id: string | null
+          session_id: string | null
+          tool_used: string | null
+          success: boolean | null
+          response_time_ms: number | null
+          error_message: string | null
+          user_input: string | null
+          agent_response: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          agent_type: string
+          user_id?: string | null
+          session_id?: string | null
+          tool_used?: string | null
+          success?: boolean | null
+          response_time_ms?: number | null
+          error_message?: string | null
+          user_input?: string | null
+          agent_response?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          agent_type?: string
+          user_id?: string | null
+          session_id?: string | null
+          tool_used?: string | null
+          success?: boolean | null
+          response_time_ms?: number | null
+          error_message?: string | null
+          user_input?: string | null
+          agent_response?: string | null
+          created_at?: string | null
+        }
+      }
+      provider_applications: {
+        Row: {
+          id: string
+          name: string
+          email: string
+          phone: string
+          company_name: string | null
+          services: string[]
+          experience_years: number
+          license_number: string | null
+          insurance_provider: string | null
+          coverage_amount: number | null
+          service_areas: string[]
+          availability: Json
+          emergency_services: boolean | null
+          background_check_consent: boolean
+          terms_accepted: boolean
+          additional_info: string | null
+          status: string | null
+          admin_notes: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          email: string
+          phone: string
+          company_name?: string | null
+          services: string[]
+          experience_years: number
+          license_number?: string | null
+          insurance_provider?: string | null
+          coverage_amount?: number | null
+          service_areas: string[]
+          availability: Json
+          emergency_services?: boolean | null
+          background_check_consent: boolean
+          terms_accepted: boolean
+          additional_info?: string | null
+          status?: string | null
+          admin_notes?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string
+          phone?: string
+          company_name?: string | null
+          services?: string[]
+          experience_years?: number
+          license_number?: string | null
+          insurance_provider?: string | null
+          coverage_amount?: number | null
+          service_areas?: string[]
+          availability?: Json
+          emergency_services?: boolean | null
+          background_check_consent?: boolean
+          terms_accepted?: boolean
+          additional_info?: string | null
+          status?: string | null
+          admin_notes?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
     }
   }
 }

@@ -73,7 +73,7 @@ export function SubscriptionManager({ currentSubscription }: SubscriptionManager
   const [billingAnnually, setBillingAnnually] = useState(false)
 
   const handleSubscribe = async (planId: string) => {
-    if (!user) return
+    if (!user || !supabase) return
 
     setLoading(true)
     try {
@@ -102,7 +102,7 @@ export function SubscriptionManager({ currentSubscription }: SubscriptionManager
   }
 
   const handleCancelSubscription = async () => {
-    if (!currentSubscription) return
+    if (!currentSubscription || !supabase) return
 
     setLoading(true)
     try {

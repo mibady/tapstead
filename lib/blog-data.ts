@@ -1,8 +1,16 @@
 import { BlogPost } from "@/types/blog"
 
+function createSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+}
+
 export const blogPosts: BlogPost[] = [
   {
     title: "Kitchen Renovation Ideas That Add Value to Your Home",
+    slug: createSlug("Kitchen Renovation Ideas That Add Value to Your Home"),
     excerpt: "Transform your kitchen with these renovation ideas that combine style, functionality, and return on investment.",
     author: "David Kim",
     date: "2024-01-20",
@@ -157,11 +165,13 @@ export const blogPosts: BlogPost[] = [
     relatedPosts: [
       {
         title: "Energy Efficiency Upgrades That Save You Money",
+        slug: createSlug("Energy Efficiency Upgrades That Save You Money"),
         category: "Energy Efficiency",
         image: "/images/blog/energy-efficiency.jpg",
       },
       {
         title: "The Complete Guide to Spring Home Maintenance",
+        slug: createSlug("The Complete Guide to Spring Home Maintenance"),
         category: "Maintenance",
         image: "/images/blog/spring-home-maintenance.jpg",
       },
@@ -169,6 +179,7 @@ export const blogPosts: BlogPost[] = [
   },
   {
     title: "Energy Efficiency Upgrades That Save You Money",
+    slug: createSlug("Energy Efficiency Upgrades That Save You Money"),
     excerpt: "Discover cost-effective home improvements that reduce energy consumption and lower utility bills.",
     author: "Sarah Johnson",
     date: "2024-02-15",
@@ -281,11 +292,13 @@ export const blogPosts: BlogPost[] = [
     relatedPosts: [
       {
         title: "The Complete Guide to Spring Home Maintenance",
+        slug: createSlug("The Complete Guide to Spring Home Maintenance"),
         category: "Maintenance",
         image: "/images/blog/spring-home-maintenance.jpg",
       },
       {
         title: "Emergency Preparedness: What Every Homeowner Should Know",
+        slug: createSlug("Emergency Preparedness: What Every Homeowner Should Know"),
         category: "Emergency",
         image: "/images/blog/emergency-kit.jpg",
       },
@@ -293,6 +306,7 @@ export const blogPosts: BlogPost[] = [
   },
   {
     title: "Emergency Preparedness: What Every Homeowner Should Know",
+    slug: createSlug("Emergency Preparedness: What Every Homeowner Should Know"),
     excerpt: "Be ready for unexpected disasters with this emergency preparedness guide.",
     author: "Lisa Rodriguez",
     date: "2024-03-08",
@@ -486,11 +500,13 @@ export const blogPosts: BlogPost[] = [
     relatedPosts: [
       {
         title: "The Complete Guide to Spring Home Maintenance",
+        slug: createSlug("The Complete Guide to Spring Home Maintenance"),
         category: "Maintenance",
         image: "/images/blog/spring-home-maintenance.jpg",
       },
       {
         title: "5 Signs Your Electrical System Needs Professional Attention",
+        slug: createSlug("5 Signs Your Electrical System Needs Professional Attention"),
         category: "Electrical",
         image: "/placeholder.svg?height=200&width=300&text=Electrical+Safety",
       },
@@ -498,6 +514,7 @@ export const blogPosts: BlogPost[] = [
   },
   {
     title: "How to Choose the Right Plumber for Your Home",
+    slug: createSlug("How to Choose the Right Plumber for Your Home"),
     excerpt: "Essential tips for finding qualified, trustworthy plumbing professionals.",
     author: "Mike Chen",
     date: "2024-03-10",
@@ -702,11 +719,13 @@ export const blogPosts: BlogPost[] = [
     relatedPosts: [
       {
         title: "5 Signs Your Electrical System Needs Professional Attention",
+        slug: createSlug("5 Signs Your Electrical System Needs Professional Attention"),
         category: "Electrical",
         image: "/placeholder.svg?height=200&width=300&text=Electrical+Safety",
       },
       {
         title: "DIY vs Professional: When to Call the Experts",
+        slug: createSlug("DIY vs Professional: When to Call the Experts"),
         category: "Maintenance",
         image: "/placeholder.svg?height=200&width=300&text=DIY+vs+Pro",
       },
@@ -716,6 +735,7 @@ export const blogPosts: BlogPost[] = [
 
 export const featuredPost: BlogPost = {
   title: "The Complete Guide to Spring Home Maintenance",
+  slug: createSlug("The Complete Guide to Spring Home Maintenance"),
   excerpt: "Get your home ready for spring with this comprehensive checklist covering everything from HVAC to landscaping.",
   author: "Sarah Johnson",
   date: "2024-03-15",
@@ -844,11 +864,13 @@ export const featuredPost: BlogPost = {
   relatedPosts: [
     {
       title: "The Ultimate Guide to Gutter Maintenance",
+      slug: createSlug("The Ultimate Guide to Gutter Maintenance"),
       category: "Maintenance",
       image: "/placeholder.svg?height=200&width=300&text=Gutter+Guide",
     },
     {
       title: "How to Prepare Your Home for Winter Weather",
+      slug: createSlug("How to Prepare Your Home for Winter Weather"),
       category: "Maintenance",
       image: "/placeholder.svg?height=200&width=300&text=Winter+Prep",
     },

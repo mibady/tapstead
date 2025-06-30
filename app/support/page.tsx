@@ -1,5 +1,6 @@
 import { MarketingLayout } from "@/components/layout/marketing-layout"
 import { SupportPage } from "@/components/pages/support"
+import { SupportAgent } from "@/components/agents/SupportAgent"
 
 export const metadata = {
   title: "Help & Support - Tapstead",
@@ -10,6 +11,7 @@ export default function Support() {
   return (
     <MarketingLayout>
       <SupportPage />
+      <SupportAgent />
     </MarketingLayout>
   )
 }

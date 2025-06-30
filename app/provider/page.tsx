@@ -20,9 +20,14 @@ export default function ProviderDashboardPage() {
   }, [user])
 
   const fetchProviderData = async () => {
+    if (!supabase || !user?.id) {
+      setLoading(false)
+      return
+    }
+    
     try {
       // Fetch provider profile
-      const { data: providerData } = await supabase.from("providers").select("*").eq("user_id", user?.id).single()
+      const { data: providerData } = await supabase.from("providers").select("*").eq("user_id", user.id).single()
 
       // Fetch recent jobs
       const { data: jobsData } = await supabase

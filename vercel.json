@@ -1,11 +1,19 @@
 {
   "framework": "nextjs",
-  "buildCommand": "pnpm build",
-  "devCommand": "pnpm dev",
-  "installCommand": "pnpm install",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
   "functions": {
     "app/api/**/*.ts": {
-      "maxDuration": 30
+      "maxDuration": 60
+    },
+    "app/api/chat/**/*.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "app/api/agents/**/*.ts": {
+      "maxDuration": 60,
+      "memory": 1024
     }
   },
   "rewrites": [

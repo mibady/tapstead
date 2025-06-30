@@ -1,11 +1,23 @@
-import bundleAnalyzer from '@next/bundle-analyzer'
+// import bundleAnalyzer from '@next/bundle-analyzer'
+// TODO: Uncomment when MDX dependencies are installed
+// import createMDX from '@next/mdx'
 
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-})
+// const withBundleAnalyzer = bundleAnalyzer({
+//   enabled: process.env.ANALYZE === 'true',
+// })
+
+// TODO: Uncomment when MDX dependencies are installed
+// const withMDX = createMDX({
+//   options: {
+//     remarkPlugins: [],
+//     rehypePlugins: [],
+//   },
+// })
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // TODO: Uncomment when MDX is enabled
+  // pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   // Enable ESLint and TypeScript checks during builds for production safety
   eslint: {
     ignoreDuringBuilds: false,
@@ -18,46 +30,10 @@ const nextConfig = {
       allowedOrigins: ["localhost:3000", "*.vercel.app", "tapstead.com"]
     }
   },
-  // Bundle optimization
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Bundle splitting optimizations
-    if (!isServer) {
-      config.optimization.splitChunks = {
-        ...config.optimization.splitChunks,
-        cacheGroups: {
-          ...config.optimization.splitChunks.cacheGroups,
-          // Separate vendor chunks for better caching
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            priority: 10,
-          },
-          // UI components chunk
-          ui: {
-            test: /[\\/]components[\\/]ui[\\/]/,
-            name: 'ui-components',
-            chunks: 'all',
-            priority: 20,
-          },
-          // Large third-party libraries
-          supabase: {
-            test: /[\\/]node_modules[\\/]@supabase[\\/]/,
-            name: 'supabase',
-            chunks: 'all',
-            priority: 30,
-          },
-          stripe: {
-            test: /[\\/]node_modules[\\/]@stripe[\\/]/,
-            name: 'stripe',
-            chunks: 'all',
-            priority: 30,
-          },
-        },
-      }
-    }
-    
-    return config
+  env: {
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY
   },
   // Compress static assets
   compress: true,
@@ -98,4 +74,6 @@ const nextConfig = {
   },
 }
 
-export default withBundleAnalyzer(nextConfig)
+// TODO: When MDX is enabled, change this to:
+// export default withBundleAnalyzer(withMDX(nextConfig))
+export default nextConfig

@@ -30,5 +30,8 @@ next-env.d.ts
 # claude assistant
 .claude/
 
+# gemini settings
+.gemini/
+
 # npm (since we're using pnpm)
 package-lock.json

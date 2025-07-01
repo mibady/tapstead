@@ -1,35 +1,65 @@
-import { AgentConfig, UserContext } from './types'
+import { AgentConfig } from '../config'
+import { supabase } from '@/lib/supabase/client'
 
-// Simple in-memory rate limiting (use Redis in production)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT_WINDOW = 60000 // 1 minute
+const DEFAULT_REQUESTS_PER_WINDOW = 20
 
-export async function validateUserAccess(
-  userContext: UserContext,
-  config: AgentConfig
-): Promise<void> {
-  const key = `${userContext.id || 'anonymous'}-${config.name}`
-  const now = Date.now()
-  
-  const existing = rateLimitStore.get(key)
-  
-  if (existing) {
-    if (now < existing.resetTime) {
-      if (existing.count >= config.rateLimiting.requests) {
-        throw new Error('Rate limit exceeded. Please try again later.')
-      }
-      existing.count++
-    } else {
-      // Reset window
-      rateLimitStore.set(key, {
-        count: 1,
-        resetTime: now + config.rateLimiting.windowMs
-      })
+export async function rateLimiter(key: string, config: AgentConfig): Promise<boolean> {
+  try {
+    const { data } = await supabase
+      .from('rate_limits')
+      .select('requests, updated_at')
+      .eq('key', key)
+      .single()
+
+    const now = Date.now()
+    const maxRequests = config.rateLimiting?.requests || DEFAULT_REQUESTS_PER_WINDOW
+    const windowMs = config.rateLimiting?.windowMs || RATE_LIMIT_WINDOW
+    
+    if (!data) {
+      // First request for this key
+      await supabase
+        .from('rate_limits')
+        .insert({
+          key,
+          requests: 1,
+          updated_at: new Date(now).toISOString()
+        })
+      return true
     }
-  } else {
-    rateLimitStore.set(key, {
-      count: 1,
-      resetTime: now + config.rateLimiting.windowMs
-    })
+
+    const timeSinceLastRequest = now - new Date(data.updated_at).getTime()
+    
+    if (timeSinceLastRequest > windowMs) {
+      // Window expired, reset counter
+      await supabase
+        .from('rate_limits')
+        .update({
+          requests: 1,
+          updated_at: new Date(now).toISOString()
+        })
+        .eq('key', key)
+      return true
+    }
+
+    if (data.requests >= maxRequests) {
+      return false // Rate limit exceeded
+    }
+
+    // Increment request count
+    await supabase
+      .from('rate_limits')
+      .update({
+        requests: data.requests + 1,
+        updated_at: new Date(now).toISOString()
+      })
+      .eq('key', key)
+    
+    return true
+
+  } catch (error) {
+    console.error('Rate limiter error:', error)
+    return true // Allow request if rate limiting fails
   }
 }
 

@@ -1,150 +1,123 @@
-import { streamText, CoreTool } from 'ai'
-import { openai } from '@ai-sdk/openai'
-import { AgentConfig, ConversationContext, UserContext } from './types'
-import { validateUserAccess } from './security'
-import { logAgentInteraction } from './logging'
-import { createServerClient } from '@/lib/supabase/client'
+import Anthropic from '@anthropic-ai/sdk'
+import { StreamingTextResponse } from 'ai'
+import { supabase } from '@/lib/supabase/client'
+import { AgentConfig } from '../config'
+import { rateLimiter } from './security'
+import { logInteraction } from './logging'
 
-export function createAgentHandler(
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY
+})
+
+export const createAgentHandler = (
   config: AgentConfig,
   systemPrompt: string,
-  tools: Record<string, CoreTool>
-) {
+  tools: any[]
+) => {
   return async function handler(req: Request) {
-    const startTime = Date.now()
-    let success = false
-    let toolsUsed: string[] = []
-
     try {
-      const { messages, context }: { 
-        messages: any[], 
-        context?: ConversationContext 
-      } = await req.json()
+      // Parse request
+      const { messages, context } = await req.json()
+      const { sessionId, userId } = context || {}
 
-      // Extract user context from headers or auth
-      const userContext = await getUserContext(req)
-
-      // Validate access
-      if (config.requiresAuth && !userContext.isAuthenticated) {
-        return new Response(
-          JSON.stringify({ error: 'Authentication required' }),
-          { status: 401, headers: { 'Content-Type': 'application/json' } }
-        )
+      // Rate limiting check
+      const rateLimitKey = userId || req.headers.get('x-forwarded-for') || 'anonymous'
+      const canProceed = await rateLimiter(rateLimitKey, config)
+      if (!canProceed) {
+        return new Response('Rate limit exceeded', { status: 429 })
       }
 
-      if (config.allowedRoles && userContext.role && !config.allowedRoles.includes(userContext.role)) {
-        return new Response(
-          JSON.stringify({ error: 'Insufficient permissions' }),
-          { status: 403, headers: { 'Content-Type': 'application/json' } }
-        )
+      // Auth check if required
+      if (config.requiresAuth && !userId) {
+        return new Response('Authentication required', { status: 401 })
       }
 
-      // Apply rate limiting
-      await validateUserAccess(userContext, config)
-
-      // Enhanced system prompt with context
-      const enhancedSystemPrompt = `${systemPrompt}
-
-Context:
-- User ID: ${userContext.id || 'anonymous'}
-- User Role: ${userContext.role || 'customer'}
-- Session: ${context?.sessionId || 'new'}
-
-Important Instructions:
-- Be helpful, professional, and concise
-- If you cannot help with something, explain why and offer alternatives
-- For sensitive operations, verify user permissions
-- If you encounter errors, provide clear next steps
-- Always prioritize user privacy and data security`
-
-      const result = streamText({
-        model: openai(config.model),
-        system: enhancedSystemPrompt,
-        messages,
-        tools,
-        temperature: config.temperature,
-        maxTokens: config.maxTokens,
-        onFinish: (finishResult) => {
-          success = true
-          toolsUsed = finishResult.toolCalls?.map(tc => tc.toolName) || []
-        }
-      })
-
-      // Log the interaction
-      await logAgentInteraction({
-        agentType: config.name,
-        userId: userContext.id,
-        success,
-        responseTime: Date.now() - startTime,
-        toolsUsed
-      })
-
-      return result.toDataStreamResponse()
-    } catch (error) {
-      console.error(`Agent ${config.name} error:`, error)
-      
-      // Log the failed interaction
-      await logAgentInteraction({
-        agentType: config.name,
-        userId: undefined,
-        success: false,
-        responseTime: Date.now() - startTime,
-        toolsUsed,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      })
-
-      return new Response(
-        JSON.stringify({ 
-          error: 'Agent temporarily unavailable. Please try again later.' 
-        }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
-  }
-}
-
-async function getUserContext(req: Request): Promise<UserContext> {
-  try {
-    // Try to get user from Authorization header first
-    const authorization = req.headers.get('authorization')
-    
-    if (authorization?.startsWith('Bearer ')) {
-      const token = authorization.replace('Bearer ', '')
-      const supabase = createServerClient()
-      
-      if (!supabase) {
-        return {
-          isAuthenticated: false
+      // Role check if specified
+      if (config.allowedRoles?.length > 0) {
+        const { data: user } = await supabase.auth.getUser(userId)
+        if (!user || !config.allowedRoles.includes(user.user?.user_metadata?.role)) {
+          return new Response('Unauthorized', { status: 403 })
         }
       }
-      
-      const { data: { user }, error } = await supabase.auth.getUser(token)
-      
-      if (user && !error) {
-        // Get user role from database
-        const { data: profile } = await supabase
-          .from('users')
-          .select('customer_type')
-          .eq('id', user.id)
+
+      // Create or get conversation
+      let conversationId = sessionId
+      if (!conversationId) {
+        const { data: conv } = await supabase
+          .from('chat_conversations')
+          .insert({
+            user_id: userId,
+            agent_type: config.name
+          })
+          .select()
           .single()
-        
-        return {
-          id: user.id,
-          email: user.email!,
-          role: profile?.customer_type || 'customer',
-          isAuthenticated: true
-        }
+        conversationId = conv?.id
       }
-    }
 
-    // For non-authenticated requests (like recruiting agent), allow anonymous access
-    return {
-      isAuthenticated: false
-    }
-  } catch (error) {
-    console.error('Error getting user context:', error)
-    return {
-      isAuthenticated: false
+      // Store messages
+      if (conversationId) {
+        await supabase.from('chat_messages').insert(
+          messages.map((m: any) => ({
+            conversation_id: conversationId,
+            role: m.role,
+            content: m.content
+          }))
+        )
+      }
+
+      // Create completion request
+      const fullSystemPrompt = `${systemPrompt}\n\nAvailable tools:\n${JSON.stringify(tools, null, 2)}`
+      
+      const startTime = Date.now()
+      const response = await anthropic.messages.create({
+        model: 'claude-3-opus-20240229',
+        max_tokens: config.maxTokens || 1024,
+        temperature: config.temperature || 0.7,
+        system: fullSystemPrompt,
+        messages: messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        tools: tools.map(t => ({
+          name: t.name,
+          description: t.description,
+          parameters: t.parameters
+        })),
+        stream: true
+      })
+
+      // Log interaction
+      const latencyMs = Date.now() - startTime
+      await logInteraction({
+        conversationId,
+        agentType: config.name,
+        toolName: 'chat_completion',
+        success: true,
+        latencyMs
+      })
+
+      // Convert Anthropic stream to ReadableStream
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            for await (const chunk of response) {
+              if (chunk.type === 'content_block_delta' && chunk.delta.text) {
+                controller.enqueue(new TextEncoder().encode(chunk.delta.text))
+              }
+            }
+            controller.close()
+          } catch (error) {
+            controller.error(error)
+          }
+        }
+      })
+
+      // Return streaming response
+      return new StreamingTextResponse(stream)
+
+    } catch (error) {
+      console.error('Agent handler error:', error)
+      return new Response('Internal server error', { status: 500 })
     }
   }
 }

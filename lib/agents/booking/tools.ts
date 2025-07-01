@@ -308,7 +308,7 @@ export const getBookingHelp = tool({
       },
       phone: {
         title: "Phone Support",
-        content: "Call us at (360) 641-7386 for immediate assistance with our 24/7 AI phone agent for bookings, quotes, emergencies, and routing to the right specialist."
+        content: "Call us at (360) 641-7386 for immediate assistance with our 24/7 phone assistant for bookings, quotes, emergencies, and routing to the right specialist."
       }
     }
     
@@ -325,7 +325,7 @@ export const getBookingHelp = tool({
         title: "Booking Help",
         content: "I can help you with pricing, scheduling, cancellations, provider information, and payment questions. You can also call us at (360) 641-7386 for immediate phone support. What specific topic would you like to know about?",
         availableTopics: Object.keys(helpTopics),
-        phoneSupport: "(360) 641-7386 - 24/7 AI phone assistance"
+        phoneSupport: "(360) 641-7386 - 24/7 phone assistance"
       }
     }
   }
@@ -454,13 +454,13 @@ export const getPhoneSupport = tool({
       general: {
         number: "(360) 641-7386",
         description: "General support and booking assistance",
-        availability: "24/7 AI assistant available",
+        availability: "24/7 phone assistant available",
         avgWaitTime: "Immediate connection"
       },
       booking: {
         number: "(360) 641-7386",
         description: "Booking assistance and service scheduling",
-        availability: "24/7 AI booking assistant",
+        availability: "24/7 phone assistant",
         avgWaitTime: "Immediate connection"
       },
       emergency: {
@@ -472,7 +472,7 @@ export const getPhoneSupport = tool({
       billing: {
         number: "(360) 641-7386",
         description: "Billing questions and payment support",
-        availability: "24/7 AI assistant, human agents Mon-Fri 9AM-6PM",
+        availability: "24/7 phone assistant, human agents Mon-Fri 9AM-6PM",
         avgWaitTime: "Immediate AI assistance"
       }
     }
@@ -491,7 +491,7 @@ export const getPhoneSupport = tool({
       success: true,
       support: {
         mainNumber: "(360) 641-7386",
-        description: "Our AI phone assistant can help with all your needs 24/7",
+        description: "Our phone assistant can help with all your needs 24/7",
         capabilities: [
           "Service booking and scheduling",
           "Price quotes and estimates", 

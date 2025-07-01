@@ -1,70 +1,184 @@
-import { createAgentHandler } from '@/lib/agents/core/handler'
-import { AGENT_CONFIGS } from '@/lib/agents/config'
-import {
-  searchServices,
-  getServiceDetails,
-  generateQuote,
-  checkProviderAvailability,
-  createBookingRequest,
-  getBookingHelp,
-  initiatePhoneCall,
-  requestCallback,
-  getPhoneSupport
-} from '@/lib/agents/booking/tools'
+import { streamToResponse, Message } from 'ai'
+import { Anthropic } from '@anthropic-ai/sdk'
+import { z } from 'zod'
+import { createServerClient } from '@/lib/supabase/client'
 
-const systemPrompt = `You are a helpful booking assistant for Tapstead, a home services platform with advanced AI phone capabilities.
+// Initialize Anthropic client
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY
+})
 
-Your role is to:
-1. Help customers find the right service for their needs
-2. Provide accurate pricing estimates and quotes
-3. Check availability and help schedule services
-4. Guide customers through the booking process
-5. Answer questions about our services and policies
-6. Offer phone support and callback scheduling
-7. Route emergency calls appropriately
+// System prompt
+const systemPrompt = `You are a helpful booking assistant for Tapstead. Help customers find and book services while being friendly and professional.
 
-Key Information about Tapstead Services:
-- We offer house cleaning, handyman services, plumbing, electrical, painting, pressure washing, gutter services, junk removal, welding, and emergency services
-- All providers are licensed, insured, and background-checked
-- We serve customers Monday-Sunday, 9 AM to 6 PM (emergency services 24/7)
-- Free cancellation up to 4 hours before scheduled time
-- Upfront pricing with no hidden fees
-- Payment after service completion
+Key Points:
+• Get service requirements before quoting
+• Check availability before booking
+• Be clear about pricing and policies
+• Guide customers step by step
+• Offer phone support when needed
 
-Phone Support Capabilities:
-- Main number: (360) 641-7386 - 24/7 AI phone assistant for all services (booking, support, emergencies)
-- Can initiate immediate callbacks for urgent needs
-- Phone booking and quote assistance available
-- AI phone agent can handle complex bookings, emergencies, and routing
-- Single number handles all inquiries with intelligent routing
+Available services:
+• House cleaning
+• Handyman services
+• Plumbing
+• Electrical work
+• Painting
+• Pressure washing
+• Gutter services
+• Junk removal
+• Emergency services
 
-Guidelines:
-- Always get service requirements before providing quotes
-- Ask about urgency to provide accurate pricing and routing
-- Offer phone support for complex bookings or urgent needs
-- For emergencies, immediately offer phone assistance at (360) 641-7386
-- Confirm availability before suggesting booking
-- Be helpful and professional, but don't oversell
-- If you can't help with something, offer phone support as an alternative
-- Always provide clear next steps for the customer
-- Promote phone support when appropriate for better service
+Remember:
+• Licensed and insured providers
+• Free cancellation up to 4 hours before
+• Payment after service completion
+• 24/7 phone support at (360) 641-7386`
 
-Use the available tools to provide accurate, real-time information about services, pricing, availability, and phone support options.`
+// Input validation schema
+const MessageSchema = z.object({
+  id: z.string().optional(),
+  role: z.enum(['user', 'assistant', 'system']),
+  content: z.string(),
+  name: z.string().optional(),
+  function_call: z.any().optional()
+})
 
-const handler = createAgentHandler(
-  AGENT_CONFIGS.booking,
-  systemPrompt,
-  {
-    search_services: searchServices,
-    get_service_details: getServiceDetails,
-    generate_quote: generateQuote,
-    check_provider_availability: checkProviderAvailability,
-    create_booking_request: createBookingRequest,
-    get_booking_help: getBookingHelp,
-    initiate_phone_call: initiatePhoneCall,
-    request_callback: requestCallback,
-    get_phone_support: getPhoneSupport
+const RequestSchema = z.object({
+  messages: z.array(MessageSchema),
+  functions: z.array(z.any()).optional(),
+  function_call: z.any().optional()
+})
+
+// Rate limiting configuration
+async function checkRateLimit(ip: string): Promise<boolean> {
+  try {
+    const supabase = createServerClient()
+    const key = `rate_limit:chat:${ip}`
+    const { data: rateLimit } = await supabase
+      .from('rate_limits')
+      .select('*')
+      .eq('key', key)
+      .single()
+
+    const now = Date.now()
+    const windowMs = 60 * 1000 // 1 minute
+    const maxRequests = 20 // 20 requests per minute
+
+    if (!rateLimit) {
+      // Create new rate limit entry
+      await supabase
+        .from('rate_limits')
+        .insert({
+          key,
+          count: 1,
+          reset_at: new Date(now + windowMs).toISOString()
+        })
+      return true
+    }
+
+    const resetAt = new Date(rateLimit.reset_at).getTime()
+    if (now > resetAt) {
+      // Reset rate limit
+      await supabase
+        .from('rate_limits')
+        .update({
+          count: 1,
+          reset_at: new Date(now + windowMs).toISOString()
+        })
+        .eq('key', key)
+      return true
+    }
+
+    if (rateLimit.count >= maxRequests) {
+      return false
+    }
+
+    // Increment count
+    await supabase
+      .from('rate_limits')
+      .update({ count: rateLimit.count + 1 })
+      .eq('key', key)
+    return true
+
+  } catch (error) {
+    console.error('Rate limit error:', error)
+    // Fail open
+    return true
   }
-)
+}
 
-export const POST = handler
+export async function POST(req: Request) {
+  try {
+    // Get client IP
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+    
+    // Check rate limit
+    const allowed = await checkRateLimit(ip)
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Too many requests' }),
+        { status: 429 }
+      )
+    }
+
+    // Parse and validate request
+    const body = await req.json()
+    const result = RequestSchema.safeParse(body)
+    
+    if (!result.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request', details: result.error.format() }),
+        { status: 400 }
+      )
+    }
+
+    // Create stream
+    const response = await anthropic.messages.create({
+      messages: result.data.messages.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      })),
+      model: 'claude-3-opus-20240229',
+      max_tokens: 1024,
+      temperature: 0.7,
+      system: systemPrompt,
+      stream: true
+    })
+
+    // Convert to stream
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of response) {
+            if (chunk.type === 'content_block_delta') {
+              const text = chunk.delta?.text || ''
+              if (text) {
+                const data = JSON.stringify({ role: 'assistant', content: text })
+                controller.enqueue(new TextEncoder().encode(`data: ${data}\n\n`))
+              }
+            }
+          }
+          controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'))
+          controller.close()
+        } catch (error) {
+          console.error('Stream error:', error)
+          controller.error(error)
+        }
+      }
+    })
+
+    // Return streaming response
+    return streamToResponse(stream)
+
+  } catch (error) {
+    console.error('Booking agent error:', error)
+    return new Response(
+      JSON.stringify({ 
+        error: 'Failed to process request',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }),
+      { status: 500 }
+    )
+  }
+}

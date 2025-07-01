@@ -49,7 +49,7 @@ export function Header() {
               <Link href="/become-pro">Become a Pro</Link>
             </Button>
             <Button asChild className="bg-foreground text-background hover:bg-foreground/90">
-              <Link href="/book-now">Book Now</Link>
+              <Link href="/services">Book Service</Link>
             </Button>
             <Button variant="ghost" asChild className="text-foreground/80 hover:bg-accent hover:text-foreground">
               <Link href="/auth">Sign In</Link>
@@ -115,8 +115,8 @@ export function Header() {
                   asChild
                   className="w-full bg-foreground text-background hover:bg-foreground/90 mb-3"
                 >
-                  <Link href="/book-now" onClick={() => setIsMenuOpen(false)}>
-                    Book Now
+                  <Link href="/services" onClick={() => setIsMenuOpen(false)}>
+                    Book Service
                   </Link>
                 </Button>
                 <Link

@@ -63,7 +63,7 @@ export function HeroSection() {
                   <Phone className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-center">
-                  <div className="font-semibold text-gray-900 text-lg">24/7 AI Phone Assistant</div>
+                  <div className="font-semibold text-gray-900 text-lg">24/7 Customer Support</div>
                   <a href="tel:13606417386" className="text-blue-600 font-bold text-2xl hover:underline">
                     (360) 641-7386
                   </a>

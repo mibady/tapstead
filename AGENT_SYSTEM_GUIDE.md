@@ -2,7 +2,60 @@
 
 ## Overview
 
-The Tapstead AI Agent System provides intelligent, conversational interfaces across your platform to enhance user experience and operational efficiency. Built with the Vercel AI SDK and OpenAI, the system includes four specialized agents designed for different user roles and use cases.
+The Tapstead AI Agent System provides intelligent, conversational interfaces across your platform to enhance user experience and operational efficiency. Built with the [Vercel AI SDK](https://vercel.com/docs/ai) and Anthropic Claude models, the system includes four specialized agents designed for different user roles and use cases.
+
+## Vercel AI SDK Integration
+
+### Installation
+
+```bash
+npm install ai @anthropic-ai/sdk
+```
+
+### Server Route Example *(Edge Runtime)*
+
+```typescript
+import Anthropic from '@anthropic-ai/sdk'
+import { streamText, streamToResponse } from 'ai'
+
+export const runtime = 'edge'
+
+export async function POST(req: Request) {
+  const { messages } = await req.json()
+
+  const anthropic = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY!
+  })
+
+  const stream = await streamText({
+    model: 'claude-3-opus-20240229',
+    messages,
+    api: anthropic
+  })
+
+  return streamToResponse(stream)
+}
+```
+
+### Client Usage *(React)*
+
+```tsx
+'use client'
+import { useChat } from 'ai/react'
+
+const {
+  messages,
+  input,
+  handleInputChange,
+  handleSubmit,
+  isLoading
+} = useChat({
+  api: '/api/chat',
+  body: { agentType: 'booking' }
+})
+```
+
+---
 
 ## Architecture
 
@@ -105,7 +158,7 @@ The Tapstead AI Agent System provides intelligent, conversational interfaces acr
 ```typescript
 {
   name: 'agent_name',
-  model: 'gpt-4o-mini',           // OpenAI model
+  model: 'claude-3-opus-20240229',   // Anthropic Claude model
   temperature: 0.7,               // Response creativity
   maxTokens: 2000,               // Response length limit
   requiresAuth: false,           // Authentication requirement
@@ -120,7 +173,7 @@ The Tapstead AI Agent System provides intelligent, conversational interfaces acr
 ### Environment Variables
 
 Required environment variables:
-- `OPENAI_API_KEY` - OpenAI API access key
+- `ANTHROPIC_API_KEY` - Anthropic API access key
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
 - `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key

@@ -50,7 +50,7 @@ export function ContactPage() {
                   <h3 className="font-semibold">Phone</h3>
                 </div>
                 <a href="tel:13606417386" className="text-blue-600 font-medium hover:underline text-lg">(360) 641-7386</a>
-                <p className="text-sm text-gray-500 mt-1">24/7 Phone Assistant</p>
+                <p className="text-sm text-gray-500 mt-1">24/7 Support</p>
               </CardContent>
             </Card>
 

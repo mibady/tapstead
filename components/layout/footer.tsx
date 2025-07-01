@@ -123,7 +123,7 @@ export function Footer() {
                   <a href="tel:13606417386" className="text-blue-300 hover:text-blue-200 font-medium">(360) 641-7386</a>
                 </div>
                 <div className="text-xs text-gray-400 pl-7">
-                  24/7 AI Assistant • Booking • Support • Emergencies
+                  24/7 Phone Assistant • Booking • Support • Emergencies
                 </div>
                 <div className="flex items-center space-x-3">
                   <Mail className="w-4 h-4 text-gray-400" />

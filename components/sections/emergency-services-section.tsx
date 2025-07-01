@@ -147,9 +147,9 @@ export function EmergencyServicesSection() {
         <Card className="bg-red-600 text-white">
           <CardContent className="p-8 text-center">
             <Phone className="h-12 w-12 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold mb-2">24/7 Emergency AI Assistant</h3>
+            <h3 className="text-2xl font-bold mb-2">24/7 Emergency Phone Assistant</h3>
             <p className="text-red-100 mb-6">
-              For immediate emergency response after fires, storms, or disasters, call our AI emergency assistant. 
+              For immediate emergency response after fires, storms, or disasters, call our 24/7 phone assistant. 
               Available 24/7 with instant routing to certified teams.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -159,7 +159,7 @@ export function EmergencyServicesSection() {
                   Call (360) 641-7386
                 </a>
               </Button>
-              <div className="text-red-100 text-sm">AI answers instantly • Emergency teams deployed within 1-4 hours</div>
+              <div className="text-red-100 text-sm">24/7 phone support • Emergency teams deployed within 1-4 hours</div>
             </div>
           </CardContent>
         </Card>

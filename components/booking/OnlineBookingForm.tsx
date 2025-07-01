@@ -1,579 +1,315 @@
-import React, { useState } from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+'use client'
+
+import React, { useMemo, useState } from 'react'
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Calendar, Clock, MapPin, User, CreditCard, ArrowLeft } from 'lucide-react'
-import StripeCheckoutButton from './StripeCheckoutButton'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Calendar } from '@/components/ui/calendar'
+import type { BookingData, Service } from './BookingFlow'
+import StripeCheckoutButton from '../stripe/StripeCheckoutButton'
+import { calculatePrice } from '@/lib/booking/pricing'
 
-interface BookingFormData {
-  // Step 2: Service Details
-  homeSize: string;
-  rooms: number;
-  bathrooms: number;
-  serviceType: 'standard' | 'deep' | 'move-in' | 'move-out';
-  frequency: 'one-time' | 'weekly' | 'bi-weekly' | 'monthly';
-  
-  // Step 3: Date & Time
-  preferredDate: string;
-  preferredTime: string;
-  flexibleScheduling: boolean;
-  
-  // Step 4: Address & Access
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  apartmentUnit?: string;
-  accessNotes?: string;
-  
-  // Step 5: Contact Info
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  
-  // Step 6: Special Instructions
-  specialInstructions?: string;
-  supplies: 'bring-own' | 'client-provides';
-  pets: boolean;
-  petDetails?: string;
+interface OnlineBookingFormProps {
+  step: number
+  onNext: (data?: Partial<BookingData>) => void
+  onBack: () => void
+  bookingData: BookingData
+  updateBookingData: (data: Partial<BookingData>) => void
 }
 
-const stepTitles = [
-  '',
-  'Service Details',
-  'Date & Time', 
-  'Address & Access',
-  'Contact Information',
-  'Special Instructions',
-  'Payment'
-];
+const FormStep = ({ title, children, onNext, onBack, showBackButton = true }: { title: string, children: React.ReactNode, onNext: () => void, onBack: () => void, showBackButton?: boolean }) => (
+  <Card>
+    <CardHeader>
+      <CardTitle>{title}</CardTitle>
+    </CardHeader>
+    <CardContent>{children}</CardContent>
+    <CardFooter className="flex justify-between">
+      {showBackButton && <Button variant="outline" onClick={onBack}>Back</Button>}
+      <Button onClick={onNext}>Next</Button>
+    </CardFooter>
+  </Card>
+);
 
-export default function OnlineBookingForm({ 
-  step, 
-  onNext, 
-  onBack 
-}: { 
-  step: number, 
-  onNext: (data?: any) => void, 
-  onBack: () => void 
-}) {
-  const [formData, setFormData] = useState<BookingFormData>({
-    homeSize: '',
-    rooms: 1,
-    bathrooms: 1,
-    serviceType: 'standard',
-    frequency: 'one-time',
-    preferredDate: '',
-    preferredTime: '',
-    flexibleScheduling: false,
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    supplies: 'bring-own',
-    pets: false
-  });
+const PriceSummary = ({ bookingData }: { bookingData: BookingData }) => {
+  const priceDetails = calculatePrice(bookingData);
 
-  const updateFormData = (updates: Partial<BookingFormData>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
-  };
+  if (!priceDetails) {
+    return <div className="p-4 rounded-lg bg-gray-100 dark:bg-gray-800 text-center">Enter details to see price.</div>;
+  }
 
-  const calculatePrice = () => {
-    let basePrice = 99; // Starting price
-    
-    // Size adjustments
-    if (formData.homeSize === '3-4-bedroom') basePrice = 149;
-    else if (formData.homeSize === '5+-bedroom') basePrice = 199;
-    
-    // Service type adjustments
-    if (formData.serviceType === 'deep') basePrice *= 1.5;
-    else if (formData.serviceType === 'move-in' || formData.serviceType === 'move-out') basePrice *= 1.8;
-    
-    // Room/bathroom adjustments
-    basePrice += (formData.rooms - 1) * 15;
-    basePrice += (formData.bathrooms - 1) * 20;
-    
-    return Math.round(basePrice);
-  };
+  return (
+    <div className="p-4 rounded-lg bg-gray-100 dark:bg-gray-800">
+      <h3 className="text-lg font-semibold mb-2">Price Summary</h3>
+      <div className="space-y-1">
+        <div className="flex justify-between"><span>Base Price:</span> <span>${priceDetails.base.toFixed(2)}</span></div>
+        {priceDetails.addOns > 0 && <div className="flex justify-between"><span>Add-ons:</span> <span>${priceDetails.addOns.toFixed(2)}</span></div>}
+        <div className="flex justify-between font-bold text-xl mt-2 border-t pt-2"><span>Total:</span> <span>${priceDetails.total.toFixed(2)}</span></div>
+      </div>
+    </div>
+  );
+};
 
-  const handleNext = () => {
-    onNext(formData);
-  };
 
-  if (step === 2) {
+export default function OnlineBookingForm({ step, onNext, onBack, bookingData, updateBookingData }: OnlineBookingFormProps) {
+  // Ensure we have default values for all fields to prevent undefined errors
+  // Define default address with all required fields including optional apt
+  const { 
+    service, 
+    bedrooms, 
+    frequency, 
+    addOns = [], 
+    date, 
+    time, 
+    contact = { name: '', email: '', phone: '' }, 
+    address = { street: '', city: '', state: '', zip: '', apt: '' }
+  } = bookingData;
+  
+  // Ensure address has all required fields
+  const safeAddress = address;
+  
+  // Show loading state if service is not yet loaded
+  if (!service) {
     return (
-      <Card className="max-w-2xl mx-auto">
+      <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            {stepTitles[step]}
-          </CardTitle>
+          <CardTitle>Loading Service Information...</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <Label className="text-base font-medium">Home Size</Label>
-            <Select value={formData.homeSize} onValueChange={(value) => updateFormData({ homeSize: value })}>
-              <SelectTrigger className="mt-2">
-                <SelectValue placeholder="Select your home size" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1-2-bedroom">1-2 Bedroom ($99-129)</SelectItem>
-                <SelectItem value="3-4-bedroom">3-4 Bedroom ($149-199)</SelectItem>
-                <SelectItem value="5+-bedroom">5+ Bedroom ($199-299)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Number of Rooms</Label>
-              <Input 
-                type="number" 
-                min="1" 
-                max="10"
-                value={formData.rooms}
-                onChange={(e) => updateFormData({ rooms: parseInt(e.target.value) || 1 })}
-                className="mt-2"
-              />
-            </div>
-            <div>
-              <Label>Number of Bathrooms</Label>
-              <Input 
-                type="number" 
-                min="1" 
-                max="6"
-                value={formData.bathrooms}
-                onChange={(e) => updateFormData({ bathrooms: parseInt(e.target.value) || 1 })}
-                className="mt-2"
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label className="text-base font-medium">Service Type</Label>
-            <Select value={formData.serviceType} onValueChange={(value: any) => updateFormData({ serviceType: value })}>
-              <SelectTrigger className="mt-2">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="standard">Standard Cleaning</SelectItem>
-                <SelectItem value="deep">Deep Cleaning (+50%)</SelectItem>
-                <SelectItem value="move-in">Move-in Cleaning (+80%)</SelectItem>
-                <SelectItem value="move-out">Move-out Cleaning (+80%)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-base font-medium">Frequency</Label>
-            <Select value={formData.frequency} onValueChange={(value: any) => updateFormData({ frequency: value })}>
-              <SelectTrigger className="mt-2">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="one-time">One-time Service</SelectItem>
-                <SelectItem value="weekly">Weekly (Save 15%)</SelectItem>
-                <SelectItem value="bi-weekly">Bi-weekly (Save 10%)</SelectItem>
-                <SelectItem value="monthly">Monthly (Save 5%)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="bg-green-50 p-4 rounded-lg">
-            <div className="text-lg font-semibold text-green-800">
-              Estimated Price: ${calculatePrice()}
-            </div>
-            <div className="text-sm text-green-600">Final price confirmed during booking</div>
-          </div>
-
-          <div className="flex gap-4">
-            <Button variant="outline" onClick={onBack} className="flex-1">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <Button onClick={handleNext} disabled={!formData.homeSize} className="flex-1">
-              Continue
-            </Button>
+        <CardContent className="text-center py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  if (step === 3) {
-    return (
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            {stepTitles[step]}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+  const handleNext = (stepData: Partial<BookingData>) => {
+    updateBookingData(stepData)
+    onNext()
+  }
+
+  const handleAddOnToggle = (addOnId: string) => {
+    const newAddOns = addOns?.includes(addOnId)
+      ? addOns.filter(id => id !== addOnId)
+      : [...(addOns || []), addOnId]
+    updateBookingData({ addOns: newAddOns })
+  }
+
+  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateBookingData({ contact: { ...contact, [e.target.name]: e.target.value } });
+  };
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    // Ensure we're only updating valid address fields
+    if (name === 'street' || name === 'city' || name === 'state' || name === 'zip' || name === 'apt') {
+      updateBookingData({ 
+        address: { 
+          ...address, 
+          [name]: value 
+        } 
+      });
+    }
+  };
+
+  const { lineItems, metadata } = useMemo(() => {
+    const priceDetails = calculatePrice(bookingData);
+    if (!priceDetails) return { lineItems: [], metadata: {} };
+
+    const items = [{
+        price_data: {
+            currency: 'usd',
+            product_data: {
+                name: `${service.name} - ${bedrooms} Bedrooms (${frequency})`,
+                description: `Service scheduled for ${date?.toLocaleDateString()} at ${time}.`,
+                images: [],
+            },
+            unit_amount: Math.round(priceDetails.total * 100), // Stripe expects amount in cents
+        },
+        quantity: 1,
+    }];
+    
+    // Create metadata, ensuring complex objects are stringified
+    const meta = {
+        serviceId: service.id,
+        bedrooms: bedrooms?.toString() || '',
+        frequency: frequency || '',
+        addOns: addOns?.join(',') || '',
+        date: date?.toISOString() || '',
+        time: time || '',
+        contactName: contact.name,
+        contactEmail: contact.email,
+        contactPhone: contact.phone,
+        addressLine1: safeAddress.street,
+        addressLine2: '',
+        addressCity: safeAddress.city,
+        addressState: safeAddress.state,
+        addressZip: safeAddress.zip,
+    };
+
+    return { lineItems: items, metadata: meta };
+  }, [bookingData, service]);
+
+
+  switch (step) {
+    case 1: // Customize
+      return (
+        <FormStep title="Customize Your Service" onNext={() => handleNext({})} onBack={onBack} showBackButton={false}>
+          <div className="space-y-4">
             <div>
-              <Label>Preferred Date</Label>
-              <Input 
-                type="date" 
-                value={formData.preferredDate}
-                min={new Date().toISOString().split('T')[0]}
-                onChange={(e) => updateFormData({ preferredDate: e.target.value })}
-                className="mt-2"
-              />
+              <Label htmlFor="bedrooms">Bedrooms</Label>
+              <Select value={bedrooms} onValueChange={(value) => updateBookingData({ bedrooms: value as '1-2' | '3-4' | '5+' })}>
+                <SelectTrigger id="bedrooms"><SelectValue placeholder="Select bedrooms" /></SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5].map(b => <SelectItem key={b} value={b.toString()}>{b} Bedroom{b > 1 ? 's' : ''}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <Label>Preferred Time</Label>
-              <Select value={formData.preferredTime} onValueChange={(value) => updateFormData({ preferredTime: value })}>
-                <SelectTrigger className="mt-2">
-                  <SelectValue placeholder="Select time" />
-                </SelectTrigger>
+              <Label>Frequency</Label>
+              <RadioGroup value={frequency} onValueChange={(value) => updateBookingData({ frequency: value as 'oneTime' | 'weekly' | 'biWeekly' | 'monthly' })}>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="oneTime" id="oneTime" /><Label htmlFor="oneTime">One-Time</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="weekly" id="weekly" /><Label htmlFor="weekly">Weekly</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="biWeekly" id="biWeekly" /><Label htmlFor="biWeekly">Bi-Weekly</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="monthly" id="monthly" /><Label htmlFor="monthly">Monthly</Label></div>
+              </RadioGroup>
+            </div>
+            {service?.addOns && Array.isArray(service.addOns) && service.addOns.length > 0 && (
+              <div>
+                <Label>Add-ons</Label>
+                <div className="space-y-2 mt-2">
+                  {Array.isArray(service.addOns) ? (
+                    service.addOns.map((addOn) => (
+                      <div key={addOn.id} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={addOn.id} 
+                          checked={Array.isArray(addOns) && addOns.includes(addOn.id)}
+                          onCheckedChange={() => handleAddOnToggle(addOn.id)}
+                        />
+                        <Label htmlFor={addOn.id}>
+                          {addOn.name} {addOn.price ? `(+$${addOn.price.toFixed(2)})` : ''}
+                        </Label>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No add-ons available for this service.</p>
+                  )}
+                </div>
+              </div>
+            )}
+            <PriceSummary bookingData={bookingData} />
+          </div>
+        </FormStep>
+      );
+
+    case 2: // Schedule
+      return (
+        <FormStep title="Schedule Your Appointment" onNext={() => handleNext({})} onBack={onBack}>
+          <div className="flex flex-col md:flex-row gap-4">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(d) => updateBookingData({ date: d })}
+              className="rounded-md border"
+            />
+            <div className="flex-grow">
+              <Label htmlFor="time">Available Times</Label>
+              <Select value={time} onValueChange={(value) => updateBookingData({ time: value })}>
+                <SelectTrigger id="time"><SelectValue placeholder="Select a time" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="morning">Morning (8AM-12PM)</SelectItem>
-                  <SelectItem value="afternoon">Afternoon (12PM-5PM)</SelectItem>
-                  <SelectItem value="evening">Evening (5PM-8PM)</SelectItem>
+                  {['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
           </div>
+        </FormStep>
+      );
 
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="flexible"
-              checked={formData.flexibleScheduling}
-              onCheckedChange={(checked) => updateFormData({ flexibleScheduling: checked as boolean })}
-            />
-            <Label htmlFor="flexible" className="text-sm">
-              I'm flexible with scheduling (may get discounted rates)
-            </Label>
-          </div>
-
-          <div className="flex gap-4">
-            <Button variant="outline" onClick={onBack} className="flex-1">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <Button 
-              onClick={handleNext} 
-              disabled={!formData.preferredDate || !formData.preferredTime} 
-              className="flex-1"
-            >
-              Continue
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (step === 4) {
-    return (
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            {stepTitles[step]}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <Label>Street Address</Label>
-            <Input 
-              value={formData.address}
-              onChange={(e) => updateFormData({ address: e.target.value })}
-              placeholder="123 Main Street"
-              className="mt-2"
-            />
-          </div>
-
-          <div>
-            <Label>Apartment/Unit (Optional)</Label>
-            <Input 
-              value={formData.apartmentUnit || ''}
-              onChange={(e) => updateFormData({ apartmentUnit: e.target.value })}
-              placeholder="Unit 2B"
-              className="mt-2"
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
+    case 3: // Contact & Address
+      return (
+        <FormStep title="Contact & Address" onNext={() => handleNext({})} onBack={onBack}>
+          <div className="space-y-4">
             <div>
-              <Label>City</Label>
+              <Label htmlFor="name">Full Name</Label>
+              <Input id="name" name="name" placeholder="Full Name" value={contact?.name || ''} onChange={handleContactChange} required />
+            </div>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" name="email" type="email" placeholder="Email" value={contact?.email || ''} onChange={handleContactChange} required />
+            </div>
+            <div>
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input id="phone" name="phone" type="tel" placeholder="Phone Number" value={contact?.phone || ''} onChange={handleContactChange} required />
+            </div>
+            <div>
+              <Label htmlFor="street">Street Address</Label>
               <Input 
-                value={formData.city}
-                onChange={(e) => updateFormData({ city: e.target.value })}
-                className="mt-2"
+                id="street" 
+                name="street" 
+                placeholder="Street Address" 
+                value={address?.street || ''} 
+                onChange={handleAddressChange} 
+                required 
               />
             </div>
             <div>
-              <Label>State</Label>
+              <Label htmlFor="apt">Apt/Suite (Optional)</Label>
               <Input 
-                value={formData.state}
-                onChange={(e) => updateFormData({ state: e.target.value })}
-                placeholder="CA"
-                className="mt-2"
+                id="apt" 
+                name="apt" 
+                placeholder="Apt/Suite (Optional)" 
+                value={safeAddress.apt || ''} 
+                onChange={handleAddressChange} 
               />
             </div>
-            <div>
-              <Label>ZIP Code</Label>
-              <Input 
-                value={formData.zipCode}
-                onChange={(e) => updateFormData({ zipCode: e.target.value })}
-                placeholder="90210"
-                className="mt-2"
-              />
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="city">City</Label>
+                <Input id="city" name="city" placeholder="City" value={address?.city || ''} onChange={handleAddressChange} required />
+              </div>
+              <div>
+                <Label htmlFor="state">State</Label>
+                <Input id="state" name="state" placeholder="State" value={address?.state || ''} onChange={handleAddressChange} required />
+              </div>
+              <div>
+                <Label htmlFor="zip">Zip Code</Label>
+                <Input id="zip" name="zip" placeholder="Zip Code" value={address?.zip || ''} onChange={handleAddressChange} required />
+              </div>
             </div>
           </div>
+        </FormStep>
+      );
 
-          <div>
-            <Label>Access Notes (Optional)</Label>
-            <Textarea 
-              value={formData.accessNotes || ''}
-              onChange={(e) => updateFormData({ accessNotes: e.target.value })}
-              placeholder="Gate code, parking instructions, key location, etc."
-              className="mt-2"
+    case 4: // Payment
+      return (
+        <Card>
+          <CardHeader><CardTitle>Confirm and Pay</CardTitle></CardHeader>
+          <CardContent>
+            <PriceSummary bookingData={bookingData} />
+          </CardContent>
+          <CardFooter className="flex justify-between">
+             <Button variant="outline" onClick={onBack}>Back</Button>
+            <StripeCheckoutButton
+              lineItems={lineItems}
+              metadata={metadata}
+              onSuccess={() => {
+                console.log("Payment successful!");
+                // Optionally redirect or show a success message
+              }}
+              onCancel={() => {
+                console.log("Payment canceled.");
+              }}
             />
-          </div>
+          </CardFooter>
+        </Card>
+      );
 
-          <div className="flex gap-4">
-            <Button variant="outline" onClick={onBack} className="flex-1">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <Button 
-              onClick={handleNext} 
-              disabled={!formData.address || !formData.city || !formData.state || !formData.zipCode} 
-              className="flex-1"
-            >
-              Continue
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    default:
+      return null;
   }
-
-  if (step === 5) {
-    return (
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            {stepTitles[step]}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>First Name</Label>
-              <Input 
-                value={formData.firstName}
-                onChange={(e) => updateFormData({ firstName: e.target.value })}
-                className="mt-2"
-              />
-            </div>
-            <div>
-              <Label>Last Name</Label>
-              <Input 
-                value={formData.lastName}
-                onChange={(e) => updateFormData({ lastName: e.target.value })}
-                className="mt-2"
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label>Email Address</Label>
-            <Input 
-              type="email"
-              value={formData.email}
-              onChange={(e) => updateFormData({ email: e.target.value })}
-              className="mt-2"
-            />
-          </div>
-
-          <div>
-            <Label>Phone Number</Label>
-            <Input 
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => updateFormData({ phone: e.target.value })}
-              placeholder="(360) 641-7386"
-              className="mt-2"
-            />
-          </div>
-
-          <div className="flex gap-4">
-            <Button variant="outline" onClick={onBack} className="flex-1">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <Button 
-              onClick={handleNext} 
-              disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone} 
-              className="flex-1"
-            >
-              Continue
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (step === 6) {
-    return (
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>{stepTitles[step]}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <Label className="text-base font-medium">Cleaning Supplies</Label>
-            <Select value={formData.supplies} onValueChange={(value: any) => updateFormData({ supplies: value })}>
-              <SelectTrigger className="mt-2">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="bring-own">We'll bring eco-friendly supplies (Recommended)</SelectItem>
-                <SelectItem value="client-provides">I'll provide my own supplies</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="pets"
-                checked={formData.pets}
-                onCheckedChange={(checked) => updateFormData({ pets: checked as boolean })}
-              />
-              <Label htmlFor="pets">I have pets at home</Label>
-            </div>
-            
-            {formData.pets && (
-              <Textarea 
-                value={formData.petDetails || ''}
-                onChange={(e) => updateFormData({ petDetails: e.target.value })}
-                placeholder="Tell us about your pets (type, temperament, any special considerations)"
-                className="mt-2"
-              />
-            )}
-          </div>
-
-          <div>
-            <Label>Special Instructions (Optional)</Label>
-            <Textarea 
-              value={formData.specialInstructions || ''}
-              onChange={(e) => updateFormData({ specialInstructions: e.target.value })}
-              placeholder="Areas to focus on, items to avoid, allergies, or other specific requests"
-              className="mt-2"
-            />
-          </div>
-
-          <div className="flex gap-4">
-            <Button variant="outline" onClick={onBack} className="flex-1">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <Button onClick={handleNext} className="flex-1">
-              Review & Pay
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (step === 7) {
-    const finalPrice = calculatePrice();
-    const lineItems = [{
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: `Home Cleaning - ${formData.serviceType}`,
-          description: `${formData.homeSize} home, ${formData.rooms} rooms, ${formData.bathrooms} bathrooms`
-        },
-        unit_amount: finalPrice * 100, // Stripe expects cents
-      },
-      quantity: 1,
-    }];
-
-    const metadata = {
-      service_type: 'home-cleaning',
-      customer_name: `${formData.firstName} ${formData.lastName}`,
-      customer_email: formData.email,
-      customer_phone: formData.phone,
-      service_date: formData.preferredDate,
-      service_time: formData.preferredTime,
-      address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}`,
-      home_size: formData.homeSize,
-      rooms: formData.rooms.toString(),
-      bathrooms: formData.bathrooms.toString(),
-      cleaning_type: formData.serviceType,
-      frequency: formData.frequency,
-      supplies: formData.supplies,
-      pets: formData.pets.toString(),
-      special_instructions: formData.specialInstructions || '',
-      flexible_scheduling: formData.flexibleScheduling.toString()
-    };
-
-    return (
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Review & Payment
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Booking Summary */}
-          <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-            <h3 className="font-semibold text-lg">Booking Summary</h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="font-medium">Service:</div>
-              <div>{formData.serviceType} cleaning</div>
-              <div className="font-medium">Home Size:</div>
-              <div>{formData.homeSize}</div>
-              <div className="font-medium">Date & Time:</div>
-              <div>{formData.preferredDate} - {formData.preferredTime}</div>
-              <div className="font-medium">Address:</div>
-              <div>{formData.address}, {formData.city}, {formData.state}</div>
-            </div>
-          </div>
-
-          <div className="border-t pt-4">
-            <div className="flex justify-between items-center text-xl font-bold">
-              <span>Total:</span>
-              <span className="text-green-600">${finalPrice}</span>
-            </div>
-            <div className="text-sm text-gray-600 mt-1">
-              Includes all supplies, labor, and satisfaction guarantee
-            </div>
-          </div>
-
-          <StripeCheckoutButton
-            lineItems={lineItems}
-            metadata={metadata}
-            onSuccess={() => onNext(formData)}
-          />
-
-          <Button variant="outline" onClick={onBack} className="w-full">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Edit Details
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return null;
 }

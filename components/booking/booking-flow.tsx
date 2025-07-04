@@ -1,181 +1,227 @@
-"use client"
+'use client'
 
-import { useState, useEffect, lazy, Suspense } from "react"
-import { Card, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import ServiceSelector from "./ServiceSelector"
-import OnlineBookingForm from "./OnlineBookingForm"
-import QuoteRequestForm from "./QuoteRequestForm"
+import { useState, lazy, Suspense } from 'react'
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
+import { ErrorBoundary } from '@/components/ui/error-boundary'
+import { format } from 'date-fns'
 
-const StripePaymentForm = lazy(() => import("./StripeCheckoutButton"))
-import { Service } from "@/lib/services/service-data"
-import { ServiceType } from "@/types/service-types"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
-import { ErrorBoundary } from "@/components/ui/error-boundary"
+import CleaningPackageSelector from './CleaningPackageSelector'
+import ContactForm from './ContactForm'
+import SchedulingStep from './SchedulingStep'
+import { FrequencyType, BedroomType, CleaningType } from '@/lib/booking/types'
+import { calculatePrice, PRICING, ADD_ONS } from '@/lib/booking/pricing'
+
+const StripePaymentForm = lazy(() => import('./StripeCheckoutButton'))
 
 const bookableSteps = [
-  { id: 1, title: "Select Service", description: "Choose what you need done" },
-  { id: 2, title: "Details", description: "When and where" },
-  { id: 3, title: "Your Info", description: "Contact information" },
-  { id: 4, title: "Payment", description: "Secure checkout" },
-  { id: 5, title: "Confirmation", description: "You're all set!" },
+  { id: 1, title: "Select Package", description: "Choose your cleaning package" },
+  { id: 2, title: "Schedule", description: "Pick a date & time" },
+  { id: 3, title: "Details", description: "Contact information" },
+  { id: 4, title: "Payment", description: "Review & pay" },
+  { id: 5, title: "Confirmation", description: "All set!" },
 ]
 
-const quoteSteps = [
-  { id: 1, title: "Select Service", description: "Choose what you need done" },
-  { id: 2, title: "Project Details", description: "Tell us about your project" },
-  { id: 3, title: "Your Info", description: "Contact information" },
-  { id: 4, title: "Confirmation", description: "Quote request submitted!" },
-]
-
-// Add application-specific fields to the database Service type
-type EnhancedService = Service & {
-  serviceType: ServiceType;
-  // Optional UI-specific fields that might be needed by components
-  icon?: string;
-  features?: string[];
-  popular?: boolean;
-  requiresAssessment?: boolean;
-  emergencyAvailable?: boolean;
+interface BookingData {
+  package?: {
+    frequency: FrequencyType
+    bedrooms: BedroomType
+    cleaningType: CleaningType
+  }
+  schedule?: {
+    date: Date
+    time: string
+  }
+  contact?: {
+    name: string
+    email: string
+    phone: string
+    address: {
+      street: string
+      apt?: string
+      city: string
+      state: string
+      zip: string
+    }
+  }
 }
 
 export function BookingFlow() {
   const [currentStep, setCurrentStep] = useState(1)
-  const [selectedService, setSelectedService] = useState<EnhancedService | null>(null)
-  const [bookingData, setBookingData] = useState({
-    service: null,
-    details: null,
-    customer: null,
-    payment: null,
-  })
+  const [bookingData, setBookingData] = useState<BookingData>({})
   const [error, setError] = useState<string | null>(null)
 
-  // Determine service type based on price and category
-  const determineServiceType = (service: Service): ServiceType => {
-    if (service.category?.toLowerCase().includes('emergency')) {
-      return "emergency"
-    } else if (service.base_price && service.base_price > 200) {
-      return "quote-required"
-    } else {
-      return "bookable"
-    }
-  }
-
-  const isQuoteRequired = selectedService ? 
-    (selectedService.serviceType === "quote-required" || selectedService.serviceType === "emergency") : false
-  
-  const steps = isQuoteRequired ? quoteSteps : bookableSteps
-  const maxSteps = steps.length
-  const progress = ((currentStep - 1) / (maxSteps - 1)) * 100
-
-  const handleNext = (data: any) => {
-    try {
-      setError(null)
-      
-      if (currentStep === 1) {
-        // For service selection, enhance the service with serviceType
-        const enhancedService = {
-          ...data,
-          serviceType: data.serviceType || determineServiceType(data)
-        }
-        setSelectedService(enhancedService)
-        setBookingData((prev) => ({ ...prev, service: enhancedService }))
-      } else {
-        setBookingData((prev) => ({ ...prev, [getCurrentStepKey()]: data }))
-      }
-
-      if (currentStep < maxSteps) {
-        setCurrentStep(currentStep + 1)
-      }
-    } catch (err) {
-      setError(`An error occurred: ${err instanceof Error ? err.message : 'Unknown error'}`)
-      console.error("Error in booking flow:", err)
-    }
-  }
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
-      setError(null)
-    }
-  }
-
-  const getCurrentStepKey = () => {
-    switch (currentStep) {
-      case 1:
-        return "service"
-      case 2:
-        return "details"
-      case 3:
-        return "customer"
-      case 4:
-        return "payment"
-      default:
-        return "service"
-    }
-  }
+  const progress = ((currentStep - 1) / (bookableSteps.length - 1)) * 100
 
   const renderStepContent = () => {
-    if (!selectedService && currentStep > 1) {
-      return <ServiceSelector services={[]} onSelect={handleNext} />
-    }
-
     switch (currentStep) {
       case 1:
-        return <ServiceSelector services={[]} onSelect={handleNext} />
+        return (
+          <CleaningPackageSelector
+            onSelect={(data) => {
+              setBookingData((prev) => ({ ...prev, package: data }))
+              setCurrentStep(2)
+            }}
+          />
+        )
       case 2:
-        if (isQuoteRequired) {
-          return <QuoteRequestForm 
-            step={currentStep}
-            service={selectedService as any} 
-            onNext={handleNext} 
-            onBack={handleBack} 
+        return (
+          <SchedulingStep
+            onNext={(data) => {
+              setBookingData((prev) => ({ ...prev, schedule: data }))
+              setCurrentStep(3)
+            }}
+            onBack={() => setCurrentStep(1)}
           />
-        } else {
-          return <OnlineBookingForm 
-            step={currentStep}
-            onNext={handleNext} 
-            onBack={handleBack} 
-          />
-        }
+        )
       case 3:
-        return <OnlineBookingForm step={currentStep} onNext={handleNext} onBack={handleBack} />
+        return (
+          <ContactForm
+            onNext={(data) => {
+              setBookingData((prev) => ({ ...prev, contact: data }))
+              setCurrentStep(4)
+            }}
+            onBack={() => setCurrentStep(2)}
+          />
+        )
       case 4:
-        if (isQuoteRequired) {
-          return <div className="text-center p-8">Quote request submitted successfully!</div>
-        } else {
-          return (
-            <Suspense fallback={
-              <Card className="w-full max-w-md mx-auto">
-                <CardHeader>
-                  <CardTitle>Loading Payment...</CardTitle>
-                </CardHeader>
-                <div className="p-6">
-                  <div className="space-y-4">
-                    <div className="h-12 bg-muted animate-pulse rounded" />
-                    <div className="h-12 bg-muted animate-pulse rounded" />
-                    <div className="h-12 bg-muted animate-pulse rounded" />
+        const pricing = bookingData.package ? calculatePrice({
+          frequency: bookingData.package.frequency,
+          bedrooms: bookingData.package.bedrooms,
+          cleaningType: bookingData.package.cleaningType
+        }) : null;
+
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Review and Pay</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {bookingData.package && (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold">Selected Package</h3>
+                    <p>Frequency: {bookingData.package.frequency}</p>
+                    <p>Home Size: {bookingData.package.bedrooms}</p>
+                    <p>Cleaning Type: {bookingData.package.cleaningType}</p>
+                    {pricing && (
+                      <div className="mt-4 space-y-1">
+                        <p>Base Price: ${pricing.base}</p>
+                        {pricing.addOns > 0 && <p>Add-ons: +${pricing.addOns}</p>}
+                        <p className="font-semibold">Total: ${pricing.total}</p>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </Card>
-            }>
-              <StripePaymentForm lineItems={[]} metadata={{}} onSuccess={() => handleNext(null)} />
-            </Suspense>
-          )
-        }
+                )}
+
+                {bookingData.schedule && (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold">Appointment</h3>
+                    <p>Date: {format(bookingData.schedule.date, 'PPP')}</p>
+                    <p>Time: {format(new Date(bookingData.schedule.time), 'h:mm a')}</p>
+                  </div>
+                )}
+
+                {bookingData.contact && (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold">Contact Information</h3>
+                    <p>{bookingData.contact.name}</p>
+                    <p>{bookingData.contact.email}</p>
+                    <p>{bookingData.contact.phone}</p>
+                    <p>
+                      {bookingData.contact.address.street}
+                      {bookingData.contact.address.apt && `, ${bookingData.contact.address.apt}`}
+                      <br />
+                      {bookingData.contact.address.city}, {bookingData.contact.address.state}{' '}
+                      {bookingData.contact.address.zip}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button variant="outline" onClick={() => setCurrentStep(3)}>
+                Back
+              </Button>
+              <Suspense fallback={<Button disabled>Loading...</Button>}>
+                <StripePaymentForm
+                  lineItems={pricing ? [
+                    {
+                      amount: pricing.total * 100,
+                      currency: 'usd',
+                      name: `${bookingData.package!.bedrooms} Home - ${bookingData.package!.frequency} Cleaning`,
+                      description: `A ${bookingData.package!.cleaningType} cleaning service.`,
+                      quantity: 1
+                    },
+                    ...((bookingData.package!.cleaningType === 'deep' || bookingData.package!.cleaningType === 'moveInOut') ? [
+                      {
+                        price_data: {
+                          currency: 'usd',
+                          product_data: {
+                            name: bookingData.package!.cleaningType === 'deep' ? 
+                              'Deep Cleaning Add-on' : 
+                              'Move In/Out Add-on',
+                            description: `Additional service for ${bookingData.package!.bedrooms} home`,
+                            metadata: {
+                              productId: bookingData.package!.cleaningType === 'deep' ? 
+                                ADD_ONS.deepClean.productId : 
+                                ADD_ONS.moveInOut.productId
+                            }
+                          },
+                          unit_amount: bookingData.package!.cleaningType === 'deep' ?
+                            ADD_ONS.deepClean.price * 100 :
+                            ADD_ONS.moveInOut.price * 100
+                        },
+                        quantity: 1
+                      }
+                    ] : [])
+                  ] : []}
+                  metadata={{
+                    frequency: String(bookingData.package!.frequency),
+                    bedrooms: String(bookingData.package!.bedrooms),
+                    cleaningType: String(bookingData.package!.cleaningType),
+                    date: String(bookingData.schedule!.date.toISOString()),
+                    time: String(bookingData.schedule!.time),
+                    contactName: String(bookingData.contact!.name),
+                    contactEmail: String(bookingData.contact!.email),
+                    contactPhone: String(bookingData.contact!.phone),
+                    address: JSON.stringify(bookingData.contact!.address),
+                  }}
+                  onSuccess={() => setCurrentStep(5)}
+                />
+              </Suspense>
+            </CardFooter>
+          </Card>
+        )
       case 5:
-        return <div className="text-center p-8">Booking confirmed!</div>
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Booking Confirmed!</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-lg mb-4">
+                Thank you for booking with us. A confirmation email has been sent to{' '}
+                {bookingData.contact?.email}.
+              </p>
+              <Button onClick={() => window.location.href = '/dashboard'}>
+                View My Bookings
+              </Button>
+            </CardContent>
+          </Card>
+        )
       default:
-        return <ServiceSelector services={[]} onSelect={handleNext} />
+        return null
     }
   }
 
   return (
     <ErrorBoundary>
       <div className="container mx-auto px-4 max-w-4xl">
-        {/* Error Alert */}
         {error && (
           <Alert variant="destructive" className="mb-6">
             <AlertCircle className="h-4 w-4 mr-2" />
@@ -184,32 +230,32 @@ export function BookingFlow() {
           </Alert>
         )}
         
-        {/* Progress Header */}
         <Card className="mb-8">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between mb-4">
-            <CardTitle className="text-2xl">{isQuoteRequired ? "Request Quote" : "Book Your Service"}</CardTitle>
-            <Badge variant="secondary">
-              Step {currentStep} of {maxSteps}
-            </Badge>
-          </div>
-          <Progress value={progress} className="mb-4" />
-          <div className={`grid gap-2 ${maxSteps === 4 ? "grid-cols-4" : "grid-cols-5"}`}>
-            {steps.map((step) => (
-              <div
-                key={step.id}
-                className={`text-center ${step.id <= currentStep ? "text-blue-600" : "text-gray-400"}`}
-              >
-                <div className="text-sm font-medium">{step.title}</div>
-                <div className="text-xs">{step.description}</div>
-              </div>
-            ))}
-          </div>
-        </CardHeader>
-      </Card>
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between mb-4">
+              <CardTitle className="text-2xl">Book Your Cleaning Service</CardTitle>
+              <Badge variant="secondary">
+                Step {currentStep} of {bookableSteps.length}
+              </Badge>
+            </div>
+            <Progress value={progress} className="mb-4" />
+            <div className="grid grid-cols-5 gap-2">
+              {bookableSteps.map((step) => (
+                <div
+                  key={step.id}
+                  className={`text-center ${
+                    step.id <= currentStep ? 'text-blue-600' : 'text-gray-400'
+                  }`}
+                >
+                  <div className="text-sm font-medium">{step.title}</div>
+                  <div className="text-xs">{step.description}</div>
+                </div>
+              ))}
+            </div>
+          </CardHeader>
+        </Card>
 
-      {/* Step Content */}
-      {renderStepContent()}
+        {renderStepContent()}
       </div>
     </ErrorBoundary>
   )

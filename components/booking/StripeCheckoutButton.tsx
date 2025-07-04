@@ -1,37 +1,109 @@
 'use client'
 import { useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+// Initialize Stripe with locale setting
+// Make sure to initialize Stripe only once
+const stripePromise = typeof window !== 'undefined' ?
+  loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!) :
+  null
 
 export default function StripeCheckoutButton({ lineItems, metadata, onSuccess }: { lineItems: any[], metadata: any, onSuccess: () => void }) {
   const [loading, setLoading] = useState(false)
 
   async function handleCheckout() {
     setLoading(true)
-    const res = await fetch('/api/checkout/session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lineItems, metadata }),
-    })
     
-    if (res.status === 500) {
-      console.error(await res.json());
-      setLoading(false);
-      return;
-    }
+    try {
+      console.log('[Checkout] Starting checkout process...', {
+        hasStripeKey: !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+        stripeKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.substring(0, 10) + '...',
+        lineItems,
+        metadata
+      })
+      
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          lineItems,
+          metadata: {
+            ...metadata,
+            timestamp: new Date().toISOString()
+          },
+        }),
+      })
+      
+      const responseData = await response.json().catch(() => ({}))
+      
+      if (!response.ok) {
+        console.error('[Checkout] API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          response: responseData
+        })
+        
+        const errorMessage = responseData?.error || 'Failed to process payment'
+        toast.error(errorMessage)
+        setLoading(false)
+        return
+      }
 
-    const { sessionId } = await res.json()
-    const stripe = await stripePromise
-    await stripe?.redirectToCheckout({ sessionId })
-    onSuccess();
-    setLoading(false)
+      const { sessionId } = responseData
+      
+      if (!sessionId) {
+        console.error('[Checkout] No session ID in response:', responseData)
+        toast.error('Invalid response from server')
+        setLoading(false)
+        return
+      }
+
+      console.log('[Checkout] Received session ID:', sessionId)
+      
+      const stripe = await stripePromise
+      
+      if (!stripe) {
+        const errorMsg = 'Payment service is not available. Please try again later.'
+        console.error('[Checkout] Stripe failed to initialize')
+        toast.error(errorMsg)
+        setLoading(false)
+        return
+      }
+
+      console.log('[Checkout] Redirecting to Stripe Checkout...')
+      
+      const { error } = await stripe.redirectToCheckout({ 
+        sessionId,
+      })
+      
+      if (error) {
+        console.error('[Checkout] Stripe redirect error:', error)
+        toast.error(error.message || 'Failed to redirect to payment')
+        setLoading(false)
+      } else {
+        console.log('[Checkout] Successfully redirected to Stripe Checkout')
+        onSuccess()
+      }
+    } catch (error) {
+      console.error('[Checkout] Unexpected error:', error)
+      toast.error('An unexpected error occurred. Please try again.')
+      setLoading(false)
+    }
   }
 
   return (
-    <Button disabled={loading} onClick={handleCheckout}>
-      {loading ? 'Loading...' : 'Proceed to Payment'}
+    <Button 
+      onClick={handleCheckout}
+      disabled={loading}
+      className="w-full sm:w-auto"
+      aria-busy={loading}
+    >
+      {loading ? 'Processing...' : 'Proceed to Payment'}
     </Button>
   )
 }

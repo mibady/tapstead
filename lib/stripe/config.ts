@@ -1,30 +1,28 @@
 import Stripe from 'stripe'
 
 // Validate required environment variables
-const stripeSecretKey = process.env.Stripe_Secret_key || 'sk_test_placeholder'
-const stripePublishableKey = process.env.NEXT_PUBLIC_Stripe_Publishable_key || process.env.Stripe_Publishable_key || 'pk_test_placeholder'
-
-if (!process.env.Stripe_Secret_key) {
-  console.warn('Missing Stripe_Secret_key environment variable - using placeholder')
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing STRIPE_SECRET_KEY environment variable')
 }
 
-if (!process.env.NEXT_PUBLIC_Stripe_Publishable_key && !process.env.Stripe_Publishable_key) {
-  console.warn('Missing Stripe_Publishable_key environment variable - using placeholder')
+if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+  throw new Error('Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY environment variable')
 }
 
 // Initialize Stripe with the secret key (server-side only)
-export const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: '2025-05-28.basil',
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-10-16',
   typescript: true,
+  locale: 'en', // Explicitly set the locale to English
 })
 
 // Export publishable key for client-side usage
-export const STRIPE_PUBLISHABLE_KEY = stripePublishableKey
+export const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 
 // Stripe configuration constants
 export const STRIPE_CONFIG = {
   currency: 'usd',
-  payment_method_types: ['card', 'apple_pay', 'google_pay'] as const,
+  payment_method_types: ['card'] as const,
   automatic_payment_methods: {
     enabled: true,
   },

@@ -11,7 +11,7 @@ interface FrequencyPricing {
   '5+': { price: number; productId: string };
 }
 
-const PRICING = {
+export const PRICING = {
   oneTime: {
     '1-2': { price: 149, productId: 'prod_Sb12PLJ0A1LqCG' },
     '3-4': { price: 199, productId: 'prod_Sb13pjCHAoKvfH' },
@@ -34,24 +34,27 @@ const PRICING = {
   }
 } as const;
 
-const ADD_ONS = {
+export const ADD_ONS = {
   deepClean: { price: 75, productId: 'prod_Sb1JGVxMBfKm81' },
   moveInOut: { price: 99, productId: 'prod_Sb1MrGld1Aytkk' }
 } as const;
 
 export type FrequencyType = keyof typeof PRICING;
 export type BedroomType = keyof typeof PRICING.oneTime;
+export type CleaningType = 'standard' | 'deep' | 'moveInOut';
+
 export type AddOnType = keyof typeof ADD_ONS;
 
 export interface BookingDetails {
   frequency: FrequencyType;
   bedrooms: BedroomType;
-  addOns: AddOnType[];
+  cleaningType: CleaningType;
 }
 
 export function calculatePrice(details: BookingDetails): PriceDetails {
   const basePrice = PRICING[details.frequency][details.bedrooms];
-  const addOnTotal = details.addOns.reduce((sum, addOn) => sum + ADD_ONS[addOn].price, 0);
+  const addOnTotal = details.cleaningType === 'deep' ? ADD_ONS.deepClean.price :
+    details.cleaningType === 'moveInOut' ? ADD_ONS.moveInOut.price : 0;
 
   return {
     base: basePrice.price,
@@ -71,9 +74,9 @@ export function getAddOnProducts(addOns: AddOnType[]) {
 export function getFrequencyLabel(frequency: FrequencyType) {
   switch (frequency) {
     case 'oneTime': return 'One-Time Service';
-    case 'weekly': return 'Weekly Service (Save 33%)';
-    case 'biWeekly': return 'Bi-Weekly Service (Save 27%)';
-    case 'monthly': return 'Monthly Service (Save 20%)';
+    case 'weekly': return 'Weekly Service ($396-$796/month)';
+    case 'biWeekly': return 'Bi-Weekly Service ($218-$438/month)';
+    case 'monthly': return 'Monthly Service ($119-$239/month)';
   }
 }
 

@@ -35,3 +35,13 @@ next-env.d.ts
 
 # npm (since we're using pnpm)
 package-lock.json
+
+# Test files that might contain sensitive information
+**/test-*.ts
+**/test/*.ts
+**/test-*.js
+**/test/*.js
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js

@@ -3,7 +3,7 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js'
 
 // Get publishable key from environment
-const stripePublishableKey = process.env.NEXT_PUBLIC_Stripe_Publishable_key
+const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 
 if (!stripePublishableKey) {
   console.error('Missing NEXT_PUBLIC_Stripe_Publishable_key environment variable')

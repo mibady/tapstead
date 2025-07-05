@@ -58,6 +58,30 @@ async function handleStripeEvent(event: Stripe.Event) {
   const supabase = createServerClient()
 
   switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object as Stripe.Checkout.Session;
+      await handleCheckoutCompleted(session, supabase);
+      break;
+    }
+
+    case 'charge.refunded': {
+      const charge = event.data.object as Stripe.Charge;
+      await handleRefund(charge, supabase);
+      break;
+    }
+
+    case 'charge.dispute.created': {
+      const dispute = event.data.object as Stripe.Dispute;
+      await handleDisputeCreated(dispute, supabase);
+      break;
+    }
+
+    case 'charge.dispute.closed': {
+      const dispute = event.data.object as Stripe.Dispute;
+      await handleDisputeClosed(dispute, supabase);
+      break;
+    }
+
     case 'payment_intent.succeeded': {
       const paymentIntent = event.data.object as Stripe.PaymentIntent
       await handlePaymentSuccess(paymentIntent, supabase)
@@ -96,6 +120,155 @@ async function handleStripeEvent(event: Stripe.Event) {
 
     default:
       console.log(`Unhandled event type: ${event.type}`)
+  }
+}
+
+async function handleCheckoutCompleted(session: Stripe.Checkout.Session, supabase: any) {
+  try {
+    const metadata = session.metadata || {};
+    
+    // Create or update booking record
+    const { error: bookingError } = await supabase
+      .from('bookings')
+      .upsert({
+        id: metadata.booking_id,
+        user_id: metadata.user_id,
+        service_type: metadata.service_type,
+        status: 'confirmed',
+        payment_status: 'paid',
+        stripe_session_id: session.id,
+        amount_total: session.amount_total ? session.amount_total / 100 : 0,
+        frequency: metadata.frequency,
+        bedrooms: metadata.bedrooms,
+        date: metadata.date,
+        time: metadata.time,
+        address: metadata.address,
+        customer_name: metadata.customer_name,
+        customer_email: metadata.customer_email,
+        customer_phone: metadata.customer_phone,
+        updated_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (bookingError) {
+      throw new Error(`Error updating booking: ${bookingError.message}`);
+    }
+
+    // Add tracking entry
+    await supabase.from('tracking').insert({
+      booking_id: metadata.booking_id,
+      status: 'payment_confirmed',
+      notes: `Checkout completed. Amount: $${session.amount_total ? session.amount_total / 100 : 0}`,
+      created_at: new Date().toISOString(),
+    });
+
+  } catch (error) {
+    console.error('Error handling checkout completion:', error);
+    throw error;
+  }
+}
+
+async function handleRefund(charge: Stripe.Charge, supabase: any) {
+  try {
+    const metadata = charge.metadata || {};
+    const bookingId = metadata.booking_id;
+    
+    if (!bookingId) {
+      console.error('Missing booking_id in charge metadata');
+      return;
+    }
+
+    // Update booking status
+    await supabase
+      .from('bookings')
+      .update({
+        payment_status: 'refunded',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', bookingId);
+
+    // Add tracking entry
+    await supabase.from('tracking').insert({
+      booking_id: bookingId,
+      status: 'payment_refunded',
+      notes: `Refund processed. Amount: $${charge.amount_refunded / 100}`,
+      created_at: new Date().toISOString(),
+    });
+
+  } catch (error) {
+    console.error('Error handling refund:', error);
+    throw error;
+  }
+}
+
+async function handleDisputeCreated(dispute: Stripe.Dispute, supabase: any) {
+  try {
+    const charge = dispute.charge as Stripe.Charge;
+    const metadata = charge.metadata || {};
+    const bookingId = metadata.booking_id;
+
+    if (!bookingId) {
+      console.error('Missing booking_id in charge metadata');
+      return;
+    }
+
+    // Update booking status
+    await supabase
+      .from('bookings')
+      .update({
+        payment_status: 'disputed',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', bookingId);
+
+    // Add tracking entry
+    await supabase.from('tracking').insert({
+      booking_id: bookingId,
+      status: 'payment_disputed',
+      notes: `Dispute created. Reason: ${dispute.reason}. Amount: $${dispute.amount / 100}`,
+      created_at: new Date().toISOString(),
+    });
+
+  } catch (error) {
+    console.error('Error handling dispute creation:', error);
+    throw error;
+  }
+}
+
+async function handleDisputeClosed(dispute: Stripe.Dispute, supabase: any) {
+  try {
+    const charge = dispute.charge as Stripe.Charge;
+    const metadata = charge.metadata || {};
+    const bookingId = metadata.booking_id;
+
+    if (!bookingId) {
+      console.error('Missing booking_id in charge metadata');
+      return;
+    }
+
+    // Update booking status based on dispute status
+    const paymentStatus = dispute.status === 'won' ? 'paid' : 'dispute_lost';
+    
+    await supabase
+      .from('bookings')
+      .update({
+        payment_status: paymentStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', bookingId);
+
+    // Add tracking entry
+    await supabase.from('tracking').insert({
+      booking_id: bookingId,
+      status: 'dispute_closed',
+      notes: `Dispute ${dispute.status}. Amount: $${dispute.amount / 100}`,
+      created_at: new Date().toISOString(),
+    });
+
+  } catch (error) {
+    console.error('Error handling dispute closure:', error);
+    throw error;
   }
 }
 

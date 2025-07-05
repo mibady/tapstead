@@ -17,8 +17,10 @@ interface OnlineBookingFormProps {
   step: number
   onNext: (data?: Partial<BookingData>) => void
   onBack: () => void
-  bookingData: BookingData
-  updateBookingData: (data: Partial<BookingData>) => void
+  serviceData: {
+    frequency: FrequencyType
+    bedrooms: BedroomType
+  }
 }
 
 const FormStep = ({ title, children, onNext, onBack, showBackButton = true }: { title: string, children: React.ReactNode, onNext: () => void, onBack: () => void, showBackButton?: boolean }) => (
@@ -54,7 +56,20 @@ const PriceSummary = ({ bookingData }: { bookingData: BookingData }) => {
 };
 
 
-export default function OnlineBookingForm({ step, onNext, onBack, bookingData, updateBookingData }: OnlineBookingFormProps) {
+export default function OnlineBookingForm({ step, onNext, onBack, serviceData }: OnlineBookingFormProps) {
+  const [bookingData, setBookingData] = useState({
+    bedrooms: serviceData.bedrooms,
+    frequency: serviceData.frequency,
+    addOns: [],
+    date: undefined,
+    time: '',
+    contact: { name: '', email: '', phone: '' },
+    address: { street: '', city: '', state: '', zip: '', apt: '' }
+  });
+
+  const updateBookingData = (data: Partial<typeof bookingData>) => {
+    setBookingData(prev => ({ ...prev, ...data }));
+  };
   // Ensure we have default values for all fields to prevent undefined errors
   // Define default address with all required fields including optional apt
   const { 
@@ -117,43 +132,6 @@ export default function OnlineBookingForm({ step, onNext, onBack, bookingData, u
     }
   };
 
-  const { lineItems, metadata } = useMemo(() => {
-    const priceDetails = calculatePrice(bookingData);
-    if (!priceDetails) return { lineItems: [], metadata: {} };
-
-    const items = [{
-        price_data: {
-            currency: 'usd',
-            product_data: {
-                name: `${service.name} - ${bedrooms} Bedrooms (${frequency})`,
-                description: `Service scheduled for ${date?.toLocaleDateString()} at ${time}.`,
-                images: [],
-            },
-            unit_amount: Math.round(priceDetails.total * 100), // Stripe expects amount in cents
-        },
-        quantity: 1,
-    }];
-    
-    // Create metadata, ensuring complex objects are stringified
-    const meta = {
-        serviceId: service.id,
-        bedrooms: bedrooms?.toString() || '',
-        frequency: frequency || '',
-        addOns: addOns?.join(',') || '',
-        date: date?.toISOString() || '',
-        time: time || '',
-        contactName: contact.name,
-        contactEmail: contact.email,
-        contactPhone: contact.phone,
-        addressLine1: safeAddress.street,
-        addressLine2: '',
-        addressCity: safeAddress.city,
-        addressState: safeAddress.state,
-        addressZip: safeAddress.zip,
-    };
-
-    return { lineItems: items, metadata: meta };
-  }, [bookingData, service]);
 
 
   switch (step) {
@@ -295,8 +273,7 @@ export default function OnlineBookingForm({ step, onNext, onBack, bookingData, u
           <CardFooter className="flex justify-between">
              <Button variant="outline" onClick={onBack}>Back</Button>
             <StripeCheckoutButton
-              lineItems={lineItems}
-              metadata={metadata}
+              price={calculatePrice(bookingData)?.total || 0}
               onSuccess={() => {
                 console.log("Payment successful!");
                 // Optionally redirect or show a success message

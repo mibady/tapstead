@@ -1,24 +1,14 @@
-import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ClientLayoutWrapper } from "@/components/layout/client-layout-wrapper"
+import { Header } from "@/components/layout/header"
 import { AuthProvider } from '@/lib/auth/auth-context'
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://tapstead.com'),
-  title: "Tapstead - Home Services Made Simple | Just Tap. Done.",
-  description:
-    "Professional home services at your fingertips. Cleaning, handyman, junk removal, and more. Transparent pricing, trusted pros, instant booking.",
-  keywords: "home services, cleaning, handyman, junk removal, home maintenance, professional services",
-  openGraph: {
-    title: "Tapstead - Home Services Made Simple",
-    description: "Professional home services at your fingertips. Just tap. Done.",
-    images: ["/images/tapstead-logo.png"],
-  },
-  generator: 'v0.dev'
+  title: "Tapstead",
+  description: "Home Services Made Simple",
 }
 
 export default function RootLayout({
@@ -27,12 +17,15 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} min-h-screen flex flex-col`}>
+    <html lang="en" className="h-full">
+      <body className={`${inter.className} min-h-full`}>
         <AuthProvider>
-          <ClientLayoutWrapper>
-            {children}
-          </ClientLayoutWrapper>
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-1 relative">
+              {children}
+            </main>
+          </div>
         </AuthProvider>
       </body>
     </html>

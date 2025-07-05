@@ -21,7 +21,7 @@ export function Header() {
               alt="Tapstead Logo"
               width={150}
               height={50}
-              className="h-24 w-auto"
+              className="h-8 w-auto object-contain"
               priority
             />
           </Link>

@@ -6,6 +6,8 @@ import type { Database } from '@/lib/supabase/types'
 import { Session, User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 
+export type UserRole = 'customer' | 'provider' | 'admin';
+
 export interface UserData {
   id: string
   email?: string
@@ -14,9 +16,15 @@ export interface UserData {
   phone?: string
   customer_type?: 'residential' | 'commercial'
   military_status?: boolean
+  role?: UserRole
+  is_verified?: boolean
 }
 
 interface AuthContextType {
+  userRole: UserRole | null
+  isVerified: boolean
+  isAdmin: boolean
+  checkPermission: (requiredRole: UserRole) => boolean
   session: Session | null
   user: UserData | null
   loading: boolean
@@ -97,6 +105,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signIn,
     signUp,
     signOut,
+  userRole: user?.role || null,
+  isVerified: user?.is_verified || false,
+  isAdmin: user?.role === 'admin',
+  checkPermission: (requiredRole: UserRole) => {
+    if (!user?.role) return false;
+    if (user.role === 'admin') return true;
+    return user.role === requiredRole;
+  },
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

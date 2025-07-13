@@ -1,16 +1,10 @@
+import { AboutUsPage } from "@/components/pages/about-us"
 import { MarketingLayout } from "@/components/layout/marketing-layout"
-import { AboutUs } from "@/components/pages/about-us"
 
-export const metadata = {
-  title: "About Tapstead | Our Mission & Story",
-  description:
-    "Learn about Tapstead's mission to simplify home services. Meet our team, discover our values, and see how we're revolutionizing home maintenance.",
-}
-
-export default function AboutPage() {
+export default function About() {
   return (
     <MarketingLayout>
-      <AboutUs />
+      <AboutUsPage />
     </MarketingLayout>
   )
 }

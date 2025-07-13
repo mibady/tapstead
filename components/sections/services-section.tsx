@@ -1,162 +1,273 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
   Home,
   Wrench,
-  Trash2,
-  Droplets,
-  Zap,
   Paintbrush,
-  ArrowRight,
-  Star,
+  Zap,
+  Droplets,
+  Trash2,
+  Wind,
   Flame,
-  PipetteIcon as Pipe,
-  Waves,
+  ArrowRight,
+  Clock,
+  Calculator,
 } from "lucide-react"
 import Link from "next/link"
 
 const services = [
   {
+    id: "house-cleaning",
     icon: Home,
     title: "House Cleaning",
-    description: "Deep cleaning, regular maintenance, move-in/out cleaning",
-    price: "Starting at $99",
+    description: "Professional residential cleaning with eco-friendly products",
+    type: "instant",
+    pricing: "$149 - $299",
+    duration: "2-4 hours",
     popular: true,
-    features: ["Eco-friendly products", "Insured professionals", "Satisfaction guarantee"],
+    features: [
+      "All rooms cleaned thoroughly",
+      "Kitchen & bathroom deep clean",
+      "Eco-friendly products",
+      "Flexible scheduling",
+    ],
+    href: "/book-now",
   },
   {
+    id: "handyman",
     icon: Wrench,
     title: "Handyman Services",
-    description: "Repairs, installations, furniture assembly, and more",
-    price: "Starting at $75/hr",
-    popular: false,
-    features: ["Licensed professionals", "All tools included", "1-year warranty"],
+    description: "General repairs, installations, and home maintenance",
+    type: "quote",
+    pricing: "Custom Quote",
+    duration: "1-8 hours",
+    features: ["General repairs", "Installations", "Maintenance work", "Licensed professionals"],
+    href: "/services/handyman",
   },
   {
-    icon: Pipe,
+    id: "painting",
+    icon: Paintbrush,
+    title: "Painting Services",
+    description: "Interior and exterior painting by skilled professionals",
+    type: "quote",
+    pricing: "Custom Quote",
+    duration: "1-5 days",
+    features: ["Interior & exterior", "Premium paint brands", "Color consultation", "Clean-up included"],
+    href: "/services/painting",
+  },
+  {
+    id: "electrical",
+    icon: Zap,
+    title: "Electrical Work",
+    description: "Licensed electricians for all your electrical needs",
+    type: "quote",
+    pricing: "Custom Quote",
+    duration: "1-6 hours",
+    features: ["Licensed electricians", "Safety inspections", "Installations & repairs", "Emergency service"],
+    href: "/services/electrical",
+  },
+  {
+    id: "plumbing",
+    icon: Droplets,
     title: "Plumbing Services",
-    description: "Leak repairs, drain cleaning, fixture installation, emergency plumbing",
-    price: "Starting at $89/hr",
-    popular: false,
-    features: ["Licensed plumbers", "24/7 emergency service", "Parts warranty"],
+    description: "Expert plumbers for repairs, installations, and emergencies",
+    type: "quote",
+    pricing: "Custom Quote",
+    duration: "1-4 hours",
+    features: ["Emergency repairs", "Pipe installations", "Drain cleaning", "Water heater service"],
+    href: "/services/plumbing",
   },
   {
+    id: "junk-removal",
     icon: Trash2,
     title: "Junk Removal",
-    description: "Furniture, appliances, construction debris, estate cleanouts",
-    price: "Starting at $149",
-    popular: false,
-    features: ["Same-day service", "Eco-friendly disposal", "No hidden fees"],
+    description: "Fast and eco-friendly junk removal and disposal",
+    type: "quote",
+    pricing: "Custom Quote",
+    duration: "1-3 hours",
+    features: ["Same-day service", "Eco-friendly disposal", "Heavy lifting included", "Clean-up after removal"],
+    href: "/services/junk-removal",
   },
   {
-    icon: Droplets,
+    id: "pressure-washing",
+    icon: Wind,
     title: "Pressure Washing",
-    description: "Driveways, decks, siding, and exterior surfaces",
-    price: "Starting at $199",
-    popular: false,
-    features: ["Professional equipment", "Eco-safe detergents", "Before/after photos"],
+    description: "Professional pressure washing for homes and driveways",
+    type: "quote",
+    pricing: "Custom Quote",
+    duration: "2-6 hours",
+    features: ["House exterior cleaning", "Driveway & walkways", "Deck & patio cleaning", "Eco-friendly detergents"],
+    href: "/services/pressure-washing",
   },
   {
-    icon: Waves,
-    title: "Gutter Services",
-    description: "Gutter cleaning, repairs, installation, and downspout maintenance",
-    price: "Starting at $159",
-    popular: false,
-    features: ["Debris removal", "Leak repairs", "Gutter guards available"],
-  },
-  {
-    icon: Zap,
-    title: "Electrical Services",
-    description: "Outlet installation, lighting, ceiling fans, smart home setup",
-    price: "Starting at $125",
-    popular: false,
-    features: ["Licensed electricians", "Code compliant", "Safety guaranteed"],
-  },
-  {
-    icon: Paintbrush,
-    title: "Interior Painting",
-    description: "Room painting, touch-ups, color consultation",
-    price: "Starting at $299",
-    popular: false,
-    features: ["Premium paints", "Clean workspace", "Color matching"],
-  },
-  {
+    id: "emergency-cleanup",
     icon: Flame,
-    title: "Welding Services",
-    description: "Metal fabrication, repairs, custom welding projects, structural work",
-    price: "Starting at $95/hr",
-    popular: false,
-    features: ["Certified welders", "Mobile service available", "All welding types"],
+    title: "Emergency Cleanup",
+    description: "24/7 emergency cleanup for disasters and accidents",
+    type: "emergency",
+    pricing: "Emergency Rates",
+    duration: "Immediate",
+    features: ["24/7 availability", "Disaster cleanup", "Insurance coordination", "Rapid response"],
+    href: "/emergency",
   },
 ]
 
 export function ServicesSection() {
+  const primaryService = services.find((s) => s.id === "house-cleaning")
+  const otherServices = services.filter((s) => s.id !== "house-cleaning")
+
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">All Your Home Needs, One Tap Away</h2>
+    <section className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="text-center space-y-4 mb-16">
+          <h2 className="text-4xl font-bold">Our Services</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            From quick fixes to major projects, our vetted professionals handle it all. Transparent pricing, quality
-            guaranteed.
+            From instant house cleaning bookings to custom quotes for specialized services
           </p>
         </div>
 
-        {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {services.map((service, index) => (
-            <Card key={index} className="relative hover:shadow-lg transition-shadow duration-300">
-              {service.popular && (
-                <Badge className="absolute -top-2 left-4 bg-orange-500 hover:bg-orange-600">
-                  <Star className="w-3 h-3 mr-1" />
-                  Most Popular
-                </Badge>
-              )}
+        {/* Primary Service - House Cleaning */}
+        {primaryService && (
+          <div className="mb-16">
+            <div className="text-center mb-8">
+              <Badge className="bg-blue-100 text-blue-800 text-sm px-4 py-2">Most Popular Service</Badge>
+            </div>
 
-              <CardHeader className="pb-4">
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <service.icon className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">{service.title}</CardTitle>
-                    <div className="text-sm font-semibold text-green-600">{service.price}</div>
-                  </div>
+            <Card className="max-w-4xl mx-auto border-2 border-blue-200 shadow-xl">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <primaryService.icon className="w-8 h-8 text-blue-600" />
                 </div>
-                <CardDescription className="text-gray-600">{service.description}</CardDescription>
+                <CardTitle className="text-3xl">{primaryService.title}</CardTitle>
+                <CardDescription className="text-lg">{primaryService.description}</CardDescription>
               </CardHeader>
 
-              <CardContent className="pt-0">
-                <ul className="space-y-2 mb-6">
-                  {service.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center text-sm text-gray-600">
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-3 gap-6 text-center">
+                  <div className="space-y-2">
+                    <div className="text-2xl font-bold text-green-600">{primaryService.pricing}</div>
+                    <div className="text-sm text-gray-600">Fixed pricing based on home size</div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-2xl font-bold text-blue-600">{primaryService.duration}</div>
+                    <div className="text-sm text-gray-600">Professional service time</div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-2xl font-bold text-purple-600">Instant</div>
+                    <div className="text-sm text-gray-600">Book online immediately</div>
+                  </div>
+                </div>
 
-                <Button className="w-full" variant="gradient" asChild>
-                  <Link href={`/book-now?service=${service.title.toLowerCase().replace(/\s+/g, "-")}`}>
-                    Book Now
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </Button>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold mb-3">What's Included:</h4>
+                    <ul className="space-y-2">
+                      {primaryService.features.map((feature, index) => (
+                        <li key={index} className="flex items-center text-sm">
+                          <div className="w-2 h-2 bg-green-600 rounded-full mr-3 flex-shrink-0"></div>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <div className="font-semibold text-green-800 mb-2">Save with Subscriptions</div>
+                      <div className="text-sm text-green-700">
+                        • Weekly: Save 33%
+                        <br />• Bi-weekly: Save 27%
+                        <br />• Monthly: Save 20%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 min-w-[200px]" asChild>
+                    <Link href={primaryService.href}>
+                      Book House Cleaning Now
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" className="min-w-[180px] bg-transparent" asChild>
+                    <Link href="/pricing">View Pricing Details</Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
-          ))}
+          </div>
+        )}
+
+        {/* Other Services */}
+        <div className="space-y-8">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold mb-2">Other Professional Services</h3>
+            <p className="text-gray-600">Custom quotes delivered within 2 hours</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {otherServices.map((service) => (
+              <Card key={service.id} className="hover:shadow-lg transition-shadow h-full flex flex-col">
+                <CardHeader className="flex-shrink-0">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <service.icon className="w-6 h-6 text-gray-600" />
+                    </div>
+                    {service.type === "emergency" && <Badge className="bg-red-100 text-red-800">24/7</Badge>}
+                  </div>
+                  <CardTitle className="text-xl">{service.title}</CardTitle>
+                  <CardDescription>{service.description}</CardDescription>
+                </CardHeader>
+
+                <CardContent className="space-y-4 flex-grow flex flex-col">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center">
+                      <Calculator className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
+                      <span className="truncate">{service.pricing}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Clock className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
+                      <span className="truncate">{service.duration}</span>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-1 flex-grow">
+                    {service.features.slice(0, 3).map((feature, index) => (
+                      <li key={index} className="flex items-start text-sm text-gray-600">
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 mt-2 flex-shrink-0"></div>
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="pt-4 mt-auto">
+                    <Button variant="outline" className="w-full bg-transparent" asChild>
+                      <Link href={service.href} className="flex items-center justify-center">
+                        <span>{service.type === "emergency" ? "Emergency Contact" : "Get Quote"}</span>
+                        <ArrowRight className="w-4 h-4 ml-2 flex-shrink-0" />
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
 
-        {/* View All Services CTA */}
-        <div className="text-center">
-          <Button variant="outline" size="lg" asChild>
-            <Link href="/services">
-              View All Services
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Link>
-          </Button>
+        {/* Bottom CTA */}
+        <div className="text-center mt-16">
+          <div className="bg-white p-8 rounded-xl shadow-lg max-w-2xl mx-auto">
+            <h3 className="text-2xl font-bold mb-4">Need Something Else?</h3>
+            <p className="text-gray-600 mb-6">
+              Can't find what you're looking for? Contact us for custom services and specialized solutions.
+            </p>
+            <Button size="lg" variant="outline" className="min-w-[140px] bg-transparent" asChild>
+              <Link href="/contact">Contact Us</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </section>

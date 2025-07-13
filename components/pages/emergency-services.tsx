@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Phone, Clock, Shield, AlertTriangle, Flame, Zap, Wrench, Home } from "lucide-react"
 import Link from "next/link"
 
-export function EmergencyServices() {
+export function EmergencyServicesPage() {
   const emergencyServices = [
     {
       title: "Fire Debris Removal",
@@ -148,3 +148,5 @@ export function EmergencyServices() {
     </div>
   )
 }
+
+export default EmergencyServicesPage

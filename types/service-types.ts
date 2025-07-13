@@ -2,52 +2,78 @@ export type ServiceType = "bookable" | "quote-required" | "emergency"
 
 export interface Service {
   id: string
+  icon: any
   title: string
   description: string
   serviceType: ServiceType
-  basePrice?: number // Only for bookable services
-  priceRange?: { min: number; max: number } // For quote-required services
-  duration?: string
+  basePrice?: number
+  priceRange?: {
+    min: number
+    max: number
+  }
+  duration: string
   category: string
-  icon: any
-  features: string[]
   popular: boolean
   requiresAssessment: boolean
   emergencyAvailable: boolean
+  features: string[]
+}
+
+export interface BookingPricing {
+  basePrice: {
+    small: number // 1-2 bedrooms
+    medium: number // 3-4 bedrooms
+    large: number // 5+ bedrooms
+  }
+  subscriptionDiscount: {
+    weekly: number // 33% off base
+    biweekly: number // 27% off base
+    monthly: number // 20% off base
+  }
+  addOns: {
+    deepClean: number
+    moveInOut: number
+    insideOven: number
+    insideFridge: number
+    interiorWindows: number
+    garageCleaning: number
+  }
+  dynamicPricing: {
+    weekend: number // +10%
+    sameDay: number // +15%
+    holiday: number // +20%
+  }
 }
 
 export interface QuoteRequest {
   id: string
-  user_id: string
-  service_id: string
-  status: "pending" | "quoted" | "accepted" | "declined" | "expired"
-  project_details: string
+  userId: string
+  serviceType: string
+  description: string
+  photos: string[]
   address: string
-  preferred_date: string
-  preferred_time: string
-  photos?: string[]
-  estimated_budget?: number
-  urgency: "standard" | "priority" | "urgent"
-  created_at: string
-  expires_at: string
+  propertyType?: string
+  propertySize?: string
+  preferredDate: string
+  preferredTime?: string
+  urgency: string
+  estimatedBudget?: string
+  status: "pending" | "quoted" | "accepted" | "declined"
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface Quote {
   id: string
-  quote_request_id: string
-  provider_id: string
-  total_price: number
-  breakdown: QuoteLineItem[]
-  description: string
-  valid_until: string
-  terms_conditions: string
-  status: "sent" | "accepted" | "declined" | "expired"
-  created_at: string
-}
-
-export interface QuoteLineItem {
-  description: string
-  quantity: number
-  unit_price: number
-  total: number
+  requestId: string
+  basePrice: number
+  adjustments: {
+    item: string
+    amount: number
+  }[]
+  finalPrice: number
+  validUntil: Date
+  notes: string
+  status: "pending" | "sent" | "accepted" | "declined"
+  createdAt: Date
 }

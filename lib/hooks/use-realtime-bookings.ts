@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth/auth-context"
 
 export function useRealtimeBookings() {
   const { user } = useAuth()
-  const [bookings, setBookings] = useState<any[]>([])
+  const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -14,11 +14,6 @@ export function useRealtimeBookings() {
 
     // Fetch initial bookings
     const fetchBookings = async () => {
-      if (!supabase) {
-        setLoading(false)
-        return
-      }
-      
       const { data } = await supabase
         .from("bookings")
         .select(`
@@ -36,8 +31,6 @@ export function useRealtimeBookings() {
     fetchBookings()
 
     // Set up real-time subscription
-    if (!supabase) return
-    
     const channel = supabase
       .channel("bookings-changes")
       .on(
@@ -53,19 +46,17 @@ export function useRealtimeBookings() {
             setBookings((prev) => [payload.new, ...prev])
           } else if (payload.eventType === "UPDATE") {
             setBookings((prev) =>
-              prev.map((booking: any) => (booking.id === payload.new.id ? { ...booking, ...payload.new } : booking)),
+              prev.map((booking) => (booking.id === payload.new.id ? { ...booking, ...payload.new } : booking)),
             )
           } else if (payload.eventType === "DELETE") {
-            setBookings((prev) => prev.filter((booking: any) => booking.id !== payload.old.id))
+            setBookings((prev) => prev.filter((booking) => booking.id !== payload.old.id))
           }
         },
       )
       .subscribe()
 
     return () => {
-      if (supabase) {
-        supabase.removeChannel(channel)
-      }
+      supabase.removeChannel(channel)
     }
   }, [user])
 

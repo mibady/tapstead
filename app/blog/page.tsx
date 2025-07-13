@@ -1,5 +1,5 @@
 import { MarketingLayout } from "@/components/layout/marketing-layout"
-import { BlogListPage } from "@/components/blog/BlogList"
+import { BlogPage } from "@/components/pages/blog"
 
 export const metadata = {
   title: "Blog - Home Service Tips & Insights | Tapstead",
@@ -10,7 +10,7 @@ export const metadata = {
 export default function Blog() {
   return (
     <MarketingLayout>
-      <BlogListPage />
+      <BlogPage />
     </MarketingLayout>
   )
 }

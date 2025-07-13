@@ -1,5 +1,5 @@
 import type React from "react"
-// Header is now included in ClientLayoutWrapper
+import { Header } from "./header"
 import { Footer } from "./footer"
 
 interface MarketingLayoutProps {
@@ -8,8 +8,9 @@ interface MarketingLayoutProps {
 
 export function MarketingLayout({ children }: MarketingLayoutProps) {
   return (
-    <div className="min-h-screen">
-      <main>{children}</main>
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1">{children}</main>
       <Footer />
     </div>
   )

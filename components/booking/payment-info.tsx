@@ -2,244 +2,325 @@
 
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, CreditCard, Shield, Lock, DollarSign, Check } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { CreditCard, Shield, Calendar } from "lucide-react"
+import { StripePaymentForm } from "./stripe-payment-form"
 
 interface PaymentInfoProps {
-  onNext: (data: any) => void
-  onBack: () => void
   bookingData: any
+  onNext: (data: any) => void
 }
 
-export function PaymentInfo({ onNext, onBack, bookingData }: PaymentInfoProps) {
-  const [paymentData, setPaymentData] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    nameOnCard: "",
-    billingZip: "",
+export function PaymentInfo({ bookingData, onNext }: PaymentInfoProps) {
+  const [paymentMethod, setPaymentMethod] = useState("card")
+  const [billingAddress, setBillingAddress] = useState({
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    sameAsService: true,
   })
+  const [agreeToTerms, setAgreeToTerms] = useState(false)
 
-  const [isProcessing, setIsProcessing] = useState(false)
-
-  // Calculate final pricing
-  const basePrice = bookingData.details?.estimatedPrice || bookingData.service?.base_price || 0
-  const discountPercent = bookingData.customer?.appliedDiscount || 0
-  const discountAmount = Math.round(basePrice * (discountPercent / 100))
-  const subtotal = basePrice - discountAmount
-  const tax = Math.round(subtotal * 0.08) // 8% tax
-  const total = subtotal + tax
-
-  const handleInputChange = (field: string, value: string) => {
-    setPaymentData((prev) => ({ ...prev, [field]: value }))
+  const handleBillingChange = (field: string, value: string | boolean) => {
+    setBillingAddress((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = async () => {
-    setIsProcessing(true)
-
-    // Simulate payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
+  const handlePaymentSuccess = (paymentData: any) => {
     onNext({
-      ...paymentData,
-      paymentConfirmed: true,
-      finalTotal: total,
-      bookingId: `TS-${Date.now()}`,
+      paymentMethod,
+      billingAddress,
+      paymentData,
+      agreeToTerms,
     })
   }
 
-  const isFormValid =
-    paymentData.cardNumber &&
-    paymentData.expiryDate &&
-    paymentData.cvv &&
-    paymentData.nameOnCard &&
-    paymentData.billingZip
+  const isRecurring = bookingData.frequency?.id !== "one-time"
+  const pricing = bookingData.pricing
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
-            Secure Payment
+            <CreditCard className="w-5 h-5 mr-2" />
+            Payment Information
           </CardTitle>
-          <CardDescription>Your payment information is encrypted and secure</CardDescription>
+          <CardDescription>Secure payment processing powered by Stripe</CardDescription>
         </CardHeader>
       </Card>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Payment Form */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center text-lg">
-                <Lock className="w-4 h-4 mr-2" />
-                Payment Information
-              </CardTitle>
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <Shield className="w-4 h-4" />
-                <span>256-bit SSL encryption</span>
+      {/* Order Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Order Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span>Service</span>
+              <span>{bookingData.service?.title}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Home Size</span>
+              <span>{bookingData.houseSize?.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Frequency</span>
+              <span>{bookingData.frequency?.name}</span>
+            </div>
+            {bookingData.addOns?.length > 0 && (
+              <div className="flex justify-between">
+                <span>Add-ons</span>
+                <span>{bookingData.addOns.map((addon: any) => addon.name).join(", ")}</span>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="cardNumber">Card Number</Label>
-                <Input
-                  id="cardNumber"
-                  placeholder="1234 5678 9012 3456"
-                  value={paymentData.cardNumber}
-                  onChange={(e) => handleInputChange("cardNumber", e.target.value)}
-                  maxLength={19}
-                />
+            )}
+            <div className="flex justify-between">
+              <span>Date & Time</span>
+              <span>
+                {bookingData.date?.toLocaleDateString()} at {bookingData.time}
+              </span>
+            </div>
+            <div className="border-t pt-3">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>${pricing?.subtotal}</span>
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="expiryDate">Expiry Date</Label>
-                  <Input
-                    id="expiryDate"
-                    placeholder="MM/YY"
-                    value={paymentData.expiryDate}
-                    onChange={(e) => handleInputChange("expiryDate", e.target.value)}
-                    maxLength={5}
-                  />
+              {pricing?.discount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount ({pricing.discount}%)</span>
+                  <span>-${pricing.discountAmount}</span>
                 </div>
-                <div>
-                  <Label htmlFor="cvv">CVV</Label>
-                  <Input
-                    id="cvv"
-                    placeholder="123"
-                    value={paymentData.cvv}
-                    onChange={(e) => handleInputChange("cvv", e.target.value)}
-                    maxLength={4}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="nameOnCard">Name on Card</Label>
-                <Input
-                  id="nameOnCard"
-                  placeholder="John Smith"
-                  value={paymentData.nameOnCard}
-                  onChange={(e) => handleInputChange("nameOnCard", e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="billingZip">Billing ZIP Code</Label>
-                <Input
-                  id="billingZip"
-                  placeholder="12345"
-                  value={paymentData.billingZip}
-                  onChange={(e) => handleInputChange("billingZip", e.target.value)}
-                  maxLength={5}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Order Summary */}
-        <div className="lg:col-span-1">
-          <Card className="sticky top-4">
-            <CardHeader>
-              <CardTitle className="flex items-center text-lg">
-                <DollarSign className="w-4 h-4 mr-2" />
-                Order Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Service Details */}
-              <div className="space-y-2">
-                <div className="font-medium">{bookingData.service?.title}</div>
-                <div className="text-sm text-gray-600">
-                  {bookingData.details?.date} at {bookingData.details?.time}
-                </div>
-                <div className="text-sm text-gray-600">{bookingData.details?.address}</div>
-              </div>
-
-              <Separator />
-
-              {/* Pricing Breakdown */}
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Service</span>
-                  <span>${basePrice}</span>
-                </div>
-
-                {discountPercent > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Discount ({discountPercent}%)</span>
-                    <span>-${discountAmount}</span>
-                  </div>
-                )}
-
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>${subtotal}</span>
-                </div>
-
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Tax</span>
-                  <span>${tax}</span>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="flex justify-between font-semibold text-lg">
+              )}
+              <div className="flex justify-between text-lg font-semibold">
                 <span>Total</span>
-                <span className="text-green-600">${total}</span>
+                <span className="text-green-600">${pricing?.finalPrice}</span>
+              </div>
+              {isRecurring && (
+                <div className="text-sm text-gray-600 mt-1">
+                  Recurring {bookingData.frequency?.name.toLowerCase()} • Cancel anytime
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Billing Address */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Billing Address</CardTitle>
+          <CardDescription>Address for billing purposes</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="sameAsService"
+              checked={billingAddress.sameAsService}
+              onCheckedChange={(checked) => handleBillingChange("sameAsService", checked as boolean)}
+            />
+            <Label htmlFor="sameAsService" className="text-sm">
+              Same as service address
+            </Label>
+          </div>
+
+          {!billingAddress.sameAsService && (
+            <div className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="billingFirstName">First Name</Label>
+                  <Input
+                    id="billingFirstName"
+                    value={billingAddress.firstName}
+                    onChange={(e) => handleBillingChange("firstName", e.target.value)}
+                    placeholder="First name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="billingLastName">Last Name</Label>
+                  <Input
+                    id="billingLastName"
+                    value={billingAddress.lastName}
+                    onChange={(e) => handleBillingChange("lastName", e.target.value)}
+                    placeholder="Last name"
+                  />
+                </div>
               </div>
 
-              {/* Guarantees */}
-              <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex items-center">
-                  <Check className="w-3 h-3 mr-2 text-green-500" />
-                  <span>100% satisfaction guarantee</span>
+              <div>
+                <Label htmlFor="billingAddress">Address</Label>
+                <Input
+                  id="billingAddress"
+                  value={billingAddress.address}
+                  onChange={(e) => handleBillingChange("address", e.target.value)}
+                  placeholder="Street address"
+                />
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="billingCity">City</Label>
+                  <Input
+                    id="billingCity"
+                    value={billingAddress.city}
+                    onChange={(e) => handleBillingChange("city", e.target.value)}
+                    placeholder="City"
+                  />
                 </div>
-                <div className="flex items-center">
-                  <Check className="w-3 h-3 mr-2 text-green-500" />
-                  <span>Fully insured professionals</span>
+                <div>
+                  <Label htmlFor="billingState">State</Label>
+                  <Select value={billingAddress.state} onValueChange={(value) => handleBillingChange("state", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="State" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="AL">Alabama</SelectItem>
+                      <SelectItem value="AK">Alaska</SelectItem>
+                      <SelectItem value="AZ">Arizona</SelectItem>
+                      <SelectItem value="AR">Arkansas</SelectItem>
+                      <SelectItem value="CA">California</SelectItem>
+                      <SelectItem value="CO">Colorado</SelectItem>
+                      <SelectItem value="CT">Connecticut</SelectItem>
+                      <SelectItem value="DE">Delaware</SelectItem>
+                      <SelectItem value="FL">Florida</SelectItem>
+                      <SelectItem value="GA">Georgia</SelectItem>
+                      <SelectItem value="HI">Hawaii</SelectItem>
+                      <SelectItem value="ID">Idaho</SelectItem>
+                      <SelectItem value="IL">Illinois</SelectItem>
+                      <SelectItem value="IN">Indiana</SelectItem>
+                      <SelectItem value="IA">Iowa</SelectItem>
+                      <SelectItem value="KS">Kansas</SelectItem>
+                      <SelectItem value="KY">Kentucky</SelectItem>
+                      <SelectItem value="LA">Louisiana</SelectItem>
+                      <SelectItem value="ME">Maine</SelectItem>
+                      <SelectItem value="MD">Maryland</SelectItem>
+                      <SelectItem value="MA">Massachusetts</SelectItem>
+                      <SelectItem value="MI">Michigan</SelectItem>
+                      <SelectItem value="MN">Minnesota</SelectItem>
+                      <SelectItem value="MS">Mississippi</SelectItem>
+                      <SelectItem value="MO">Missouri</SelectItem>
+                      <SelectItem value="MT">Montana</SelectItem>
+                      <SelectItem value="NE">Nebraska</SelectItem>
+                      <SelectItem value="NV">Nevada</SelectItem>
+                      <SelectItem value="NH">New Hampshire</SelectItem>
+                      <SelectItem value="NJ">New Jersey</SelectItem>
+                      <SelectItem value="NM">New Mexico</SelectItem>
+                      <SelectItem value="NY">New York</SelectItem>
+                      <SelectItem value="NC">North Carolina</SelectItem>
+                      <SelectItem value="ND">North Dakota</SelectItem>
+                      <SelectItem value="OH">Ohio</SelectItem>
+                      <SelectItem value="OK">Oklahoma</SelectItem>
+                      <SelectItem value="OR">Oregon</SelectItem>
+                      <SelectItem value="PA">Pennsylvania</SelectItem>
+                      <SelectItem value="RI">Rhode Island</SelectItem>
+                      <SelectItem value="SC">South Carolina</SelectItem>
+                      <SelectItem value="SD">South Dakota</SelectItem>
+                      <SelectItem value="TN">Tennessee</SelectItem>
+                      <SelectItem value="TX">Texas</SelectItem>
+                      <SelectItem value="UT">Utah</SelectItem>
+                      <SelectItem value="VT">Vermont</SelectItem>
+                      <SelectItem value="VA">Virginia</SelectItem>
+                      <SelectItem value="WA">Washington</SelectItem>
+                      <SelectItem value="WV">West Virginia</SelectItem>
+                      <SelectItem value="WI">Wisconsin</SelectItem>
+                      <SelectItem value="WY">Wyoming</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="flex items-center">
-                  <Check className="w-3 h-3 mr-2 text-green-500" />
-                  <span>No hidden fees</span>
+                <div>
+                  <Label htmlFor="billingZipCode">ZIP Code</Label>
+                  <Input
+                    id="billingZipCode"
+                    value={billingAddress.zipCode}
+                    onChange={(e) => handleBillingChange("zipCode", e.target.value)}
+                    placeholder="ZIP code"
+                  />
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={onBack} disabled={isProcessing}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={!isFormValid || isProcessing}
-          className="bg-green-600 hover:bg-green-700"
-        >
-          {isProcessing ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Processing...
-            </>
-          ) : (
-            <>
-              Complete Booking - ${total}
-              <Lock className="w-4 h-4 ml-2" />
-            </>
+            </div>
           )}
-        </Button>
-      </div>
+        </CardContent>
+      </Card>
+
+      {/* Payment Method */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Payment Method</CardTitle>
+          <CardDescription>Choose your preferred payment method</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <StripePaymentForm
+            bookingData={bookingData}
+            billingAddress={billingAddress}
+            onPaymentSuccess={handlePaymentSuccess}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Terms and Conditions */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3 p-4 bg-green-50 rounded-lg">
+              <Shield className="w-5 h-5 text-green-600 mt-0.5" />
+              <div className="text-sm">
+                <div className="font-medium text-green-900 mb-1">Secure Payment Processing</div>
+                <div className="text-green-700">
+                  Your payment information is encrypted and processed securely by Stripe. We never store your card
+                  details on our servers.
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-2">
+              <Checkbox
+                id="agreeToTerms"
+                checked={agreeToTerms}
+                onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
+              />
+              <Label htmlFor="agreeToTerms" className="text-sm leading-relaxed">
+                I agree to the{" "}
+                <a href="/terms" className="text-blue-600 hover:underline">
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a href="/privacy" className="text-blue-600 hover:underline">
+                  Privacy Policy
+                </a>
+                . I understand that{" "}
+                {isRecurring ? "my subscription will automatically renew" : "payment will be processed"} and I can{" "}
+                {isRecurring ? "cancel anytime" : "request a refund within 24 hours"}.
+              </Label>
+            </div>
+
+            {isRecurring && (
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <div className="flex items-start space-x-3">
+                  <Calendar className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div className="text-sm">
+                    <div className="font-medium text-blue-900 mb-1">Subscription Details</div>
+                    <div className="text-blue-700">
+                      Your {bookingData.frequency?.name.toLowerCase()} subscription will automatically renew for $
+                      {pricing?.finalPrice} every{" "}
+                      {bookingData.frequency?.id === "weekly"
+                        ? "week"
+                        : bookingData.frequency?.id === "biweekly"
+                          ? "2 weeks"
+                          : "month"}
+                      . You can cancel or modify your subscription anytime from your account dashboard.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

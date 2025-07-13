@@ -73,9 +73,9 @@ export function PressureWashingService() {
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="tel:13606417386">
+                  <Link href="tel:555-123-4567">
                     <Phone className="w-4 h-4 mr-2" />
-                    Call (360) 641-7386
+                    Call (555) 123-4567
                   </Link>
                 </Button>
               </div>
@@ -98,7 +98,7 @@ export function PressureWashingService() {
 
             <div className="relative">
               <Image
-                src="/images/services/Pressure Washing.png"
+                src="/placeholder.svg?height=500&width=600"
                 alt="Professional pressure washing service"
                 width={600}
                 height={500}

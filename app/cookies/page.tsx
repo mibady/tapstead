@@ -2,8 +2,8 @@ import { MarketingLayout } from "@/components/layout/marketing-layout"
 import { CookiesPage } from "@/components/pages/cookies"
 
 export const metadata = {
-  title: "Cookie Policy - Tapstead",
-  description: "Learn about how Tapstead uses cookies and similar technologies on our platform.",
+  title: "Cookie Policy | Tapstead",
+  description: "Learn about how Tapstead uses cookies and similar technologies.",
 }
 
 export default function Cookies() {

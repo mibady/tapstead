@@ -2,113 +2,125 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useAuth } from "@/lib/auth/auth-context"
-import { supabase } from "@/lib/supabase/client"
-import { User, Bell, Shield, Save } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Loading } from "@/components/ui/loading"
+import { User, Mail, Phone, MapPin, Bell, Shield } from "lucide-react"
+
+interface UserProfile {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+  phone?: string
+  address?: string
+  email_notifications: boolean
+  sms_notifications: boolean
+}
 
 export default function SettingsPage() {
-  const { user } = useAuth()
-  const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState("")
-  const [profile, setProfile] = useState({
-    first_name: "",
-    last_name: "",
-    phone: "",
-    customer_type: "",
-    military_status: false,
-  })
-  const [notifications, setNotifications] = useState({
-    email_bookings: true,
-    email_promotions: false,
-    sms_reminders: true,
-    sms_updates: true,
-  })
+  const [error, setError] = useState("")
+  const router = useRouter()
+  const supabase = createClient()
 
   useEffect(() => {
-    if (user) {
-      loadProfile()
-    }
-  }, [user])
+    const checkUserAndLoadProfile = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-  const loadProfile = async () => {
-    if (!supabase || !user?.id) {
-      return
-    }
-    
-    try {
-      const { data } = await supabase.from("users").select("*").eq("id", user.id).single()
-
-      if (data) {
-        setProfile({
-          first_name: data.first_name || "",
-          last_name: data.last_name || "",
-          phone: data.phone || "",
-          customer_type: data.customer_type || "",
-          military_status: data.military_status || false,
-        })
+      if (!user) {
+        router.push("/login?redirect=/dashboard/settings")
+        return
       }
-    } catch (error) {
-      console.error("Error loading profile:", error)
-    }
-  }
 
-  const handleProfileUpdate = async (e: React.FormEvent) => {
+      setUser(user)
+
+      // Load user profile
+      const { data: profileData, error } = await supabase.from("user_profiles").select("*").eq("id", user.id).single()
+
+      if (error) {
+        console.error("Error loading profile:", error)
+      } else {
+        setProfile(profileData)
+      }
+
+      setLoading(false)
+    }
+
+    checkUserAndLoadProfile()
+  }, [router, supabase])
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
+    if (!profile) return
+
+    setSaving(true)
+    setError("")
     setMessage("")
 
-    if (!supabase || !user?.id) {
-      setMessage("Unable to update profile - please try again later")
-      setLoading(false)
-      return
-    }
-
     try {
-      const { error } = await supabase.from("users").update(profile).eq("id", user.id)
+      const { error } = await supabase
+        .from("user_profiles")
+        .update({
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          phone: profile.phone,
+          address: profile.address,
+          email_notifications: profile.email_notifications,
+          sms_notifications: profile.sms_notifications,
+        })
+        .eq("id", profile.id)
 
-      if (error) throw error
-
-      setMessage("Profile updated successfully!")
-    } catch (error) {
-      setMessage("Error updating profile")
+      if (error) {
+        setError(error.message)
+      } else {
+        setMessage("Profile updated successfully")
+      }
+    } catch (err) {
+      setError("An unexpected error occurred")
     } finally {
-      setLoading(false)
+      setSaving(false)
     }
   }
 
-  const handleNotificationUpdate = async (key: string, value: boolean) => {
-    setNotifications((prev) => ({ ...prev, [key]: value }))
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push("/")
+  }
 
-    if (!supabase || !user?.id) {
-      console.warn("Unable to update notification preferences - Supabase not available")
-      return
-    }
+  if (loading) {
+    return <Loading />
+  }
 
-    try {
-      const { error } = await supabase.from("user_preferences").upsert({
-        user_id: user.id,
-        [key]: value,
-      })
-
-      if (error) throw error
-    } catch (error) {
-      console.error("Error updating notifications:", error)
-    }
+  if (!profile) {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Profile not found</h1>
+          <Button onClick={() => router.push("/dashboard")}>Back to Dashboard</Button>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
           <p className="text-gray-600">Manage your account preferences and information</p>
@@ -120,167 +132,165 @@ export default function SettingsPage() {
           </Alert>
         )}
 
-        {/* Profile Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <User className="w-5 h-5 mr-2" />
-              Profile Information
-            </CardTitle>
-            <CardDescription>Update your personal information</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleProfileUpdate} className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    value={profile.first_name}
-                    onChange={(e) => setProfile((prev) => ({ ...prev, first_name: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    value={profile.last_name}
-                    onChange={(e) => setProfile((prev) => ({ ...prev, last_name: e.target.value }))}
-                  />
-                </div>
-              </div>
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" value={user?.email || ""} disabled className="bg-gray-50" />
-                <p className="text-xs text-gray-500 mt-1">Email cannot be changed here</p>
-              </div>
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Personal Information
+                </CardTitle>
+                <CardDescription>Update your personal details and contact information</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSaveProfile} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input
+                        id="firstName"
+                        value={profile.first_name || ""}
+                        onChange={(e) => setProfile((prev) => (prev ? { ...prev, first_name: e.target.value } : null))}
+                        placeholder="Enter your first name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input
+                        id="lastName"
+                        value={profile.last_name || ""}
+                        onChange={(e) => setProfile((prev) => (prev ? { ...prev, last_name: e.target.value } : null))}
+                        placeholder="Enter your last name"
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={profile.phone}
-                  onChange={(e) => setProfile((prev) => ({ ...prev, phone: e.target.value }))}
-                />
-              </div>
+                  <div>
+                    <Label htmlFor="email">Email Address</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input id="email" type="email" value={profile.email} className="pl-10" disabled />
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">Email cannot be changed. Contact support if needed.</p>
+                  </div>
 
-              <div>
-                <Label htmlFor="customerType">Customer Type</Label>
-                <Select
-                  value={profile.customer_type}
-                  onValueChange={(value) => setProfile((prev) => ({ ...prev, customer_type: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select customer type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="homeowner">Homeowner</SelectItem>
-                    <SelectItem value="renter">Renter</SelectItem>
-                    <SelectItem value="property-manager">Property Manager</SelectItem>
-                    <SelectItem value="real-estate">Real Estate Professional</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  <div>
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={profile.phone || ""}
+                        onChange={(e) => setProfile((prev) => (prev ? { ...prev, phone: e.target.value } : null))}
+                        className="pl-10"
+                        placeholder="Enter your phone number"
+                      />
+                    </div>
+                  </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="military"
-                  checked={profile.military_status}
-                  onCheckedChange={(checked) => setProfile((prev) => ({ ...prev, military_status: checked }))}
-                />
-                <Label htmlFor="military">Military/Veteran Status</Label>
-              </div>
+                  <div>
+                    <Label htmlFor="address">Address</Label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="address"
+                        value={profile.address || ""}
+                        onChange={(e) => setProfile((prev) => (prev ? { ...prev, address: e.target.value } : null))}
+                        className="pl-10"
+                        placeholder="Enter your address"
+                      />
+                    </div>
+                  </div>
 
-              <Button type="submit" disabled={loading}>
-                <Save className="w-4 h-4 mr-2" />
-                {loading ? "Saving..." : "Save Changes"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                  <Button type="submit" disabled={saving}>
+                    {saving ? "Saving..." : "Save Changes"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
 
-        {/* Notification Preferences */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Bell className="w-5 h-5 mr-2" />
-              Notification Preferences
-            </CardTitle>
-            <CardDescription>Choose how you want to be notified</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <h4 className="font-medium mb-3">Email Notifications</h4>
-              <div className="space-y-3">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5" />
+                  Notification Preferences
+                </CardTitle>
+                <CardDescription>Choose how you want to receive notifications</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label>Booking Confirmations</Label>
-                    <p className="text-sm text-gray-500">Get notified when bookings are confirmed</p>
+                    <Label htmlFor="emailNotifications">Email Notifications</Label>
+                    <p className="text-sm text-gray-500">Receive booking confirmations and updates via email</p>
                   </div>
                   <Switch
-                    checked={notifications.email_bookings}
-                    onCheckedChange={(checked) => handleNotificationUpdate("email_bookings", checked)}
+                    id="emailNotifications"
+                    checked={profile.email_notifications}
+                    onCheckedChange={(checked) =>
+                      setProfile((prev) => (prev ? { ...prev, email_notifications: checked } : null))
+                    }
                   />
                 </div>
+
+                <Separator />
+
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label>Promotions & Offers</Label>
-                    <p className="text-sm text-gray-500">Receive special offers and promotions</p>
+                    <Label htmlFor="smsNotifications">SMS Notifications</Label>
+                    <p className="text-sm text-gray-500">Receive booking reminders and updates via SMS</p>
                   </div>
                   <Switch
-                    checked={notifications.email_promotions}
-                    onCheckedChange={(checked) => handleNotificationUpdate("email_promotions", checked)}
+                    id="smsNotifications"
+                    checked={profile.sms_notifications}
+                    onCheckedChange={(checked) =>
+                      setProfile((prev) => (prev ? { ...prev, sms_notifications: checked } : null))
+                    }
                   />
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
+          </div>
 
-            <Separator />
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Account Security
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button variant="outline" className="w-full bg-transparent">
+                  Change Password
+                </Button>
+                <Button variant="outline" className="w-full bg-transparent">
+                  Two-Factor Authentication
+                </Button>
+              </CardContent>
+            </Card>
 
-            <div>
-              <h4 className="font-medium mb-3">SMS Notifications</h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Service Reminders</Label>
-                    <p className="text-sm text-gray-500">Get reminded before scheduled services</p>
-                  </div>
-                  <Switch
-                    checked={notifications.sms_reminders}
-                    onCheckedChange={(checked) => handleNotificationUpdate("sms_reminders", checked)}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Service Updates</Label>
-                    <p className="text-sm text-gray-500">Real-time updates about your service</p>
-                  </div>
-                  <Switch
-                    checked={notifications.sms_updates}
-                    onCheckedChange={(checked) => handleNotificationUpdate("sms_updates", checked)}
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Security Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Shield className="w-5 h-5 mr-2" />
-              Security Settings
-            </CardTitle>
-            <CardDescription>Manage your account security</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button variant="outline">Change Password</Button>
-            <Button variant="outline">Enable Two-Factor Authentication</Button>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Account Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button variant="outline" className="w-full bg-transparent">
+                  Download Data
+                </Button>
+                <Button variant="destructive" onClick={handleSignOut} className="w-full">
+                  Sign Out
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   )

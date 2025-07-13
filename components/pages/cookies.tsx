@@ -295,7 +295,7 @@ export function CookiesPage() {
                   <strong>Email:</strong> privacy@tapstead.com
                 </p>
                 <p>
-                  <strong>Phone:</strong> (360) 641-7386
+                  <strong>Phone:</strong> (555) 123-4567
                 </p>
                 <p>
                   <strong>Address:</strong> 123 Privacy Street, San Francisco, CA 94105

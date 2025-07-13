@@ -1,59 +1,57 @@
 "use client"
 
-import { useState, lazy, Suspense } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 import { AdminLayout } from "@/components/admin/admin-layout"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { AnalyticsAgent } from "@/components/agents/AnalyticsAgent"
-
-const AnalyticsDashboard = lazy(() => import("@/components/analytics/analytics-dashboard").then(module => ({ default: module.AnalyticsDashboard })))
-
-function AnalyticsLoading() {
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="pb-2">
-              <div className="h-4 bg-muted animate-pulse rounded" />
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 bg-muted animate-pulse rounded mb-2" />
-              <div className="h-3 bg-muted animate-pulse rounded w-2/3" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Loading Analytics...</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 bg-muted animate-pulse rounded" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Loading Charts...</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 bg-muted animate-pulse rounded" />
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  )
-}
+import { AnalyticsDashboard } from "@/components/analytics/analytics-dashboard"
+import { Loading } from "@/components/ui/loading"
 
 export default function AdminAnalyticsPage() {
-  const [timeRange, setTimeRange] = useState("30d")
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const supabase = createClient()
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        router.push("/login?redirect=/admin/analytics")
+        return
+      }
+
+      // Check if user is admin
+      const { data: profile } = await supabase.from("user_profiles").select("role").eq("id", user.id).single()
+
+      if (profile?.role !== "admin") {
+        router.push("/dashboard")
+        return
+      }
+
+      setUser(user)
+      setLoading(false)
+    }
+
+    checkUser()
+  }, [router, supabase])
+
+  if (loading) {
+    return <Loading />
+  }
 
   return (
     <AdminLayout>
-      <Suspense fallback={<AnalyticsLoading />}>
-        <AnalyticsDashboard timeRange={timeRange} onTimeRangeChange={setTimeRange} />
-      </Suspense>
-      <AnalyticsAgent />
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
+          <p className="text-gray-600">View platform analytics and insights</p>
+        </div>
+        <AnalyticsDashboard />
+      </div>
     </AdminLayout>
   )
 }

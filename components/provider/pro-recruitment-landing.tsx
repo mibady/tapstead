@@ -328,7 +328,7 @@ export function ProRecruitmentLanding() {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-2 border-white text-white bg-blue-700 hover:bg-white hover:text-blue-600">
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
               <Mail className="w-4 h-4 mr-2" />
               Email Questions
             </Button>

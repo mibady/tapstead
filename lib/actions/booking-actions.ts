@@ -1,177 +1,188 @@
 "use server"
 
-import { createServerClient } from "@/lib/supabase/server"
+import { createServerClient } from "@/lib/supabase/client"
 import { revalidatePath } from "next/cache"
-import { cookies } from "next/headers"
-import { sendBookingConfirmation } from "@/lib/services/resend-service"
-import { z } from "zod"
+import { sendBookingConfirmation, sendQuoteRequestNotification } from "@/lib/services/resend-service"
 
-const BookingSchema = z.object({
-  service_id: z.string().min(1, "Service is required"),
-  scheduled_date: z.string().min(1, "Date is required"),
-  scheduled_time: z.string().min(1, "Time is required"),
-  address: z.string().min(1, "Address is required"),
-  special_instructions: z.string().optional(),
-  estimated_price: z.number().positive("Estimated price must be positive"),
-  // NOTE: The 'bookings' table should be updated to include an 'estimated_duration' column
-  // to make conflict checking more accurate.
-  estimated_duration: z.number().positive("Estimated duration must be positive"),
-})
-
-async function findBestProvider(
-  supabase: any,
-  service_id: string,
-  scheduled_date: string,
-  scheduled_time: string,
-  duration_hours: number
-) {
-  const { data: candidateProviders, error: providerError } = await supabase
-    .from("providers")
-    .select("id, user_id")
-    .eq("active", true)
-    .contains("services", [service_id])
-
-  if (providerError || !candidateProviders || candidateProviders.length === 0) {
-    console.error("No candidate providers found for the service:", providerError)
-    return null
-  }
-
-  const providerIds = candidateProviders.map((p: any) => p.id)
-
-  const { data: performanceData } = await supabase
-    .from("provider_performance")
-    .select("provider_id, rating, completed_jobs")
-    .in("provider_id", providerIds)
-
-  const performanceMap = new Map(
-    performanceData?.map((p: any) => [p.provider_id, { rating: p.rating, completed_jobs: p.completed_jobs }])
-  )
-
-  const { data: existingBookings } = await supabase
-    .from("bookings")
-    .select("provider_id, scheduled_time, estimated_duration") // Assumes 'estimated_duration' exists
-    .in("provider_id", providerIds)
-    .eq("scheduled_date", scheduled_date)
-    .in("status", ["scheduled", "in_progress"])
-
-  const dailyBookings = new Map<string, { time: string; duration: number }[]>()
-  existingBookings?.forEach((b: any) => {
-    if (!dailyBookings.has(b.provider_id)) {
-      dailyBookings.set(b.provider_id, [])
-    }
-    dailyBookings.get(b.provider_id)!.push({ time: b.scheduled_time, duration: b.estimated_duration || 2 })
-  })
-
-  const bookingStartTime = new Date(`${scheduled_date}T${scheduled_time}`)
-  const bookingEndTime = new Date(bookingStartTime.getTime() + duration_hours * 60 * 60 * 1000)
-
-  const availableProviders = candidateProviders.filter((provider: any) => {
-    const providerBookings = dailyBookings.get(provider.id)
-    if (!providerBookings) return true
-
-    return !providerBookings.some(existing => {
-      const existingStartTime = new Date(`${scheduled_date}T${existing.time}`)
-      const existingEndTime = new Date(existingStartTime.getTime() + existing.duration * 60 * 60 * 1000)
-      return bookingStartTime < existingEndTime && bookingEndTime > existingStartTime
-    })
-  })
-
-  if (availableProviders.length === 0) {
-    console.warn("No available providers found after conflict check.")
-    return null
-  }
-
-  const scoredProviders = availableProviders.map((provider: any) => {
-    const perf = performanceMap.get(provider.id) || { rating: 2.5, completed_jobs: 0 }
-    const score = ((perf as any)?.rating || 2.5) + ((perf as any)?.completed_jobs || 0) * 0.01
-    return { provider_id: provider.id, score }
-  })
-
-  scoredProviders.sort((a: any, b: any) => b.score - a.score)
-
-  return scoredProviders[0].provider_id
-}
-
-export async function createBooking(formData: FormData) {
+export async function createHouseCleaningBooking(formData: FormData) {
   const supabase = createServerClient()
 
+  // Get current user
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser()
   if (authError || !user) {
-    return { success: false, message: "Authentication required" }
+    throw new Error("Authentication required")
   }
 
-  const rawFormData = {
-    service_id: formData.get("service_id"),
-    scheduled_date: formData.get("scheduled_date"),
-    scheduled_time: formData.get("scheduled_time"),
-    address: formData.get("address"),
-    special_instructions: formData.get("special_instructions"),
-    estimated_price: Number.parseFloat(formData.get("estimated_price") as string),
-    estimated_duration: Number.parseFloat(formData.get("estimated_duration") as string),
-  }
-
-  const validationResult = BookingSchema.safeParse(rawFormData)
-
-  if (!validationResult.success) {
-    return {
-      success: false,
-      errors: validationResult.error.flatten().fieldErrors,
-    }
-  }
-
+  // Extract booking data
   const bookingData = {
-    ...validationResult.data,
     user_id: user.id,
-    status: "pending_assignment", // New initial status
+    service_id: "house-cleaning",
+    house_size: formData.get("house_size") as string,
+    frequency: formData.get("frequency") as string,
+    add_ons: JSON.parse((formData.get("add_ons") as string) || "[]"),
+    scheduled_date: formData.get("scheduled_date") as string,
+    scheduled_time: formData.get("scheduled_time") as string,
+    address: formData.get("address") as string,
+    special_instructions: formData.get("special_instructions") as string,
+    base_price: Number.parseFloat(formData.get("base_price") as string),
+    final_price: Number.parseFloat(formData.get("final_price") as string),
+    status: "confirmed",
+    payment_status: "paid",
+    stripe_payment_id: formData.get("stripe_payment_id") as string,
+  }
+
+  // Validate required fields
+  if (!bookingData.house_size || !bookingData.scheduled_date || !bookingData.scheduled_time || !bookingData.address) {
+    throw new Error("Missing required booking information")
   }
 
   try {
+    // Create booking
     const { data: booking, error } = await supabase.from("bookings").insert(bookingData).select().single()
 
     if (error) throw error
 
-    const assignedProviderId = await findBestProvider(
-      supabase,
-      booking.service_id,
-      booking.scheduled_date,
-      booking.scheduled_time,
-      booking.estimated_duration
-    )
-
-    if (assignedProviderId) {
-      const { error: updateError } = await supabase
-        .from("bookings")
-        .update({ provider_id: assignedProviderId, status: "scheduled" })
-        .eq("id", booking.id)
-
-      if (updateError) throw updateError
-
-      await supabase.from("tracking").insert({
+    // Create subscription if frequency is not one-time
+    if (bookingData.frequency !== "one-time") {
+      const subscriptionData = {
+        user_id: user.id,
+        plan_type: `House Cleaning - ${bookingData.frequency}`,
+        status: "active",
+        monthly_price: bookingData.final_price,
+        next_billing_date: getNextBillingDate(bookingData.frequency),
+        services_included: ["house-cleaning"],
+        discount_percentage: getDiscountPercentage(bookingData.frequency),
         booking_id: booking.id,
-        provider_id: assignedProviderId,
-        status: "assigned",
-        notes: "Provider automatically assigned to booking.",
-      })
-    } else {
-      console.warn(`Booking ${booking.id} created but no provider could be assigned.`)
-      // An admin notification could be triggered here
+      }
+
+      await supabase.from("subscriptions").insert(subscriptionData)
     }
 
+    // Find and assign provider
+    const { data: providers } = await supabase
+      .from("providers")
+      .select("*")
+      .eq("active", true)
+      .contains("services", ["house-cleaning"])
+      .limit(1)
+
+    if (providers && providers.length > 0) {
+      const assignedProvider = providers[0]
+
+      await supabase.from("bookings").update({ provider_id: assignedProvider.id }).eq("id", booking.id)
+
+      // Create tracking record
+      await supabase.from("tracking").insert({
+        booking_id: booking.id,
+        provider_id: assignedProvider.id,
+        status: "assigned",
+        notes: "Provider assigned to house cleaning booking",
+      })
+    }
+
+    // Send confirmation email
     if (user.email) {
       await sendBookingConfirmation(user.email, {
         ...booking,
-        service_title: bookingData.service_id,
+        service_title: "House Cleaning",
+        customer_name: formData.get("customer_name") as string,
       })
     }
 
     revalidatePath("/dashboard")
     return { success: true, bookingId: booking.id }
   } catch (error) {
-    console.error("Error creating booking:", error)
-    return { success: false, message: "Failed to create booking" }
+    console.error("Error creating house cleaning booking:", error)
+    throw new Error("Failed to create booking")
+  }
+}
+
+export async function createQuoteRequest(formData: FormData) {
+  const supabase = createServerClient()
+
+  // Get current user
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+  if (authError || !user) {
+    throw new Error("Authentication required")
+  }
+
+  // Extract quote request data
+  const quoteData = {
+    user_id: user.id,
+    service_type: formData.get("service_type") as string,
+    description: formData.get("project_details") as string,
+    address: formData.get("address") as string,
+    property_type: formData.get("property_type") as string,
+    property_size: formData.get("property_size") as string,
+    preferred_date: formData.get("preferred_date") as string,
+    preferred_time: formData.get("preferred_time") as string,
+    urgency: formData.get("urgency") as string,
+    estimated_budget: formData.get("estimated_budget") as string,
+    photos: JSON.parse((formData.get("photos") as string) || "[]"),
+    status: "pending",
+  }
+
+  // Validate required fields
+  if (!quoteData.service_type || !quoteData.description || !quoteData.address || !quoteData.preferred_date) {
+    throw new Error("Missing required quote request information")
+  }
+
+  try {
+    // Create quote request
+    const { data: quoteRequest, error } = await supabase.from("quote_requests").insert(quoteData).select().single()
+
+    if (error) throw error
+
+    // Send notification email to admin
+    await sendQuoteRequestNotification({
+      name: formData.get("customer_name") as string,
+      email: user.email!,
+      phone: formData.get("customer_phone") as string,
+      service: quoteData.service_type,
+      property_type: quoteData.property_type,
+      property_size: quoteData.property_size,
+      urgency: quoteData.urgency,
+      description: quoteData.description,
+    })
+
+    revalidatePath("/dashboard")
+    return { success: true, requestId: quoteRequest.id }
+  } catch (error) {
+    console.error("Error creating quote request:", error)
+    throw new Error("Failed to create quote request")
+  }
+}
+
+function getNextBillingDate(frequency: string): string {
+  const now = new Date()
+  switch (frequency) {
+    case "weekly":
+      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+    case "biweekly":
+      return new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+    case "monthly":
+      return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+    default:
+      return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+  }
+}
+
+function getDiscountPercentage(frequency: string): number {
+  switch (frequency) {
+    case "weekly":
+      return 33
+    case "biweekly":
+      return 27
+    case "monthly":
+      return 20
+    default:
+      return 0
   }
 }
 
@@ -179,48 +190,7 @@ export async function updateBookingStatus(bookingId: string, status: string) {
   const supabase = createServerClient()
 
   try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      throw new Error("Unauthorized: User not authenticated")
-    }
-
-    // Check if user owns the booking or is an admin/provider
-    const { data: booking } = await supabase
-      .from("bookings")
-      .select(`
-        id,
-        user_id,
-        provider_id,
-        providers!inner(user_id)
-      `)
-      .eq("id", bookingId)
-      .single()
-
-    if (!booking) {
-      throw new Error("Booking not found")
-    }
-
-    // Check authorization: user owns booking, or user is the assigned provider, or user is admin
-    const { data: userProfile } = await supabase
-      .from("profiles")
-      .select("customer_type")
-      .eq("id", user.id)
-      .single()
-
-    const isOwner = booking.user_id === user.id
-    const isAssignedProvider = (booking.providers as any)?.user_id === user.id
-    const isAdmin = userProfile?.customer_type === "admin"
-
-    if (!isOwner && !isAssignedProvider && !isAdmin) {
-      throw new Error("Unauthorized: You don't have permission to update this booking")
-    }
-
-    // Update booking status
-    const { error } = await supabase
-      .from("bookings")
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq("id", bookingId)
+    const { error } = await supabase.from("bookings").update({ status }).eq("id", bookingId)
 
     if (error) throw error
 
@@ -228,8 +198,7 @@ export async function updateBookingStatus(bookingId: string, status: string) {
     await supabase.from("tracking").insert({
       booking_id: bookingId,
       status,
-      notes: `Booking status updated to ${status} by ${userProfile?.customer_type || 'user'}`,
-      created_at: new Date().toISOString(),
+      notes: `Booking status updated to ${status}`,
     })
 
     revalidatePath("/dashboard")
@@ -237,7 +206,7 @@ export async function updateBookingStatus(bookingId: string, status: string) {
     return { success: true }
   } catch (error) {
     console.error("Error updating booking status:", error)
-    throw new Error(error instanceof Error ? error.message : "Failed to update booking status")
+    throw new Error("Failed to update booking status")
   }
 }
 
@@ -245,55 +214,14 @@ export async function cancelBooking(bookingId: string) {
   const supabase = createServerClient()
 
   try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      throw new Error("Unauthorized: User not authenticated")
-    }
-
-    // Check if user owns the booking
-    const { data: booking } = await supabase
-      .from("bookings")
-      .select("id, user_id, status")
-      .eq("id", bookingId)
-      .single()
-
-    if (!booking) {
-      throw new Error("Booking not found")
-    }
-
-    // Only the booking owner can cancel
-    if (booking.user_id !== user.id) {
-      throw new Error("Unauthorized: You can only cancel your own bookings")
-    }
-
-    // Check if booking can be cancelled
-    if (booking.status === "completed" || booking.status === "cancelled") {
-      throw new Error("Cannot cancel a booking that is already completed or cancelled")
-    }
-
-    const { error } = await supabase
-      .from("bookings")
-      .update({ 
-        status: "cancelled",
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", bookingId)
+    const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", bookingId)
 
     if (error) throw error
-
-    // Add tracking entry
-    await supabase.from("tracking").insert({
-      booking_id: bookingId,
-      status: "cancelled",
-      notes: "Booking cancelled by customer",
-      created_at: new Date().toISOString(),
-    })
 
     revalidatePath("/dashboard")
     return { success: true }
   } catch (error) {
     console.error("Error cancelling booking:", error)
-    throw new Error(error instanceof Error ? error.message : "Failed to cancel booking")
+    throw new Error("Failed to cancel booking")
   }
 }

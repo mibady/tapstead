@@ -1,172 +1,258 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ServiceHero } from "@/components/shared/service-hero"
-import { CheckCircle, Shield, Zap, AlertTriangle, ArrowRight, Star, Home, Clock, Phone } from "lucide-react"
+import {
+  Zap,
+  Shield,
+  Clock,
+  CheckCircle,
+  Star,
+  Phone,
+  Award,
+  Lightbulb,
+  Home,
+  AlertTriangle,
+  DollarSign,
+} from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
-const electricalServices = [
-  {
-    category: "Residential Electrical",
-    price: "Starting at $99/hr",
-    services: [
-      "Lighting installation & repair",
-      "Outlet & switch installation",
-      "Circuit breaker repairs",
-      "Ceiling fan installation",
-      "Electrical panel upgrades",
-      "Whole-house rewiring",
-    ],
-  },
-  {
-    category: "Emergency Electrical",
-    price: "Starting at $149/hr",
-    popular: true,
-    emergency: true,
-    services: [
-      "Power outage diagnosis",
-      "Spark or burning smell",
-      "Tripping breakers",
-      "Hot outlets or switches",
-      "Buzzing sounds from panel",
-      "24/7 emergency service",
-    ],
-  },
-  {
-    category: "Commercial Electrical",
-    price: "Starting at $125/hr",
-    services: [
-      "Office lighting upgrades",
-      "Data/network cabling",
-      "Generator installation",
-      "Electrical code compliance",
-      "Energy efficiency audits",
-      "EV charging stations",
-    ],
-  },
-]
+export function ElectricalService() {
+  const [selectedService, setSelectedService] = useState<string | null>(null)
 
-const testimonials = [
-  {
-    name: "Sarah Johnson",
-    rating: 5,
-    text: "Quick response to our emergency electrical issue. The electrician was professional, explained everything clearly, and fixed the problem safely. Highly recommend!",
-    service: "Emergency Repair",
-    location: "Bellevue, WA",
-  },
-  {
-    name: "Michael Chen",
-    rating: 5,
-    text: "Installed new lighting throughout our home. The team was efficient, clean, and did an amazing job. The difference is night and day!",
-    service: "Lighting Installation",
-    location: "Redmond, WA",
-  },
-  {
-    name: "Emily Rodriguez",
-    rating: 5,
-    text: "Upgraded our electrical panel to support our growing business needs. Professional, on time, and reasonably priced. Will use again for all our electrical work.",
-    service: "Panel Upgrade",
-    location: "Kirkland, WA"
-  },
-]
+  const electricalServices = [
+    {
+      id: "outlet-installation",
+      name: "Outlet Installation & Repair",
+      description: "New outlet installation, GFCI upgrades, and outlet repairs",
+      price: "Starting at $125",
+      duration: "1-2 hours",
+      features: ["GFCI outlets", "USB outlets", "Code compliance", "Safety testing"],
+    },
+    {
+      id: "lighting-installation",
+      name: "Light Fixture Installation",
+      description: "Ceiling fans, chandeliers, recessed lighting, and outdoor fixtures",
+      price: "Starting at $150",
+      duration: "1-3 hours",
+      features: ["Indoor/outdoor lighting", "Ceiling fans", "Dimmer switches", "LED upgrades"],
+    },
+    {
+      id: "panel-upgrades",
+      name: "Electrical Panel Upgrades",
+      description: "Panel replacements, circuit additions, and electrical upgrades",
+      price: "Starting at $800",
+      duration: "4-8 hours",
+      features: ["200A panels", "Circuit breakers", "Code updates", "Permit handling"],
+    },
+    {
+      id: "wiring-repair",
+      name: "Electrical Wiring & Repair",
+      description: "Troubleshooting, rewiring, and electrical system repairs",
+      price: "Starting at $200",
+      duration: "2-4 hours",
+      features: ["Fault diagnosis", "Wire replacement", "Safety inspections", "Code compliance"],
+    },
+    {
+      id: "emergency-electrical",
+      name: "Emergency Electrical Services",
+      description: "24/7 emergency electrical repairs and safety issues",
+      price: "Starting at $300",
+      duration: "Same day",
+      features: ["24/7 availability", "Power outages", "Safety hazards", "Urgent repairs"],
+    },
+    {
+      id: "smart-home",
+      name: "Smart Home Electrical",
+      description: "Smart switches, outlets, and home automation wiring",
+      price: "Starting at $175",
+      duration: "1-3 hours",
+      features: ["Smart switches", "Automated lighting", "Home integration", "App control"],
+    },
+  ]
 
-const faqs = [
-  {
-    question: "Are your electricians licensed and insured?",
-    answer:
-      "Yes, all our electricians are fully licensed, bonded, and insured. We only employ certified professionals who meet our high standards for safety and quality workmanship.",
-  },
-  {
-    question: "Do you offer 24/7 emergency service?",
-    answer:
-      "Yes, we provide 24/7 emergency electrical services for urgent situations like power outages, electrical fires, or other dangerous conditions that require immediate attention.",
-  },
-  {
-    question: "How do you price your electrical services?",
-    answer:
-      "Our pricing is based on the scope of work, materials needed, and time required. We provide transparent, upfront pricing with no hidden fees. Emergency services have a higher rate due to immediate response requirements.",
-  },
-  {
-    question: "What areas do you serve?",
-    answer:
-      "We serve residential and commercial clients throughout the metropolitan area. Contact us to confirm if we cover your location.",
-  },
-  {
-    question: "Do you provide warranties on your work?",
-    answer:
-      "Yes, we offer a 1-year labor warranty on all our electrical work. We also honor manufacturer warranties on any parts or materials we install.",
-  },
-]
+  const whyChooseUs = [
+    {
+      icon: <Shield className="w-6 h-6" />,
+      title: "Licensed & Insured",
+      description: "All electricians are fully licensed, bonded, and insured for your protection",
+    },
+    {
+      icon: <Clock className="w-6 h-6" />,
+      title: "Same-Day Service",
+      description: "Emergency electrical services available 24/7 with same-day scheduling",
+    },
+    {
+      icon: <Award className="w-6 h-6" />,
+      title: "Code Compliant",
+      description: "All work meets or exceeds local electrical codes and safety standards",
+    },
+    {
+      icon: <DollarSign className="w-6 h-6" />,
+      title: "Upfront Pricing",
+      description: "Transparent, fixed pricing with no hidden fees or surprise charges",
+    },
+  ]
 
-export default function ElectricalService() {
+  const safetyFeatures = [
+    "Licensed Master Electricians",
+    "Comprehensive Safety Inspections",
+    "Code Compliance Guaranteed",
+    "Permit Handling Included",
+    "Warranty on All Work",
+    "Emergency Response Available",
+  ]
+
+  const testimonials = [
+    {
+      name: "Sarah Johnson",
+      location: "Bellevue, WA",
+      rating: 5,
+      text: "Excellent electrical work! They installed new outlets in our kitchen and upgraded our panel. Professional, clean, and reasonably priced.",
+      service: "Panel Upgrade & Outlets",
+    },
+    {
+      name: "Mike Chen",
+      location: "Seattle, WA",
+      rating: 5,
+      text: "Emergency call for a power outage issue. They came out the same day and fixed everything quickly. Highly recommend!",
+      service: "Emergency Electrical",
+    },
+    {
+      name: "Lisa Rodriguez",
+      location: "Tacoma, WA",
+      rating: 5,
+      text: "Great experience with smart home installation. They set up all our smart switches and explained everything clearly.",
+      service: "Smart Home Electrical",
+    },
+  ]
+
   return (
-    <div className="min-h-screen">
-      <ServiceHero
-        title="Professional Electrical Services"
-        highlightWord="Electrical"
-        description="From emergency repairs to complete rewiring, our licensed electricians provide safe, reliable electrical services for homes and businesses. 24/7 emergency service available."
-        rating={4.9}
-        reviewCount={3500}
-        price="$99/hr"
-        phoneNumber="(360) 641-7386"
-        isEmergency={true}
-        imageSrc="/images/services/Professional Electrical.png"
-        imageAlt="Licensed electrician working on electrical panel"
-      />
+    <main className="min-h-screen">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-16 lg:py-24">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-200">
+                <Zap className="w-4 h-4 mr-1" />
+                Licensed Electrical Services
+              </Badge>
+              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+                Professional Electrical Services in the Pacific Northwest
+              </h1>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                Licensed electricians providing safe, reliable electrical installations, repairs, and upgrades. From
+                outlet installation to panel upgrades, we handle all your electrical needs with transparent pricing.
+              </p>
 
-      {/* Service Categories */}
-      <section className="py-20">
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
+                  <Link href="/book-now">Book Electrical Service</Link>
+                </Button>
+                <Button variant="outline" size="lg" asChild>
+                  <Link href="tel:(360) 641-7386">
+                    <Phone className="w-4 h-4 mr-2" />
+                    Call (360) 641-7386
+                  </Link>
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-6 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span>Licensed & Insured</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span>Same-Day Service</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span>Code Compliant</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative">
+              <Image
+                src="/images/services/electrical-services-hero.png"
+                alt="Professional electrician working on electrical panel"
+                width={600}
+                height={400}
+                className="rounded-lg shadow-xl"
+                priority
+              />
+              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-lg">
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-100 p-2 rounded-full">
+                    <Zap className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">24/7 Emergency</div>
+                    <div className="text-sm text-gray-600">Same-day response</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section className="py-16 lg:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-4">Our Electrical Services</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Comprehensive electrical solutions for residential and commercial properties
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Complete Electrical Services</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              From simple outlet installations to complex panel upgrades, our licensed electricians handle all
+              residential and commercial electrical needs safely and efficiently.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {electricalServices.map((service, index) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {electricalServices.map((service) => (
               <Card
-                key={index}
-                className={`relative ${
-                  service.popular ? "ring-2 ring-primary shadow-lg" : ""
-                } ${service.emergency ? "border-destructive/30" : ""}`}
+                key={service.id}
+                className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+                  selectedService === service.id ? "ring-2 ring-blue-500" : ""
+                }`}
+                onClick={() => setSelectedService(selectedService === service.id ? null : service.id)}
               >
-                {service.popular && (
-                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary">
-                    Most Popular
-                  </Badge>
-                )}
-                {service.emergency && (
-                  <Badge variant="destructive" className="absolute -top-3 right-4">
-                    Emergency
-                  </Badge>
-                )}
-
-                <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-2xl">{service.category}</CardTitle>
-                  <CardDescription className="text-lg font-semibold text-primary">
-                    {service.price}
-                  </CardDescription>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>{service.name}</span>
+                    <Lightbulb className="w-5 h-5 text-blue-600" />
+                  </CardTitle>
+                  <CardDescription>{service.description}</CardDescription>
                 </CardHeader>
-
                 <CardContent>
-                  <ul className="space-y-3 mb-8">
-                    {service.services.map((item, idx) => (
-                      <li key={idx} className="flex items-center text-foreground">
-                        <Zap className="w-4 h-4 text-yellow-500 mr-3 flex-shrink-0" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-2xl font-bold text-blue-600">{service.price}</span>
+                      <Badge variant="secondary">{service.duration}</Badge>
+                    </div>
 
-                  <Button className="w-full" asChild>
-                    <Link href="/book-now?service=electrical">
-                      Book {service.category}
-                    </Link>
-                  </Button>
+                    {selectedService === service.id && (
+                      <div className="space-y-3 pt-4 border-t">
+                        <h4 className="font-semibold text-gray-900">Included:</h4>
+                        <ul className="space-y-2">
+                          {service.features.map((feature, index) => (
+                            <li key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                              <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                        <Button className="w-full mt-4" asChild>
+                          <Link href="/book-now">Book This Service</Link>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -174,76 +260,99 @@ export default function ElectricalService() {
         </div>
       </section>
 
-      {/* Safety First Section */}
-      <section className="py-20 bg-muted/50">
+      {/* Why Choose Us Section */}
+      <section className="py-16 lg:py-24 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 mb-6 px-6 py-2 bg-destructive/10 text-destructive rounded-full">
-              <AlertTriangle className="h-5 w-5" />
-              <span className="font-medium">Electrical Safety First</span>
-            </div>
-            <h2 className="text-4xl font-bold text-foreground mb-6">
-              Why Choose Licensed Electricians
-            </h2>
-            <p className="text-xl text-muted-foreground mb-12">
-              Electrical work can be dangerous when not performed correctly. Our licensed electricians ensure your
-              safety and compliance with all local electrical codes.
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Why Choose Our Electrical Services</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Professional, licensed electricians committed to safety, quality, and customer satisfaction
             </p>
+          </div>
 
-            <div className="grid md:grid-cols-3 gap-8 text-left">
-              {[
-                {
-                  title: "Certified Professionals",
-                  description: "All our electricians are licensed and continuously trained on the latest safety standards and technologies.",
-                  icon: <Shield className="w-8 h-8 text-primary mb-4" />,
-                },
-                {
-                  title: "Code Compliance",
-                  description: "We ensure all work meets or exceeds local electrical codes and passes required inspections.",
-                  icon: <CheckCircle className="w-8 h-8 text-primary mb-4" />,
-                },
-                {
-                  title: "Peace of Mind",
-                  description: "With our warranty and insurance coverage, you can trust that the job is done right.",
-                  icon: <Star className="w-8 h-8 text-primary mb-4" />,
-                },
-              ].map((item, index) => (
-                <div key={index} className="bg-background p-6 rounded-lg shadow-sm">
-                  {item.icon}
-                  <h3 className="text-xl font-semibold mb-2 text-foreground">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
-                </div>
-              ))}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {whyChooseUs.map((item, index) => (
+              <Card key={index} className="text-center">
+                <CardContent className="pt-6">
+                  <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="text-blue-600">{item.icon}</div>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.title}</h3>
+                  <p className="text-gray-600">{item.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Safety & Compliance Section */}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <Badge className="mb-4 bg-red-100 text-red-800 hover:bg-red-200">
+                <AlertTriangle className="w-4 h-4 mr-1" />
+                Safety First
+              </Badge>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">Licensed Electricians You Can Trust</h2>
+              <p className="text-lg text-gray-600 mb-8">
+                Electrical work requires expertise and attention to safety. Our licensed master electricians ensure all
+                work meets or exceeds local codes and safety standards, protecting your home and family.
+              </p>
+
+              <div className="grid sm:grid-cols-2 gap-4 mb-8">
+                {safetyFeatures.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
+                <Link href="/book-now">Schedule Electrical Service</Link>
+              </Button>
+            </div>
+
+            <div className="relative">
+              <Image
+                src="/images/services/electrical-safety.png"
+                alt="Electrical safety and code compliance"
+                width={600}
+                height={400}
+                className="rounded-lg shadow-xl"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20">
+      {/* Testimonials Section */}
+      <section className="py-16 lg:py-24 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-4">What Our Customers Say</h2>
-            <p className="text-xl text-muted-foreground">Hear from homeowners and businesses we've helped</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">What Our Customers Say</h2>
+            <p className="text-xl text-gray-600">Real reviews from satisfied customers across the Pacific Northwest</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="h-full">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                      ))}
-                    </div>
-                    <Badge variant="secondary">{testimonial.service}</Badge>
+              <Card key={index}>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-1 mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    ))}
                   </div>
-                  <CardTitle className="text-lg">{testimonial.name}</CardTitle>
-                  <CardDescription>{testimonial.location}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-foreground italic">"{testimonial.text}"</p>
+                  <p className="text-gray-600 mb-4 italic">"{testimonial.text}"</p>
+                  <div className="border-t pt-4">
+                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                    <div className="text-sm text-gray-500">{testimonial.location}</div>
+                    <Badge variant="outline" className="mt-2 text-xs">
+                      {testimonial.service}
+                    </Badge>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -251,63 +360,97 @@ export default function ElectricalService() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="py-20 bg-muted/50">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-4">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Everything you need to know about our electrical services
+      {/* Emergency Services Section */}
+      <section className="py-16 lg:py-24 bg-red-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle className="w-10 h-10 text-red-600" />
+            </div>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">24/7 Emergency Electrical Services</h2>
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+              Electrical emergencies don't wait for business hours. Our emergency electricians are available 24/7 to
+              handle power outages, electrical hazards, and urgent repairs.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="bg-red-600 hover:bg-red-700" asChild>
+                <Link href="tel:(360) 641-7386">
+                  <Phone className="w-4 h-4 mr-2" />
+                  Emergency: (360) 641-7386
+                </Link>
+              </Button>
+              <Button variant="outline" size="lg" asChild>
+                <Link href="/book-now">Schedule Non-Emergency Service</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Service Areas Section */}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Serving the Pacific Northwest</h2>
+            <p className="text-xl text-gray-600">
+              Professional electrical services across the greater Seattle area and beyond
             </p>
           </div>
 
-          <div className="space-y-6">
-            {faqs.map((faq, index) => (
-              <Card key={index} className="border-muted-foreground/20">
-                <CardHeader>
-                  <CardTitle className="text-lg text-foreground">
-                    {faq.question}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{faq.answer}</p>
-                </CardContent>
-              </Card>
+          <div className="grid md:grid-cols-4 gap-6 text-center">
+            {[
+              "Seattle",
+              "Bellevue",
+              "Tacoma",
+              "Everett",
+              "Redmond",
+              "Kirkland",
+              "Renton",
+              "Federal Way",
+              "Lynnwood",
+              "Bothell",
+              "Issaquah",
+              "Lakewood",
+            ].map((city) => (
+              <div key={city} className="bg-gray-50 p-4 rounded-lg">
+                <Home className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                <span className="font-medium text-gray-900">{city}</span>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
+      {/* Final CTA Section */}
+      <section className="py-16 lg:py-24 bg-blue-600 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">Need an Electrician Today?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Schedule service or request emergency electrical assistance 24/7
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4">Ready for Professional Electrical Service?</h2>
+          <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+            Get started with transparent pricing, licensed electricians, and guaranteed quality work. Book online or
+            call for same-day service.
           </p>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-background text-foreground hover:bg-background/90" asChild>
-              <Link href="/book-now?service=electrical">
-                Schedule Service
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
+            <Button size="lg" variant="secondary" asChild>
+              <Link href="/book-now">Book Electrical Service</Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="border-background text-background hover:bg-background/10"
+              className="text-white border-white hover:bg-white hover:text-blue-600 bg-transparent"
               asChild
             >
-              <a href="tel:13606417386">
-                <Phone className="mr-2 h-5 w-5" />
-                Call Now: (360) 641-7386
-              </a>
+              <Link href="tel:(360) 641-7386">
+                <Phone className="w-4 h-4 mr-2" />
+                Call (360) 641-7386
+              </Link>
             </Button>
           </div>
         </div>
       </section>
-    </div>
+    </main>
   )
 }
+
+export default ElectricalService

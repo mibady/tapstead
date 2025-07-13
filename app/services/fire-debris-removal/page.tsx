@@ -1,7 +1,7 @@
-import type { Metadata } from "next"
-import FireDebrisRemovalService from "@/components/pages/services/fire-debris-removal-service"
+import { MarketingLayout } from "@/components/layout/marketing-layout"
+import { FireDebrisRemovalService } from "@/components/pages/services/fire-debris-removal-service"
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Fire Debris Removal Services | Emergency Cleanup | Tapstead",
   description:
     "Professional fire debris removal and cleanup services. 24/7 emergency response for fire damage restoration and debris removal by certified specialists.",
@@ -10,5 +10,9 @@ export const metadata: Metadata = {
 }
 
 export default function FireDebrisRemovalServicePage() {
-  return <FireDebrisRemovalService />
+  return (
+    <MarketingLayout>
+      <FireDebrisRemovalService />
+    </MarketingLayout>
+  )
 }

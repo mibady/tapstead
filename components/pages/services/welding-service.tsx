@@ -4,11 +4,10 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Zap, Settings, Shield, CheckCircle, Star, Phone, Wrench, HardHat, Award } from "lucide-react"
+import { Zap, Settings, Shield, CheckCircle, Phone, Wrench, HardHat, Award } from "lucide-react"
 import Link from "next/link"
 
-export default function WeldingService() {
+export function WeldingService() {
   const [selectedPackage, setSelectedPackage] = useState("repair")
 
   const services = [
@@ -142,54 +141,42 @@ export default function WeldingService() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
-      <section className="relative py-12 md:py-20 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            {/* Left side - Image */}
-            <div className="relative h-96 lg:h-[500px] rounded-lg overflow-hidden shadow-xl">
-              <img
-                src="/images/services/Welding Services.png"
-                alt="Professional Welding Services"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent lg:hidden"></div>
+          <div className="text-center">
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-gray-100 rounded-full">
+                <Zap className="h-12 w-12 text-gray-700" />
+              </div>
             </div>
-            
-            {/* Right side - Content */}
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-gray-100 rounded-full">
-                <Zap className="h-5 w-5 text-gray-700" />
-                <span className="font-medium">Certified Welding Services</span>
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+              Professional <span className="text-gray-700">Welding Services</span>
+            </h1>
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+              Expert welding, metal fabrication, and repair services by certified welders. Custom metalwork and
+              professional installations with guaranteed quality.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="bg-gray-700 hover:bg-gray-800" asChild>
+                <Link href="/book-now?service=welding">Book Welding Service</Link>
+              </Button>
+              <Button size="lg" variant="outline" className="border-gray-700 text-gray-700 hover:bg-gray-50 bg-transparent">
+                <Phone className="mr-2 h-5 w-5" />
+                Free Project Quote
+              </Button>
+            </div>
+            <div className="flex justify-center items-center gap-6 mt-8 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-green-600" />
+                <span>AWS Certified Welders</span>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Expert <span className="text-gray-700">Welding</span> & Metal Fabrication
-              </h1>
-              <p className="text-lg text-gray-600 mb-8 max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                Expert welding, metal fabrication, and repair services by certified welders. Custom metalwork and
-                professional installations with guaranteed quality and precision craftsmanship.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button size="lg" className="bg-gray-800 hover:bg-gray-900" asChild>
-                  <Link href="/book-now?service=welding">Book Welding Service</Link>
-                </Button>
-                <Button size="lg" variant="outline" className="border-gray-700 text-gray-700 hover:bg-gray-50">
-                  <Phone className="mr-2 h-5 w-5" />
-                  Free Project Quote
-                </Button>
+              <div className="flex items-center gap-2">
+                <HardHat className="h-5 w-5 text-blue-600" />
+                <span>OSHA Safety Compliant</span>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8 text-sm text-gray-600">
-                <div className="flex items-center justify-center lg:justify-start gap-2">
-                  <Shield className="h-5 w-5 text-green-600 flex-shrink-0" />
-                  <span>AWS Certified Welders</span>
-                </div>
-                <div className="flex items-center justify-center lg:justify-start gap-2">
-                  <HardHat className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                  <span>OSHA Compliant</span>
-                </div>
-                <div className="flex items-center justify-center lg:justify-start gap-2">
-                  <Award className="h-5 w-5 text-yellow-600 flex-shrink-0" />
-                  <span>5-Year Warranty</span>
-                </div>
+              <div className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-yellow-600" />
+                <span>5-Year Warranty</span>
               </div>
             </div>
           </div>
@@ -278,83 +265,4 @@ export default function WeldingService() {
           <div className="grid md:grid-cols-4 gap-8">
             {process.map((step, index) => (
               <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-gray-700 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                  {step.step}
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                <p className="text-gray-600">{step.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">What Our Customers Say</h2>
-            <p className="text-lg text-gray-600">Trusted for quality metalwork and fabrication</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index}>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-1 mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 mb-4">"{testimonial.comment}"</p>
-                  <div>
-                    <div className="font-semibold">{testimonial.name}</div>
-                    <div className="text-sm text-gray-500">{testimonial.service}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-lg text-gray-600">Everything you need to know about our welding services</p>
-          </div>
-
-          <Accordion type="single" collapsible className="w-full">
-            {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
-                <AccordionContent>{faq.answer}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-700">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Need Professional Welding Services?</h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Certified welders ready to handle your metalwork projects with precision and quality
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-gray-700 hover:bg-gray-100" asChild>
-              <Link href="/book-now?service=welding">Book Welding Service</Link>
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-gray-600">
-              <Settings className="mr-2 h-5 w-5" />
-              Get Custom Quote
-            </Button>
-          </div>
-        </div>
-      </section>
-    </div>
-  )
-}
+                <div className="w-16 h-16 bg-gray-700 text-white rounded-full flex items-center justify-center\

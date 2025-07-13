@@ -5,21 +5,6 @@ export async function GET() {
   try {
     const supabase = createServerClient()
 
-    // Check if supabase is available
-    if (!supabase) {
-      return NextResponse.json({
-        status: "degraded",
-        timestamp: new Date().toISOString(),
-        version: "1.0.0",
-        services: {
-          database: "unavailable",
-          authentication: "unavailable",
-          api: "operational",
-        },
-        uptime: process.uptime(),
-      })
-    }
-
     // Test database connection
     const { data, error } = await supabase.from("services").select("count").limit(1)
 
@@ -47,7 +32,7 @@ export async function GET() {
       {
         status: "unhealthy",
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error.message,
       },
       { status: 503 },
     )

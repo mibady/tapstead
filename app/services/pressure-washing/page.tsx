@@ -1,7 +1,7 @@
-import type { Metadata } from "next"
+import { MarketingLayout } from "@/components/layout/marketing-layout"
 import { PressureWashingService } from "@/components/pages/services/pressure-washing-service"
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Professional Pressure Washing Services | Tapstead",
   description:
     "Book professional pressure washing for driveways, decks, siding, and exterior surfaces. Professional equipment, eco-safe detergents, before/after photos.",
@@ -9,5 +9,9 @@ export const metadata: Metadata = {
 }
 
 export default function PressureWashingPage() {
-  return <PressureWashingService />
+  return (
+    <MarketingLayout>
+      <PressureWashingService />
+    </MarketingLayout>
+  )
 }

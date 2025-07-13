@@ -1,63 +1,74 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useAuth } from "@/lib/auth/auth-context"
-import { supabase } from "@/lib/supabase/client"
-import { Calendar, MapPin, Clock, Search, Filter, Eye } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Calendar, Clock, MapPin, User } from "lucide-react"
+import { Loading } from "@/components/ui/loading"
 import Link from "next/link"
 
+interface Booking {
+  id: string
+  service_type: string
+  status: string
+  scheduled_date: string
+  scheduled_time: string
+  address: string
+  total_amount: number
+  provider_name?: string
+}
+
 export default function BookingsPage() {
-  const { user } = useAuth()
-  const [bookings, setBookings] = useState<any[]>([])
+  const [user, setUser] = useState<any>(null)
+  const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
+  const router = useRouter()
+  const supabase = createClient()
 
   useEffect(() => {
-    if (user) {
-      fetchBookings()
-    }
-  }, [user])
+    const checkUserAndLoadBookings = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-  const fetchBookings = async () => {
-    if (!supabase) {
-      setLoading(false)
-      return
-    }
-    
-    try {
-      const { data } = await supabase
+      if (!user) {
+        router.push("/login?redirect=/dashboard/bookings")
+        return
+      }
+
+      setUser(user)
+
+      // Load bookings
+      const { data: bookingsData, error } = await supabase
         .from("bookings")
-        .select(`
-          *,
-          services (title, category),
-          providers (business_name, rating, phone)
-        `)
-        .eq("user_id", user?.id)
+        .select("*")
+        .eq("customer_id", user.id)
         .order("created_at", { ascending: false })
 
-      setBookings(data || [])
-    } catch (error) {
-      console.error("Error fetching bookings:", error)
-    } finally {
+      if (error) {
+        console.error("Error loading bookings:", error)
+      } else {
+        setBookings(bookingsData || [])
+      }
+
       setLoading(false)
     }
-  }
+
+    checkUserAndLoadBookings()
+  }, [router, supabase])
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmed":
-        return "bg-blue-100 text-blue-800"
-      case "in-progress":
+        return "bg-green-100 text-green-800"
+      case "pending":
         return "bg-yellow-100 text-yellow-800"
       case "completed":
-        return "bg-green-100 text-green-800"
+        return "bg-blue-100 text-blue-800"
       case "cancelled":
         return "bg-red-100 text-red-800"
       default:
@@ -65,139 +76,87 @@ export default function BookingsPage() {
     }
   }
 
-  const filteredBookings = bookings.filter((booking) => {
-    const matchesSearch =
-      booking.services?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.providers?.business_name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || booking.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
-
   if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      </DashboardLayout>
-    )
+    return <Loading />
   }
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-            <p className="text-gray-600">Track and manage your service appointments</p>
+            <p className="text-gray-600">View and manage your service bookings</p>
           </div>
           <Button asChild>
             <Link href="/book-now">Book New Service</Link>
           </Button>
         </div>
 
-        {/* Filters */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search bookings..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Filter className="h-4 w-4 text-gray-400" />
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="confirmed">Confirmed</SelectItem>
-                    <SelectItem value="in-progress">In Progress</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Bookings List */}
-        <div className="space-y-4">
-          {filteredBookings.length === 0 ? (
-            <Card>
-              <CardContent className="p-12 text-center">
-                <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No bookings found</h3>
-                <p className="text-gray-600 mb-6">
-                  {searchTerm || statusFilter !== "all"
-                    ? "Try adjusting your search or filters"
-                    : "You haven't booked any services yet"}
-                </p>
-                <Button asChild>
-                  <Link href="/book-now">Book Your First Service</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredBookings.map((booking) => (
-              <Card key={booking.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
+        {bookings.length === 0 ? (
+          <Card>
+            <CardContent className="text-center py-12">
+              <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No bookings yet</h3>
+              <p className="text-gray-600 mb-4">
+                You haven't booked any services yet. Get started by booking your first service.
+              </p>
+              <Button asChild>
+                <Link href="/book-now">Book Your First Service</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-6">
+            {bookings.map((booking) => (
+              <Card key={booking.id}>
+                <CardHeader>
                   <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-lg font-semibold">{booking.services?.title}</h3>
-                        <Badge className={getStatusColor(booking.status)}>
-                          {booking.status.replace("-", " ").toUpperCase()}
-                        </Badge>
-                      </div>
-
-                      <div className="space-y-2 text-sm text-gray-600">
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>{new Date(booking.scheduled_date).toLocaleDateString()}</span>
-                          <Clock className="w-4 h-4 ml-4" />
-                          <span>{booking.scheduled_time}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <MapPin className="w-4 h-4" />
-                          <span>{booking.service_address}</span>
-                        </div>
-                        {booking.providers && (
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium">Provider:</span>
-                            <span>{booking.providers.business_name}</span>
-                            <span className="text-yellow-600">★ {booking.providers.rating}</span>
-                          </div>
-                        )}
-                      </div>
+                    <div>
+                      <CardTitle className="capitalize">{booking.service_type.replace("-", " ")}</CardTitle>
+                      <CardDescription>Booking #{booking.id.slice(0, 8)}</CardDescription>
                     </div>
-
-                    <div className="text-right">
-                      <div className="text-lg font-semibold text-green-600 mb-2">
-                        ${booking.final_price || booking.estimated_price}
+                    <Badge className={getStatusColor(booking.status)}>{booking.status}</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Calendar className="h-4 w-4" />
+                        {new Date(booking.scheduled_date).toLocaleDateString()}
                       </div>
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/bookings/${booking.id}`}>
-                          <Eye className="w-4 h-4 mr-1" />
-                          View Details
-                        </Link>
-                      </Button>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Clock className="h-4 w-4" />
+                        {booking.scheduled_time}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <MapPin className="h-4 w-4" />
+                        {booking.address}
+                      </div>
+                      {booking.provider_name && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <User className="h-4 w-4" />
+                          {booking.provider_name}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col justify-between">
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-gray-900">${booking.total_amount}</p>
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/dashboard/bookings/${booking.id}`}>View Details</Link>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   )

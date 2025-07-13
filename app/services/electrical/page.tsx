@@ -1,27 +1,17 @@
-import type { Metadata } from "next"
-import { ServiceDetail } from "@/components/pages/services/service-detail"
 import { MarketingLayout } from "@/components/layout/marketing-layout"
-import { getServiceBySlug } from "@/lib/services/service-data"
-import { notFound } from "next/navigation"
+import { ElectricalService } from "@/components/pages/services/electrical-service"
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Professional Electrical Services | Licensed Electricians | Tapstead",
   description:
-    "Expert electrical services including repairs, installations, and upgrades. Licensed electricians available 24/7 for emergencies. Safe, reliable, and code-compliant work.",
-  keywords:
-    "electrical services, electrician, electrical repair, wiring, outlets, lighting installation, electrical emergency",
+    "Book licensed electricians for electrical repairs, installations, and upgrades. Safe, reliable electrical services with upfront pricing and guaranteed work.",
+  keywords: "electrical services, electrician, electrical repair, electrical installation, licensed electrician",
 }
 
-export default async function ElectricalServicePage() {
-  const service = await getServiceBySlug("electrical")
-  
-  if (!service) {
-    notFound()
-  }
-  
+export default function ElectricalServicePage() {
   return (
     <MarketingLayout>
-      <ServiceDetail service={service} />
+      <ElectricalService />
     </MarketingLayout>
   )
 }

@@ -3,21 +3,21 @@ import { Star } from "lucide-react"
 const testimonials = [
   {
     name: "Sarah Johnson",
-    location: "Bellevue, WA",
+    location: "Austin, TX",
     rating: 5,
     text: "Tapstead made finding a reliable house cleaner so easy. The professional arrived on time and did an amazing job. I'll definitely be using this service again!",
     service: "House Cleaning",
   },
   {
     name: "Mike Chen",
-    location: "Seattle, WA",
+    location: "Denver, CO",
     rating: 5,
     text: "Had a plumbing emergency and Tapstead connected me with a plumber within 30 minutes. Professional, affordable, and got the job done right the first time.",
     service: "Emergency Plumbing",
   },
   {
     name: "Emily Rodriguez",
-    location: "Redmond, WA",
+    location: "Phoenix, AZ",
     rating: 5,
     text: "The handyman service was excellent. Fixed multiple issues around my house in one visit. Great communication and fair pricing. Highly recommend!",
     service: "Handyman Services",

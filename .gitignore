@@ -15,7 +15,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-dev.log
 
 # env files
 .env*
@@ -26,12 +25,3 @@ dev.log
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# claude assistant
-.claude/
-
-# gemini settings
-.gemini/
-
-# npm (since we're using pnpm)
-package-lock.json

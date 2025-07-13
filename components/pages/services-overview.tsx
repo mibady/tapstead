@@ -19,7 +19,6 @@ import {
   AlertTriangle,
 } from "lucide-react"
 import Link from "next/link"
-import { getAllServices, getEmergencyServices } from "@/lib/services/service-data"
 
 const regularServices = [
   {
@@ -222,36 +221,7 @@ const emergencyServices = [
   },
 ]
 
-// Map service categories to icons
-const categoryIcons: Record<string, any> = {
-  "cleaning": Home,
-  "handyman": Wrench,
-  "plumbing": Pipe,
-  "electrical": Zap,
-  "painting": Paintbrush,
-  "pressure-washing": Droplets,
-  "gutter": Waves,
-  "junk-removal": Trash2,
-  "welding": Flame,
-  "emergency": AlertTriangle,
-  "fire": Flame,
-  "storm": AlertTriangle
-}
-
-// Helper function to get icon for a service
-function getIconForService(category: string) {
-  for (const [key, icon] of Object.entries(categoryIcons)) {
-    if (category.toLowerCase().includes(key)) {
-      return icon;
-    }
-  }
-  return Home; // Default icon
-}
-
-export async function ServicesOverview() {
-  // Fetch services from the database
-  const regularServices = await getAllServices();
-  const emergencyServices = await getEmergencyServices();
+export function ServicesOverview() {
   return (
     <div className="py-16">
       {/* Hero Section */}
@@ -284,92 +254,73 @@ export async function ServicesOverview() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
-            {regularServices
-              .filter(service => !service.category.toLowerCase().includes('emergency'))
-              .map((service) => {
-                const ServiceIcon = getIconForService(service.category);
-                const serviceSlug = service.category.toLowerCase();
-                const priceDisplay = `Starting at $${service.base_price.toFixed(2)}`;
-                
-                return (
-                  <Card key={service.id} className="hover:shadow-lg transition-shadow duration-300">
-                    {service.category === 'cleaning' && (
-                      <Badge className="absolute -top-2 left-4 bg-orange-500 hover:bg-orange-600">
-                        <Star className="w-3 h-3 mr-1" />
-                        Most Popular
-                      </Badge>
-                    )}
+            {regularServices.map((service, index) => (
+              <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
+                {service.popular && (
+                  <Badge className="absolute -top-2 left-4 bg-orange-500 hover:bg-orange-600">
+                    <Star className="w-3 h-3 mr-1" />
+                    Most Popular
+                  </Badge>
+                )}
 
-                    <CardHeader>
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="p-3 bg-blue-100 rounded-lg">
-                          <ServiceIcon className="w-8 h-8 text-blue-600" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-2xl">{service.title}</CardTitle>
-                          <div className="flex items-center space-x-4 text-sm">
-                            <span className="font-semibold text-green-600">{priceDisplay}</span>
-                            <div className="flex items-center text-gray-500">
-                              <Clock className="w-4 h-4 mr-1" />
-                              {service.duration}
-                            </div>
-                          </div>
+                <CardHeader>
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="p-3 bg-blue-100 rounded-lg">
+                      <service.icon className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl">{service.title}</CardTitle>
+                      <div className="flex items-center space-x-4 text-sm">
+                        <span className="font-semibold text-green-600">{service.price}</span>
+                        <div className="flex items-center text-gray-500">
+                          <Clock className="w-4 h-4 mr-1" />
+                          {service.duration}
                         </div>
                       </div>
-                      <CardDescription className="text-gray-600 text-lg">{service.description}</CardDescription>
-                    </CardHeader>
+                    </div>
+                  </div>
+                  <CardDescription className="text-gray-600 text-lg">{service.description}</CardDescription>
+                </CardHeader>
 
-                    <CardContent className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-3">What's Included:</h4>
-                        <ul className="space-y-2">
-                          {[
-                            "Professional equipment and supplies",
-                            "Licensed and insured technicians",
-                            "100% satisfaction guarantee",
-                            "Flexible scheduling options",
-                            "Transparent pricing"
-                          ].map((feature, idx) => (
-                            <li key={idx} className="flex items-center text-sm text-gray-700">
-                              <CheckCircle className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" />
-                              {feature}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">What's Included:</h4>
+                    <ul className="space-y-2">
+                      {service.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-center text-sm text-gray-700">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-3">Benefits:</h4>
-                        <ul className="space-y-2">
-                          {[
-                            "Save time and effort",
-                            "Professional quality results",
-                            "Peace of mind with vetted pros",
-                            "Consistent service quality"
-                          ].map((benefit, idx) => (
-                            <li key={idx} className="flex items-center text-sm text-gray-700">
-                              <Shield className="w-4 h-4 text-blue-500 mr-3 flex-shrink-0" />
-                              {benefit}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">Benefits:</h4>
+                    <ul className="space-y-2">
+                      {service.benefits.map((benefit, idx) => (
+                        <li key={idx} className="flex items-center text-sm text-gray-700">
+                          <Shield className="w-4 h-4 text-blue-500 mr-3 flex-shrink-0" />
+                          {benefit}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                      <div className="flex space-x-3">
-                        <Button className="flex-1 bg-blue-600 hover:bg-blue-700" asChild>
-                          <Link href={`/book-now?service=${service.id}`}>
-                            Book Now
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                          </Link>
-                        </Button>
-                        <Button variant="outline" className="flex-1" asChild>
-                          <Link href={`/services/${serviceSlug}`}>Learn More</Link>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                  <div className="flex space-x-3">
+                    <Button className="flex-1 bg-blue-600 hover:bg-blue-700" asChild>
+                      <Link href={`/book-now?service=${service.id}`}>
+                        Book Now
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
+                    <Button variant="outline" className="flex-1" asChild>
+                      <Link href={`/services/${service.id}`}>Learn More</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -388,64 +339,52 @@ export async function ServicesOverview() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
-            {emergencyServices.map((service) => {
-              const ServiceIcon = getIconForService(service.category);
-              const serviceSlug = service.category.toLowerCase();
-              const priceDisplay = `Starting at $${service.base_price.toFixed(2)}`;
-              
-              return (
-                <Card key={service.id} className="border-red-200 hover:shadow-xl transition-shadow duration-300">
-                  <CardHeader>
-                    <div className="flex items-center space-x-4 mb-4">
-                      <div className="p-3 bg-red-100 rounded-lg">
-                        <ServiceIcon className="w-8 h-8 text-red-600" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-2xl">{service.title}</CardTitle>
-                        <Badge className="bg-red-600 hover:bg-red-700 mt-2">Emergency Service</Badge>
-                      </div>
+            {emergencyServices.map((service, index) => (
+              <Card key={index} className="border-red-200 hover:shadow-xl transition-shadow duration-300">
+                <CardHeader>
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="p-3 bg-red-100 rounded-lg">
+                      <service.icon className="w-8 h-8 text-red-600" />
                     </div>
-                    <CardDescription className="text-gray-600 text-lg">{service.description}</CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="space-y-6">
-                    <div className="bg-red-50 p-4 rounded-lg">
-                      <div className="flex items-center text-red-800">
-                        <Clock className="w-5 h-5 mr-2" />
-                        <span className="font-medium">Response Time: 1-3 hours</span>
-                      </div>
-                    </div>
-
                     <div>
-                      <h4 className="font-semibold text-gray-900 mb-3">Emergency Response Includes:</h4>
-                      <ul className="space-y-2">
-                        {[
-                          "24/7 emergency response",
-                          "Immediate damage assessment",
-                          "Priority scheduling",
-                          "Insurance documentation",
-                          "Complete site cleanup"
-                        ].map((feature, idx) => (
-                          <li key={idx} className="flex items-center text-sm text-gray-700">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
+                      <CardTitle className="text-2xl">{service.title}</CardTitle>
+                      <Badge className="bg-red-600 hover:bg-red-700 mt-2">Emergency Service</Badge>
                     </div>
+                  </div>
+                  <CardDescription className="text-gray-600 text-lg">{service.description}</CardDescription>
+                </CardHeader>
 
-                    <div className="flex space-x-3">
-                      <Button className="flex-1 bg-red-600 hover:bg-red-700" asChild>
-                        <Link href={`/book-now?service=${service.id}&emergency=true`}>Emergency Call</Link>
-                      </Button>
-                      <Button variant="outline" className="flex-1" asChild>
-                        <Link href={`/services/${serviceSlug}`}>Learn More</Link>
-                      </Button>
+                <CardContent className="space-y-6">
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <div className="flex items-center text-red-800">
+                      <Clock className="w-5 h-5 mr-2" />
+                      <span className="font-medium">Response Time: {service.responseTime}</span>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">Emergency Response Includes:</h4>
+                    <ul className="space-y-2">
+                      {service.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-center text-sm text-gray-700">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="flex space-x-3">
+                    <Button className="flex-1 bg-red-600 hover:bg-red-700" asChild>
+                      <Link href={`/book-now?service=${service.id}&emergency=true`}>Emergency Call</Link>
+                    </Button>
+                    <Button variant="outline" className="flex-1" asChild>
+                      <Link href={`/services/${service.id}`}>Learn More</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>

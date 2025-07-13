@@ -8,7 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Paintbrush, Home, Palette, CheckCircle, Star, Phone, Shield, Award, Droplets, Sun } from "lucide-react"
 import Link from "next/link"
 
-export default function PaintingService() {
+export function PaintingService() {
   const [selectedPackage, setSelectedPackage] = useState("interior")
 
   const services = [
@@ -140,68 +140,48 @@ export default function PaintingService() {
   ]
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
       {/* Hero Section */}
-      <section className="relative py-12 md:py-20 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            {/* Left side - Image */}
-            <div className="relative h-96 lg:h-[500px] rounded-lg overflow-hidden shadow-xl">
-              <img
-                src="/images/services/Professional Painting.png"
-                alt="Professional Painting Services"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent lg:hidden"></div>
-              <div className="absolute bottom-4 left-4 bg-white/90 p-3 rounded-lg shadow-md">
-                <div className="flex items-center space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                  ))}
-                  <span className="ml-1 font-semibold text-sm">4.9/5</span>
-                  <span className="text-xs text-gray-600">(2,800+ jobs)</span>
-                </div>
+          <div className="text-center">
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-orange-100 rounded-full">
+                <Paintbrush className="h-12 w-12 text-orange-600" />
               </div>
             </div>
-            
-            {/* Right side - Content */}
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-orange-100 text-orange-800 rounded-full">
-                <Paintbrush className="h-5 w-5" />
-                <span className="font-medium">Transforming Homes Since 2015</span>
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+              Professional <span className="text-orange-600">Painting Services</span>
+            </h1>
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+              Transform your home with expert interior and exterior painting. Premium paints, professional techniques,
+              and beautiful results guaranteed.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="bg-orange-600 hover:bg-orange-700" asChild>
+                <Link href="/book-now?service=painting">Book Painting Service</Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-orange-600 text-orange-600 hover:bg-orange-50 bg-transparent"
+              >
+                <Phone className="mr-2 h-5 w-5" />
+                Free Color Consultation
+              </Button>
+            </div>
+            <div className="flex justify-center items-center gap-6 mt-8 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-green-600" />
+                <span>Licensed & Insured</span>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Expert <span className="text-orange-600">Painting</span> Services
-              </h1>
-              <p className="text-lg text-gray-600 mb-8 max-w-xl lg:max-w-none mx-auto lg:mx-0">
-                Transform your home with expert interior and exterior painting. Premium paints, professional techniques,
-                and beautiful results guaranteed.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button size="lg" className="bg-orange-600 hover:bg-orange-700" asChild>
-                  <Link href="/book-now?service=painting">
-                    <Paintbrush className="mr-2 h-5 w-5" />
-                    Book Painting Service
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" className="border-orange-600 text-orange-600 hover:bg-orange-50">
-                  <Phone className="mr-2 h-5 w-5" />
-                  Free Color Consultation
-                </Button>
+              <div className="flex items-center gap-2">
+                <Droplets className="h-5 w-5 text-blue-600" />
+                <span>Premium Low-VOC Paints</span>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8 text-sm text-gray-600">
-                <div className="flex items-center justify-center lg:justify-start gap-2">
-                  <Shield className="h-5 w-5 text-green-600 flex-shrink-0" />
-                  <span>Licensed & Insured</span>
-                </div>
-                <div className="flex items-center justify-center lg:justify-start gap-2">
-                  <Droplets className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                  <span>Premium Paints</span>
-                </div>
-                <div className="flex items-center justify-center lg:justify-start gap-2">
-                  <Award className="h-5 w-5 text-yellow-600 flex-shrink-0" />
-                  <span>10-Year Warranty</span>
-                </div>
+              <div className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-yellow-600" />
+                <span>10-Year Warranty</span>
               </div>
             </div>
           </div>
@@ -360,7 +340,7 @@ export default function PaintingService() {
             <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100" asChild>
               <Link href="/book-now?service=painting">Book Painting Service</Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-orange-700">
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-orange-700 bg-transparent">
               <Palette className="mr-2 h-5 w-5" />
               Free Color Consultation
             </Button>
@@ -370,3 +350,5 @@ export default function PaintingService() {
     </div>
   )
 }
+
+export default PaintingService

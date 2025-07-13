@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Flame, AlertTriangle, Shield, CheckCircle, Phone, Clock, HardHat, Home, Star } from "lucide-react"
 import Link from "next/link"
 
-export default function FireDebrisRemovalService() {
+export function FireDebrisRemovalService() {
   const [selectedPackage, setSelectedPackage] = useState("emergency")
 
   const services = [
@@ -160,7 +160,11 @@ export default function FireDebrisRemovalService() {
               <Button size="lg" className="bg-red-600 hover:bg-red-700" asChild>
                 <Link href="/book-now?service=fire-debris-removal">Emergency Cleanup</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-red-600 text-red-600 hover:bg-red-50 bg-transparent"
+              >
                 <Phone className="mr-2 h-5 w-5" />
                 24/7 Emergency: (555) 911-FIRE
               </Button>
@@ -339,7 +343,7 @@ export default function FireDebrisRemovalService() {
             <Button size="lg" className="bg-white text-red-600 hover:bg-gray-100" asChild>
               <Link href="/book-now?service=fire-debris-removal">Book Emergency Service</Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-red-700">
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-red-700 bg-transparent">
               <Phone className="mr-2 h-5 w-5" />
               Call Now: (555) 911-FIRE
             </Button>
@@ -349,3 +353,5 @@ export default function FireDebrisRemovalService() {
     </div>
   )
 }
+
+export default FireDebrisRemovalService

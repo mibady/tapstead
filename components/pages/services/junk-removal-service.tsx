@@ -65,21 +65,21 @@ const testimonials = [
     rating: 5,
     text: "Fantastic service! They removed an old couch, refrigerator, and tons of boxes from my garage. Professional, efficient, and reasonably priced.",
     service: "Furniture Removal",
-    location: "Edmonds, WA",
+    location: "Dallas, TX",
   },
   {
     name: "Mike Rodriguez",
     rating: 5,
     text: "After our kitchen renovation, we had so much debris. They cleared everything in one trip and left the area spotless. Highly recommend!",
     service: "Construction Debris",
-    location: "Shoreline, WA",
+    location: "San Antonio, TX",
   },
   {
     name: "Susan Chen",
     rating: 5,
     text: "Helped clear out my mother's house after she moved to assisted living. They were respectful, careful with donations, and made a difficult time easier.",
     service: "Estate Cleanout",
-    location: "Burien, WA"
+    location: "Portland, OR",
   },
 ]
 
@@ -115,65 +115,68 @@ export function JunkRemovalService() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative py-12 md:py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            {/* Left side - Image */}
-            <div className="relative h-96 lg:h-[500px] rounded-lg overflow-hidden shadow-xl order-last lg:order-first">
-              <img
-                src="/images/services/Junk Removal .png"
-                alt="Professional Junk Removal Services"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent lg:hidden"></div>
-              <div className="absolute bottom-4 left-4 bg-white/90 p-3 rounded-lg shadow-md">
-                <div className="flex items-center space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                  ))}
-                  <span className="ml-1 font-semibold text-sm">4.9/5</span>
-                  <span className="text-xs text-gray-600">(2,800+ jobs)</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Right side - Content */}
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-green-100 text-green-800 rounded-full">
-                <Recycle className="h-5 w-5" />
-                <span className="font-medium">Eco-Friendly Disposal</span>
-              </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Expert <span className="text-green-600">Junk Removal</span> Services
-              </h1>
-              <p className="text-lg text-gray-600 mb-8 max-w-xl lg:max-w-none mx-auto lg:mx-0">
+      <section className="bg-gradient-to-br from-green-50 to-emerald-100 py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <Badge className="mb-4 bg-green-100 text-green-800 hover:bg-green-200">
+                <Recycle className="w-3 h-3 mr-1" />
+                Eco-Friendly Disposal
+              </Badge>
+              <h1 className="text-5xl font-bold text-gray-900 mb-6">Professional Junk Removal Services</h1>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
                 Clear out unwanted items quickly and responsibly. From single items to full estate cleanouts, we handle
                 the heavy lifting while prioritizing donation and recycling.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Button size="lg" className="bg-green-600 hover:bg-green-700" asChild>
                   <Link href="/book-now?service=junk-removal">
-                    <Calendar className="mr-2 h-5 w-5" />
-                    Book Now - $149+
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Book Now - Starting at $149
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
-                  <Phone className="mr-2 h-5 w-5" />
-                  (360) 641-7386
+                <Button size="lg" variant="outline" asChild>
+                  <Link href="tel:555-123-4567">
+                    <Phone className="w-4 h-4 mr-2" />
+                    Call (555) 123-4567
+                  </Link>
                 </Button>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8 text-sm text-gray-600">
-                <div className="flex items-center justify-center lg:justify-start gap-2">
-                  <Shield className="h-5 w-5 text-green-600 flex-shrink-0" />
-                  <span>Fully Insured</span>
+
+              <div className="flex items-center space-x-6 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <Shield className="w-4 h-4 mr-1 text-green-600" />
+                  Fully Insured
                 </div>
-                <div className="flex items-center justify-center lg:justify-start gap-2">
-                  <Clock className="h-5 w-5 text-green-600 flex-shrink-0" />
-                  <span>Same-Day Service</span>
+                <div className="flex items-center">
+                  <Clock className="w-4 h-4 mr-1 text-green-600" />
+                  Same-Day Service
                 </div>
-                <div className="flex items-center justify-center lg:justify-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
-                  <span>No Hidden Fees</span>
+                <div className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-1 text-green-600" />
+                  No Hidden Fees
+                </div>
+              </div>
+            </div>
+
+            <div className="relative">
+              <Image
+                src="/placeholder.svg?height=500&width=600"
+                alt="Professional junk removal service"
+                width={600}
+                height={500}
+                className="rounded-2xl shadow-2xl"
+              />
+              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg">
+                <div className="flex items-center space-x-2">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  <span className="font-semibold">4.9/5</span>
+                  <span className="text-gray-600">from 2,800+ removals</span>
                 </div>
               </div>
             </div>

@@ -2,15 +2,16 @@ import { MarketingLayout } from "@/components/layout/marketing-layout"
 import { ServicesOverview } from "@/components/pages/services-overview"
 
 export const metadata = {
-  title: "Professional Home Services | Tapstead",
+  title: "All Home Services | Professional Service Providers | Tapstead",
   description:
-    "Browse all our professional home services including cleaning, handyman, plumbing, electrical, and emergency services. Transparent pricing, trusted pros.",
+    "Browse all professional home services available through Tapstead. From cleaning to repairs, find trusted service providers with transparent pricing and instant booking.",
+  keywords: "home services, professional services, service providers, home maintenance, home repair",
 }
 
-export default async function ServicesPage() {
+export default function ServicesPage() {
   return (
     <MarketingLayout>
-      {await ServicesOverview()}
+      <ServicesOverview />
     </MarketingLayout>
   )
 }

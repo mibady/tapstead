@@ -1,7 +1,7 @@
-import type { Metadata } from "next"
-import WeldingService from "@/components/pages/services/welding-service"
+import { MarketingLayout } from "@/components/layout/marketing-layout"
+import { WeldingService } from "@/components/pages/services/welding-service"
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Professional Welding Services | Metal Fabrication & Repair | Tapstead",
   description:
     "Expert welding and metal fabrication services. Custom metalwork, repairs, and fabrication by certified welders using professional equipment.",
@@ -10,5 +10,9 @@ export const metadata: Metadata = {
 }
 
 export default function WeldingServicePage() {
-  return <WeldingService />
+  return (
+    <MarketingLayout>
+      <WeldingService />
+    </MarketingLayout>
+  )
 }

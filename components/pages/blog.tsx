@@ -23,7 +23,7 @@ interface BlogPost {
   featured: boolean
 }
 
-export default function BlogPage() {
+export function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -371,3 +371,5 @@ export default function BlogPage() {
     </div>
   )
 }
+
+export default BlogPage

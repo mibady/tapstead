@@ -3,380 +3,306 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  Waves,
-  CheckCircle,
-  Shield,
-  Star,
-  Users,
-  Home,
-  CloudRain,
-  ArrowRight,
-  Phone,
-  Calendar,
-  Leaf,
-  AlertTriangle,
-} from "lucide-react"
-import Link from "next/link"
+import { CheckCircle, Phone, Clock, Shield, Star, Users, Wrench, Droplets } from "lucide-react"
 import Image from "next/image"
-
-const gutterServices = [
-  {
-    category: "Gutter Cleaning",
-    price: "Starting at $159",
-    popular: true,
-    services: [
-      "Complete debris removal",
-      "Downspout clearing",
-      "Gutter flushing",
-      "Minor leak inspection",
-      "Before/after photos",
-      "Seasonal maintenance",
-    ],
-  },
-  {
-    category: "Gutter Repairs",
-    price: "Starting at $89/hr",
-    services: [
-      "Leak sealing",
-      "Sagging gutter fixes",
-      "Bracket replacement",
-      "Downspout repairs",
-      "Joint resealing",
-      "Slope adjustments",
-    ],
-  },
-  {
-    category: "Gutter Installation",
-    price: "Starting at $8/linear ft",
-    services: [
-      "New gutter systems",
-      "Gutter guard installation",
-      "Downspout placement",
-      "Seamless gutters",
-      "Custom color matching",
-      "Warranty included",
-    ],
-  },
-]
-
-const testimonials = [
-  {
-    name: "Mark Johnson",
-    rating: 5,
-    text: "Excellent gutter cleaning service! They removed years of debris and fixed a small leak I didn't even know about. Very thorough work.",
-    service: "Gutter Cleaning",
-    location: "Seattle, WA",
-  },
-  {
-    name: "Patricia Lee",
-    rating: 5,
-    text: "Had new gutters installed after storm damage. Professional installation, great materials, and they cleaned up perfectly. Highly recommend!",
-    service: "Gutter Installation",
-    location: "Atlanta, GA",
-  },
-  {
-    name: "Carlos Martinez",
-    rating: 5,
-    text: "Fixed multiple leaks and adjusted the slope on my gutters. No more water pooling! Fair pricing and quality workmanship.",
-    service: "Gutter Repairs",
-    location: "Phoenix, AZ",
-  },
-]
-
-const faqs = [
-  {
-    question: "How often should gutters be cleaned?",
-    answer:
-      "Most homes need gutter cleaning twice a year - spring and fall. Homes with many trees may need quarterly cleaning to prevent clogs and overflow.",
-  },
-  {
-    question: "Do you provide gutter guards installation?",
-    answer:
-      "Yes! We install various types of gutter guards to reduce debris buildup and minimize future cleaning needs. We'll recommend the best option for your home.",
-  },
-  {
-    question: "What happens if you find damage during cleaning?",
-    answer:
-      "We'll document any issues with photos and provide a detailed estimate for repairs. You're never obligated to proceed, but we can often fix minor issues on the spot.",
-  },
-  {
-    question: "Do you clean gutters on multi-story homes?",
-    answer:
-      "Yes, we service homes up to 3 stories with proper safety equipment. Our technicians are trained and insured for high-elevation work.",
-  },
-  {
-    question: "Is gutter cleaning included in repair services?",
-    answer:
-      "Basic cleaning is included with most repair services. For heavily clogged gutters, we may recommend a full cleaning service for optimal results.",
-  },
-]
+import Link from "next/link"
 
 export function GutterService() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-slate-100 py-20">
-        <div className="container mx-auto px-4">
+      <section className="relative py-20 px-4">
+        <div className="container mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-200">
-                <CloudRain className="w-3 h-3 mr-1" />
-                Weather Protection
-              </Badge>
-              <h1 className="text-5xl font-bold text-gray-900 mb-6">Professional Gutter Services</h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Protect your home's foundation with expert gutter cleaning, repairs, and installation. Prevent water
-                damage and maintain your property's value with our comprehensive gutter services.
+              <Badge className="mb-4 bg-blue-600 text-white">Professional Gutter Services</Badge>
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Expert Gutter Cleaning & Repair Services
+              </h1>
+              <p className="text-xl text-gray-600 mb-8">
+                Protect your home with professional gutter cleaning, repair, and installation services. Prevent water
+                damage and maintain your property's value with our expert team.
               </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
-                  <Link href="/book-now?service=gutter-services">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Book Now - Starting at $159
-                  </Link>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button size="lg" asChild>
+                  <Link href="/book-now">Book Service Now</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="tel:555-123-4567">
-                    <Phone className="w-4 h-4 mr-2" />
-                    Call (555) 123-4567
+                  <Link href="tel:3606417386">
+                    <Phone className="mr-2 h-4 w-4" />
+                    (360) 641-7386
                   </Link>
                 </Button>
               </div>
-
-              <div className="flex items-center space-x-6 text-sm text-gray-600">
-                <div className="flex items-center">
-                  <Shield className="w-4 h-4 mr-1 text-green-600" />
-                  Fully Insured
-                </div>
-                <div className="flex items-center">
-                  <Leaf className="w-4 h-4 mr-1 text-green-600" />
-                  Debris Removal
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-1 text-green-600" />
-                  Gutter Guards Available
-                </div>
-              </div>
             </div>
-
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=500&width=600"
-                alt="Professional gutter service"
+                src="/images/services/gutter-services-hero.png"
+                alt="Professional gutter cleaning service"
                 width={600}
-                height={500}
-                className="rounded-2xl shadow-2xl"
+                height={400}
+                className="rounded-lg shadow-xl"
               />
-              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg">
-                <div className="flex items-center space-x-2">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <span className="font-semibold">4.8/5</span>
-                  <span className="text-gray-600">from 1,200+ services</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Service Categories */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Gutter Services</h2>
+      {/* Services Overview */}
+      <section className="py-16 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Complete Gutter Solutions</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Complete gutter solutions to protect your home from water damage year-round.
+              From routine cleaning to complete gutter replacement, we provide comprehensive services to keep your
+              gutters functioning perfectly year-round.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {gutterServices.map((category, index) => (
-              <Card key={index} className={`relative ${category.popular ? "ring-2 ring-blue-500 shadow-lg" : ""}`}>
-                {category.popular && (
-                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600">
-                    Most Popular
-                  </Badge>
-                )}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <Droplets className="h-12 w-12 text-blue-600 mb-4" />
+                <CardTitle>Gutter Cleaning</CardTitle>
+                <CardDescription>
+                  Thorough removal of leaves, debris, and blockages to ensure proper water flow
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Complete debris removal</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Downspout clearing</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Water flow testing</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
 
-                <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-2xl">{category.category}</CardTitle>
-                  <CardDescription className="text-lg font-semibold text-blue-600">{category.price}</CardDescription>
-                </CardHeader>
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <Wrench className="h-12 w-12 text-blue-600 mb-4" />
+                <CardTitle>Gutter Repair</CardTitle>
+                <CardDescription>Professional repairs for leaks, sagging, and damaged gutter sections</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Leak sealing</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Bracket reinforcement</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Slope adjustment</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
 
-                <CardContent>
-                  <ul className="space-y-3 mb-8">
-                    {category.services.map((service, idx) => (
-                      <li key={idx} className="flex items-center text-gray-700">
-                        <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
-                        {service}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700" asChild>
-                    <Link
-                      href={`/book-now?service=gutter-services&category=${category.category.toLowerCase().replace(/\s+/g, "-")}`}
-                    >
-                      Book {category.category}
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <Shield className="h-12 w-12 text-blue-600 mb-4" />
+                <CardTitle>Gutter Guards</CardTitle>
+                <CardDescription>Installation of gutter protection systems to reduce maintenance needs</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Leaf protection</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Reduced cleaning frequency</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Long-term protection</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Seasonal Alert */}
-      <section className="py-12 bg-amber-50 border-l-4 border-amber-500">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <AlertTriangle className="w-8 h-8 text-amber-600" />
-              <div>
-                <h3 className="text-xl font-bold text-amber-900">Fall & Spring Cleaning Season</h3>
-                <p className="text-amber-700">
-                  Book now to prevent ice dams and water damage. Peak season scheduling fills up quickly.
-                </p>
+      {/* Why Choose Us */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Why Choose Tapstead for Gutter Services?
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-white" />
               </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Expert Team</h3>
+              <p className="text-gray-600">
+                Experienced professionals with specialized gutter knowledge and safety training
+              </p>
             </div>
-            <Button size="lg" className="bg-amber-600 hover:bg-amber-700" asChild>
-              <Link href="/book-now?service=gutter-services">Schedule Cleaning</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
 
-      {/* How It Works */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">How Our Gutter Service Works</h2>
-            <p className="text-xl text-gray-600">Professional gutter care to protect your home</p>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-8">
-            {[
-              {
-                step: "1",
-                title: "Schedule Service",
-                description: "Book your gutter cleaning, repair, or installation online",
-                icon: Calendar,
-              },
-              {
-                step: "2",
-                title: "Professional Inspection",
-                description: "Thorough assessment of your gutter system and needs",
-                icon: Users,
-              },
-              {
-                step: "3",
-                title: "Expert Service",
-                description: "Complete cleaning, repairs, or installation with quality materials",
-                icon: Waves,
-              },
-              {
-                step: "4",
-                title: "Protection Complete",
-                description: "Your home is protected with properly functioning gutters",
-                icon: Home,
-              },
-            ].map((step, index) => (
-              <div key={index} className="text-center">
-                <div className="bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
-                  {step.step}
-                </div>
-                <step.icon className="w-8 h-8 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                <p className="text-gray-600">{step.description}</p>
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-white" />
               </div>
-            ))}
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Fully Insured</h3>
+              <p className="text-gray-600">
+                Complete insurance coverage for your peace of mind and property protection
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Clock className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Reliable Service</h3>
+              <p className="text-gray-600">On-time arrivals and efficient service completion with minimal disruption</p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Star className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Quality Guarantee</h3>
+              <p className="text-gray-600">100% satisfaction guarantee on all gutter services and repairs</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Customers Say</h2>
-            <p className="text-xl text-gray-600">Real reviews from protected homeowners</p>
+      {/* Pricing */}
+      <section className="py-16 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Transparent Pricing</h2>
+            <p className="text-xl text-gray-600">No hidden fees. Clear, upfront pricing for all gutter services.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="h-full">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                      ))}
-                    </div>
-                    <Badge variant="secondary">{testimonial.service}</Badge>
-                  </div>
-                  <CardTitle className="text-lg">{testimonial.name}</CardTitle>
-                  <CardDescription>{testimonial.location}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 italic">"{testimonial.text}"</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <Card className="border-2 hover:border-blue-600 transition-colors">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Basic Cleaning</CardTitle>
+                <div className="text-3xl font-bold text-blue-600">$150-250</div>
+                <CardDescription>Standard single-story homes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Gutter cleaning</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Downspout clearing</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Basic inspection</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
 
-      {/* FAQ */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-xl text-gray-600">Everything you need to know about our gutter services</p>
-          </div>
+            <Card className="border-2 border-blue-600 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-blue-600 text-white">Most Popular</Badge>
+              </div>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Complete Service</CardTitle>
+                <div className="text-3xl font-bold text-blue-600">$300-450</div>
+                <CardDescription>Two-story homes with repairs</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Deep cleaning</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Minor repairs included</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Detailed inspection</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Photo documentation</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
 
-          <div className="space-y-6">
-            {faqs.map((faq, index) => (
-              <Card key={index}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{faq.question}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700">{faq.answer}</p>
-                </CardContent>
-              </Card>
-            ))}
+            <Card className="border-2 hover:border-blue-600 transition-colors">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Premium Package</CardTitle>
+                <div className="text-3xl font-bold text-blue-600">$500+</div>
+                <CardDescription>Large homes with guard installation</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Complete service</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Gutter guard installation</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">1-year maintenance</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Priority scheduling</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-blue-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">Protect Your Home Today</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Don't wait for water damage. Keep your gutters clean and functioning properly.
+      <section className="py-16 px-4 bg-blue-600 text-white">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Protect Your Home?</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto">
+            Don't wait for water damage. Schedule your professional gutter service today and keep your home protected
+            year-round.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100" asChild>
-              <Link href="/book-now?service=gutter-services">
-                Book Gutter Service
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
+            <Button size="lg" variant="secondary" asChild>
+              <Link href="/book-now">Schedule Service</Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="border-white text-white hover:bg-white hover:text-blue-600"
+              className="border-white text-white hover:bg-white hover:text-blue-600 bg-transparent"
               asChild
             >
-              <Link href="/services">View All Services</Link>
+              <Link href="tel:3606417386">
+                <Phone className="mr-2 h-4 w-4" />
+                Call (360) 641-7386
+              </Link>
             </Button>
           </div>
         </div>
@@ -384,3 +310,5 @@ export function GutterService() {
     </div>
   )
 }
+
+export default GutterService

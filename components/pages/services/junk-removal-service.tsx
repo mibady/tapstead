@@ -3,407 +3,336 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  CheckCircle,
-  Clock,
-  Shield,
-  Star,
-  Users,
-  Truck,
-  Recycle,
-  ArrowRight,
-  Phone,
-  Calendar,
-  Package,
-} from "lucide-react"
-import Link from "next/link"
+import { CheckCircle, Phone, Clock, Shield, Star, Truck, Recycle } from "lucide-react"
 import Image from "next/image"
-
-const junkRemovalServices = [
-  {
-    category: "Furniture Removal",
-    price: "Starting at $149",
-    popular: true,
-    services: [
-      "Old furniture pickup",
-      "Mattress & box springs",
-      "Appliance removal",
-      "Electronics disposal",
-      "Same-day service",
-      "Donation coordination",
-    ],
-  },
-  {
-    category: "Construction Debris",
-    price: "Starting at $199",
-    services: [
-      "Renovation waste",
-      "Drywall & lumber",
-      "Flooring materials",
-      "Roofing debris",
-      "Concrete & brick",
-      "Proper disposal",
-    ],
-  },
-  {
-    category: "Estate Cleanouts",
-    price: "Starting at $299",
-    services: [
-      "Full house cleanouts",
-      "Basement clearing",
-      "Garage cleanouts",
-      "Storage unit clearing",
-      "Sensitive item handling",
-      "Donation sorting",
-    ],
-  },
-]
-
-const testimonials = [
-  {
-    name: "Jennifer Walsh",
-    rating: 5,
-    text: "Fantastic service! They removed an old couch, refrigerator, and tons of boxes from my garage. Professional, efficient, and reasonably priced.",
-    service: "Furniture Removal",
-    location: "Dallas, TX",
-  },
-  {
-    name: "Mike Rodriguez",
-    rating: 5,
-    text: "After our kitchen renovation, we had so much debris. They cleared everything in one trip and left the area spotless. Highly recommend!",
-    service: "Construction Debris",
-    location: "San Antonio, TX",
-  },
-  {
-    name: "Susan Chen",
-    rating: 5,
-    text: "Helped clear out my mother's house after she moved to assisted living. They were respectful, careful with donations, and made a difficult time easier.",
-    service: "Estate Cleanout",
-    location: "Portland, OR",
-  },
-]
-
-const faqs = [
-  {
-    question: "How do you price junk removal services?",
-    answer:
-      "We price based on volume and type of items. Most jobs are quoted upfront with no hidden fees. We offer free estimates for larger jobs over $300.",
-  },
-  {
-    question: "Do you donate items that are still usable?",
-    answer:
-      "Yes! We partner with local charities and donation centers. Items in good condition are donated when possible, and we'll provide donation receipts.",
-  },
-  {
-    question: "Can you remove items from inside my home?",
-    answer:
-      "Our team will carefully remove items from anywhere in your home, including basements, attics, and upper floors. We protect your property during removal.",
-  },
-  {
-    question: "Do you handle hazardous materials?",
-    answer:
-      "We cannot remove hazardous materials like paint, chemicals, asbestos, or medical waste. We'll help you find proper disposal resources for these items.",
-  },
-  {
-    question: "How quickly can you schedule pickup?",
-    answer:
-      "We offer same-day and next-day service in most areas. For large estate cleanouts, we typically schedule within 2-3 days to ensure proper crew size.",
-  },
-]
+import Link from "next/link"
 
 export function JunkRemovalService() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-green-50 to-emerald-100 py-20">
-        <div className="container mx-auto px-4">
+      <section className="relative py-20 px-4">
+        <div className="container mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="mb-4 bg-green-100 text-green-800 hover:bg-green-200">
-                <Recycle className="w-3 h-3 mr-1" />
-                Eco-Friendly Disposal
-              </Badge>
-              <h1 className="text-5xl font-bold text-gray-900 mb-6">Professional Junk Removal Services</h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Clear out unwanted items quickly and responsibly. From single items to full estate cleanouts, we handle
-                the heavy lifting while prioritizing donation and recycling.
+              <Badge className="mb-4 bg-blue-600 text-white">Professional Junk Removal</Badge>
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Fast & Eco-Friendly Junk Removal Services
+              </h1>
+              <p className="text-xl text-gray-600 mb-8">
+                Clear out your space with our professional junk removal service. We handle everything from furniture to
+                appliances, with responsible disposal and recycling practices.
               </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Button size="lg" className="bg-green-600 hover:bg-green-700" asChild>
-                  <Link href="/book-now?service=junk-removal">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Book Now - Starting at $149
-                  </Link>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button size="lg" asChild>
+                  <Link href="/book-now">Book Removal Now</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="tel:555-123-4567">
-                    <Phone className="w-4 h-4 mr-2" />
-                    Call (555) 123-4567
+                  <Link href="tel:3606417386">
+                    <Phone className="mr-2 h-4 w-4" />
+                    (360) 641-7386
                   </Link>
                 </Button>
               </div>
-
-              <div className="flex items-center space-x-6 text-sm text-gray-600">
-                <div className="flex items-center">
-                  <Shield className="w-4 h-4 mr-1 text-green-600" />
-                  Fully Insured
-                </div>
-                <div className="flex items-center">
-                  <Clock className="w-4 h-4 mr-1 text-green-600" />
-                  Same-Day Service
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-1 text-green-600" />
-                  No Hidden Fees
-                </div>
-              </div>
             </div>
-
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=500&width=600"
+                src="/images/services/junk-removal-hero.png"
                 alt="Professional junk removal service"
                 width={600}
-                height={500}
-                className="rounded-2xl shadow-2xl"
+                height={400}
+                className="rounded-lg shadow-xl"
               />
-              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg">
-                <div className="flex items-center space-x-2">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <span className="font-semibold">4.9/5</span>
-                  <span className="text-gray-600">from 2,800+ removals</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Service Categories */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Junk Removal Services</h2>
+      {/* Services Overview */}
+      <section className="py-16 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What We Remove</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Professional removal services for any size job, with responsible disposal and recycling.
+              From single items to complete cleanouts, we handle all types of junk removal with professional service and
+              environmental responsibility.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {junkRemovalServices.map((category, index) => (
-              <Card key={index} className={`relative ${category.popular ? "ring-2 ring-green-500 shadow-lg" : ""}`}>
-                {category.popular && (
-                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-600">
-                    Most Popular
-                  </Badge>
-                )}
-
-                <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-2xl">{category.category}</CardTitle>
-                  <CardDescription className="text-lg font-semibold text-green-600">{category.price}</CardDescription>
-                </CardHeader>
-
-                <CardContent>
-                  <ul className="space-y-3 mb-8">
-                    {category.services.map((service, idx) => (
-                      <li key={idx} className="flex items-center text-gray-700">
-                        <CheckCircle className="w-4 h-4 text-green-600 mr-3 flex-shrink-0" />
-                        {service}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button className="w-full bg-green-600 hover:bg-green-700" asChild>
-                    <Link
-                      href={`/book-now?service=junk-removal&category=${category.category.toLowerCase().replace(/\s+/g, "-")}`}
-                    >
-                      Book {category.category}
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Environmental Impact */}
-      <section className="py-20 bg-green-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Responsible Disposal</h2>
-            <p className="text-xl text-gray-600">We prioritize the environment in everything we do</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <Recycle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                <CardTitle>80% Recycled</CardTitle>
+                <Truck className="h-12 w-12 text-blue-600 mb-4" />
+                <CardTitle>Furniture Removal</CardTitle>
+                <CardDescription>Old furniture, mattresses, and large household items removed safely</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">
-                  We recycle or donate 80% of items we collect, keeping them out of landfills.
-                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Sofas & chairs</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Mattresses & box springs</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Tables & dressers</span>
+                  </li>
+                </ul>
               </CardContent>
             </Card>
 
-            <Card className="text-center">
+            <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <Package className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                <CardTitle>Donation Partners</CardTitle>
+                <Shield className="h-12 w-12 text-blue-600 mb-4" />
+                <CardTitle>Appliance Removal</CardTitle>
+                <CardDescription>Safe removal and disposal of old appliances and electronics</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">
-                  Working with local charities to give usable items a second life in the community.
-                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Refrigerators & washers</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">TVs & electronics</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Air conditioners</span>
+                  </li>
+                </ul>
               </CardContent>
             </Card>
 
-            <Card className="text-center">
+            <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <Shield className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                <CardTitle>Proper Disposal</CardTitle>
+                <Recycle className="h-12 w-12 text-blue-600 mb-4" />
+                <CardTitle>Construction Debris</CardTitle>
+                <CardDescription>Renovation waste and construction materials removed responsibly</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">
-                  Electronics and hazardous materials are disposed of according to local regulations.
-                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Drywall & lumber</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Flooring materials</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Fixtures & cabinets</span>
+                  </li>
+                </ul>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">How Our Junk Removal Works</h2>
-            <p className="text-xl text-gray-600">Simple, fast, and environmentally responsible</p>
+      {/* Process */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+            <p className="text-xl text-gray-600">Simple, straightforward junk removal in just a few steps</p>
           </div>
 
           <div className="grid md:grid-cols-4 gap-8">
-            {[
-              {
-                step: "1",
-                title: "Book Online",
-                description: "Schedule your pickup and describe what needs to be removed",
-                icon: Calendar,
-              },
-              {
-                step: "2",
-                title: "We Arrive",
-                description: "Professional team arrives with truck and equipment",
-                icon: Truck,
-              },
-              {
-                step: "3",
-                title: "Load & Remove",
-                description: "We handle all the heavy lifting and loading safely",
-                icon: Users,
-              },
-              {
-                step: "4",
-                title: "Responsible Disposal",
-                description: "Items are donated, recycled, or properly disposed of",
-                icon: Recycle,
-              },
-            ].map((step, index) => (
-              <div key={index} className="text-center">
-                <div className="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
-                  {step.step}
-                </div>
-                <step.icon className="w-8 h-8 text-green-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                <p className="text-gray-600">{step.description}</p>
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-white">1</span>
               </div>
-            ))}
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Schedule</h3>
+              <p className="text-gray-600">Book online or call us to schedule your junk removal appointment</p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-white">2</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Quote</h3>
+              <p className="text-gray-600">We arrive on time and provide an upfront, no-obligation quote</p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-white">3</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Remove</h3>
+              <p className="text-gray-600">Our team safely removes all items from wherever they're located</p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-white">4</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Dispose</h3>
+              <p className="text-gray-600">We responsibly dispose, donate, or recycle your items</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Customers Say</h2>
-            <p className="text-xl text-gray-600">Real reviews from satisfied customers</p>
+      {/* Why Choose Us */}
+      <section className="py-16 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Choose Tapstead for Junk Removal?</h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="h-full">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                      ))}
-                    </div>
-                    <Badge variant="secondary">{testimonial.service}</Badge>
-                  </div>
-                  <CardTitle className="text-lg">{testimonial.name}</CardTitle>
-                  <CardDescription>{testimonial.location}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 italic">"{testimonial.text}"</p>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Recycle className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Eco-Friendly</h3>
+              <p className="text-gray-600">
+                We donate, recycle, and properly dispose of items to minimize landfill waste
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Fully Insured</h3>
+              <p className="text-gray-600">Complete insurance coverage protects your property during removal</p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Clock className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Same Day Service</h3>
+              <p className="text-gray-600">Often available for same-day or next-day junk removal appointments</p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Star className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Fair Pricing</h3>
+              <p className="text-gray-600">Transparent, volume-based pricing with no hidden fees or surprises</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="py-20">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-xl text-gray-600">Everything you need to know about our junk removal services</p>
+      {/* Pricing */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Volume-Based Pricing</h2>
+            <p className="text-xl text-gray-600">Pay only for the space your junk takes up in our truck</p>
           </div>
 
-          <div className="space-y-6">
-            {faqs.map((faq, index) => (
-              <Card key={index}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{faq.question}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700">{faq.answer}</p>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <Card className="border-2 hover:border-blue-600 transition-colors">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">1/4 Truck Load</CardTitle>
+                <div className="text-3xl font-bold text-blue-600">$150-200</div>
+                <CardDescription>Small cleanouts & single items</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Few pieces of furniture</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Small appliances</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Boxes & bags</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-blue-600 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-blue-600 text-white">Most Popular</Badge>
+              </div>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">1/2 Truck Load</CardTitle>
+                <div className="text-3xl font-bold text-blue-600">$250-350</div>
+                <CardDescription>Medium cleanouts & room clearing</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Bedroom or office cleanout</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Large appliances</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Multiple furniture pieces</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-blue-600 transition-colors">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Full Truck Load</CardTitle>
+                <div className="text-3xl font-bold text-blue-600">$400-600</div>
+                <CardDescription>Complete home or office cleanouts</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Whole house cleanout</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Estate cleanouts</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Construction debris</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-green-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">Ready to Clear Out That Clutter?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Let us handle the heavy lifting while you enjoy your newly organized space.
+      <section className="py-16 px-4 bg-blue-600 text-white">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Clear Out Your Space?</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto">
+            Get your free, no-obligation quote today. We'll handle the heavy lifting and ensure responsible disposal of
+            all your unwanted items.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100" asChild>
-              <Link href="/book-now?service=junk-removal">
-                Book Junk Removal
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
+            <Button size="lg" variant="secondary" asChild>
+              <Link href="/book-now">Get Free Quote</Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="border-white text-white hover:bg-white hover:text-green-600"
+              className="border-white text-white hover:bg-white hover:text-blue-600 bg-transparent"
               asChild
             >
-              <Link href="/services">View All Services</Link>
+              <Link href="tel:3606417386">
+                <Phone className="mr-2 h-4 w-4" />
+                Call (360) 641-7386
+              </Link>
             </Button>
           </div>
         </div>
@@ -411,3 +340,5 @@ export function JunkRemovalService() {
     </div>
   )
 }
+
+export default JunkRemovalService

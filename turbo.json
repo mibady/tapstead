@@ -13,15 +13,15 @@
     },
     "lint": {
       "dependsOn": ["^lint"],
-      "inputs": ["$TURBO_DEFAULT$", ".eslintrc*"]
+      "inputs": ["$TURBO_DEFAULT$", ".eslintrc*", "**/*.{ts,tsx,js,jsx}"]
     },
     "typecheck": {
       "dependsOn": ["^typecheck"],
-      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json"]
+      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "**/*.{ts,tsx}"]
     },
     "test": {
       "dependsOn": ["^test"],
-      "inputs": ["$TURBO_DEFAULT$", "vitest.config.*"]
+      "inputs": ["$TURBO_DEFAULT$", "vitest.config.*", "**/*.{test,spec}.{ts,tsx}"]
     },
     "test:watch": {
       "cache": false,
@@ -32,6 +32,12 @@
       "cache": false
     },
     "clean": {
+      "cache": false
+    },
+    "db:generate": {
+      "cache": false
+    },
+    "db:push": {
       "cache": false
     }
   }

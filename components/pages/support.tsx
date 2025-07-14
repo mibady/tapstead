@@ -117,7 +117,7 @@ const contactOptions = [
     description: "Speak directly with a support specialist",
     icon: Phone,
     availability: "Mon-Fri 8AM-8PM",
-    action: "Call (555) 123-4567",
+    action: "Call (360) 641-7386",
     primary: false,
   },
   {
@@ -133,7 +133,7 @@ const contactOptions = [
 const emergencyInfo = {
   title: "Emergency Services",
   description: "For urgent home emergencies requiring immediate attention",
-  phone: "(555) DISASTER",
+  phone: "(360) 641-7386",
   available: "24/7/365",
 }
 
@@ -241,7 +241,7 @@ export function SupportPage() {
                       </details>
                     ))}
                   </div>
-                  <Button variant="outline" className="w-full mt-4">
+                  <Button variant="outline" className="w-full mt-4 bg-transparent">
                     View All {category.title} Articles
                   </Button>
                 </CardContent>
@@ -296,7 +296,7 @@ export function SupportPage() {
                 <CardDescription>Complete guide to using Tapstead</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   View Guide
                 </Button>
               </CardContent>
@@ -308,7 +308,7 @@ export function SupportPage() {
                 <CardDescription>Manage your account and preferences</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   Go to Settings
                 </Button>
               </CardContent>
@@ -320,7 +320,7 @@ export function SupportPage() {
                 <CardDescription>Connect with other Tapstead users</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full bg-transparent">
                   Visit Forum
                 </Button>
               </CardContent>

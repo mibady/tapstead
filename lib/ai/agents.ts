@@ -1,6 +1,7 @@
 import { generateText, streamText } from "ai"
 import { openai } from "@ai-sdk/openai"
 import { anthropic } from "@ai-sdk/anthropic"
+import { providerTools } from "./provider-tools"
 
 interface AgentContext {
   sessionId: string
@@ -20,6 +21,7 @@ interface AgentResponse {
   }>
   confidence: number
   needsEscalation: boolean
+  toolResults?: any[]
 }
 
 type AgentType = "booking" | "support" | "recruiting" | "analytics"
@@ -44,9 +46,16 @@ class AIAgentService {
       
       Your role:
       - Help customers book house cleaning and other home services
+      - Find and match customers with available providers
+      - Check real-time provider availability using Cal.com integration
       - Provide accurate pricing information
       - Guide users through the booking process
-      - Answer questions about services and availability
+      
+      Available Tools:
+      - findProviders: Search for available providers based on service, location, and time
+      - checkProviderAvailability: Check real-time availability for specific providers
+      - bookWithProvider: Complete the booking process with a chosen provider
+      - getProviderSchedule: View provider's upcoming availability
       
       Pricing Information:
       - House Cleaning: Small home ($149), Medium home ($199), Large home ($299)
@@ -54,20 +63,20 @@ class AIAgentService {
       - Add-ons: Deep clean (+$75), Move-in/out cleaning (+$99)
       - Weekend surcharge: +10%, Same-day booking: +15%
       
-      Available Services:
-      - House Cleaning (primary service with fixed pricing)
-      - Plumbing, Electrical, Handyman, Painting (quote-based)
-      - Pressure washing, Gutter services, Junk removal
-      
-      Always be helpful, accurate, and guide users toward completing bookings.`,
+      Always use the tools to find real providers and check actual availability.
+      Be helpful, accurate, and guide users toward completing bookings.`,
 
       support: `You are a customer support agent for Tapstead.
       
       Your role:
       - Resolve customer issues and concerns
-      - Handle booking modifications and cancellations
+      - Handle booking modifications and cancellations using Cal.com integration
       - Address service quality complaints
       - Provide platform guidance and assistance
+      
+      Available Tools:
+      - checkProviderAvailability: Check if rescheduling is possible
+      - getProviderSchedule: Help find alternative appointment times
       
       Escalation triggers:
       - Refund requests
@@ -85,12 +94,14 @@ class AIAgentService {
       - Guide them through the application process
       - Assess qualifications and experience
       - Explain platform requirements and benefits
+      - Help providers set up their Cal.com integration
       
       Requirements for providers:
       - Valid business license and insurance
       - Minimum 2 years relevant experience
       - Clean background check
       - Professional references
+      - Cal.com calendar integration for scheduling
       - Commitment to quality standards
       
       Be thorough but encouraging, maintaining high standards.`,
@@ -102,6 +113,11 @@ class AIAgentService {
       - Provide business insights and recommendations
       - Generate reports on key metrics
       - Identify growth opportunities
+      - Monitor provider performance and availability
+      
+      Available Tools:
+      - getProviderSchedule: Analyze provider availability patterns
+      - checkProviderAvailability: Monitor real-time capacity
       
       Key metrics to track:
       - Booking conversion rates
@@ -109,6 +125,7 @@ class AIAgentService {
       - Provider performance metrics
       - Revenue trends by service type
       - Geographic performance data
+      - Provider availability and utilization
       
       Provide data-driven insights and actionable recommendations.`,
     }
@@ -132,12 +149,17 @@ Current Message: ${message}
 
 Context: ${JSON.stringify(context.metadata)}
 
+Use the available tools when appropriate to provide accurate, real-time information.
 Respond helpfully and appropriately for your role as a ${agentType} agent.`
+
+      // Get available tools for this agent type
+      const tools = this.getToolsForAgent(agentType)
 
       const result = await generateText({
         model,
         prompt: fullPrompt,
-        maxTokens: 500,
+        tools,
+        maxTokens: 1000,
         temperature: 0.7,
       })
 
@@ -151,6 +173,7 @@ Respond helpfully and appropriately for your role as a ${agentType} agent.`
         actions,
         confidence,
         needsEscalation,
+        toolResults: result.toolResults,
       }
     } catch (error) {
       console.error(`Error processing ${agentType} message:`, error)
@@ -163,9 +186,34 @@ Respond helpfully and appropriately for your role as a ${agentType} agent.`
     }
   }
 
+  private getToolsForAgent(agentType: AgentType) {
+    switch (agentType) {
+      case "booking":
+        return {
+          findProviders: providerTools.findProviders,
+          checkProviderAvailability: providerTools.checkProviderAvailability,
+          bookWithProvider: providerTools.bookWithProvider,
+          getProviderSchedule: providerTools.getProviderSchedule,
+        }
+      case "support":
+        return {
+          checkProviderAvailability: providerTools.checkProviderAvailability,
+          getProviderSchedule: providerTools.getProviderSchedule,
+        }
+      case "analytics":
+        return {
+          getProviderSchedule: providerTools.getProviderSchedule,
+          checkProviderAvailability: providerTools.checkProviderAvailability,
+        }
+      default:
+        return {}
+    }
+  }
+
   async streamResponse(agentType: AgentType, message: string, context: AgentContext) {
     const model = this.getModel(agentType)
     const systemPrompt = this.getSystemPrompt(agentType)
+    const tools = this.getToolsForAgent(agentType)
 
     const conversationContext = context.conversationHistory.map((msg) => `${msg.role}: ${msg.content}`).join("\n")
 
@@ -176,12 +224,14 @@ ${conversationContext}
 
 Current Message: ${message}
 
+Use the available tools when appropriate to provide accurate, real-time information.
 Respond helpfully and appropriately.`
 
     return streamText({
       model,
       prompt: fullPrompt,
-      maxTokens: 500,
+      tools,
+      maxTokens: 1000,
       temperature: 0.7,
     })
   }
@@ -208,12 +258,12 @@ Respond helpfully and appropriately.`
       if (response.includes("book") || response.includes("schedule")) {
         actions.push({
           type: "initiate_booking",
-          params: { service: "house-cleaning" },
+          params: { service: context.metadata.serviceType || "house-cleaning" },
         })
       }
-      if (response.includes("price") || response.includes("cost")) {
+      if (response.includes("find providers") || response.includes("search providers")) {
         actions.push({
-          type: "calculate_price",
+          type: "find_providers",
           params: context.metadata,
         })
       }
@@ -221,10 +271,10 @@ Respond helpfully and appropriately.`
 
     // Extract support actions
     if (agentType === "support") {
-      if (response.includes("cancel") || response.includes("refund")) {
+      if (response.includes("reschedule") || response.includes("change appointment")) {
         actions.push({
-          type: "process_cancellation",
-          params: { reason: "customer_request" },
+          type: "reschedule_booking",
+          params: { bookingId: context.metadata.bookingId },
         })
       }
     }

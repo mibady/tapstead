@@ -1,4 +1,5 @@
-import { createClient as createSupabaseClient } from "@supabase/supabase-js"
+import { createBrowserClient, createServerClient as createSSRServerClient } from "@supabase/ssr"
+import type { Database } from "./types"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -32,30 +33,19 @@ if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
   }
 }
 
-export const supabase = createSupabaseClient(url, key, {
-  auth: {
-    persistSession: typeof window !== "undefined",
-    autoRefreshToken: typeof window !== "undefined",
-  },
-})
+export const supabase = createBrowserClient<Database>(url, key)
 
 // Named exports required by the deployment
 export function createClient() {
-  return createSupabaseClient(url, key, {
-    auth: {
-      persistSession: typeof window !== "undefined",
-      autoRefreshToken: typeof window !== "undefined",
-    },
-  })
+  return createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  )
 }
 
-export function createServerClient() {
-  return createSupabaseClient(url, key, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  })
+// Export createServerClient for compatibility
+export function createServerClient(supabaseUrl: string, supabaseKey: string, options?: any) {
+  return createSSRServerClient(supabaseUrl, supabaseKey, options)
 }
 
 export function isSupabaseConfigured(): boolean {
